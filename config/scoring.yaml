@@ -1,0 +1,25 @@
+# gtm-intelligence Signal Score config (v0.2 Architecture Baseline §10 + D9)
+#
+# Formula (v0.2 D9, weighted geometric mean with deterministic floor):
+#   score = product over f in factors of max(f, min_factor) ** weight[f]
+#
+# Factor semantics:
+#   decision_relevance — how central this cluster is to the active research
+#     question / decision context (rubric by LLM at Phase 5; here: any 0-1).
+#   evidence_quality — credibility of the underlying sources.
+#   recency           — time freshness (1.0 = now, decays with age).
+#   market_signal     — engagement / discussion density. ONLY one input among
+#     several; engagement is NOT importance (v0.2 §7 / D9).
+#   novelty           — emergent vs recycled topic; high for weak signals.
+#
+# Rule: low engagement + high novelty + high decision_relevance
+#       must still yield a meaningful score (Weak Signal compatibility, §13).
+
+version: 1
+min_factor: 0.05
+weights:
+  decision_relevance: 0.35
+  evidence_quality: 0.20
+  recency: 0.15
+  market_signal: 0.15
+  novelty: 0.15
