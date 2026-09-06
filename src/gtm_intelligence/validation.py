@@ -156,7 +156,19 @@ def validate_output(
     *,
     known_signal_ids: Iterable[str] = (),
 ) -> ValidationResult:
+    """Validate Phase 1 Output contract referential integrity.
+
+    Only the fields Phase 1 Output schema declares are inspected:
+      * user_voice[].evidence_id
+      * weak_signals[].evidence_ids
+    Citations into key_signals flow via signal_id -> insight.linkage
+    and are checked at the citation tier (not here).
+    recommended_actions[] actions reference insight_id (linkage), not
+    evidence_ids directly, per schema. The recommended_actions block is
+    validated at the citation tier (see citations.check_citations).
+    """
     issues: list[IntegrityIssue] = []
+    known = set(known_signal_ids)
 
     # user_voice[].evidence_id
     user_voice = output.get("user_voice") or []
@@ -177,9 +189,9 @@ def validate_output(
                 )
             )
 
-    # changes[].evidence_ids
-    changes = output.get("changes") or []
-    for idx, item in enumerate(changes):
+    # weak_signals[].evidence_ids
+    weak_signals = output.get("weak_signals") or []
+    for idx, item in enumerate(weak_signals):
         if not isinstance(item, Mapping):
             continue
         ids = item.get("evidence_ids") or []
@@ -188,15 +200,14 @@ def validate_output(
             issues.append(
                 IntegrityIssue(
                     object_type="output",
-                    object_id=f"changes[{idx}]",
-                    field="evidence_ids",
+                    object_id=f"weak_signals[{idx}]",
+                    field="weak_signals[].evidence_ids",
                     missing_ids=missing,
                     reason="not in ledger",
                 )
             )
 
-    # key_signals[].evidence_ids + signal_id consistency
-    known = set(known_signal_ids)
+    # key_signals[].signal_id consistency (only when known_signal_ids is given).
     key_signals = output.get("key_signals") or []
     for idx, item in enumerate(key_signals):
         if not isinstance(item, Mapping):
@@ -210,36 +221,6 @@ def validate_output(
                     field="signal_id",
                     missing_ids=[str(sid)],
                     reason="not in known signals",
-                )
-            )
-        ids = item.get("evidence_ids") or []
-        missing = _missing_in_ledger(ledger, ids)
-        if missing:
-            issues.append(
-                IntegrityIssue(
-                    object_type="output",
-                    object_id=f"key_signals[{idx}]",
-                    field="evidence_ids",
-                    missing_ids=missing,
-                    reason="not in ledger",
-                )
-            )
-
-    # recommended_actions[].evidence_ids
-    actions = output.get("recommended_actions") or []
-    for idx, item in enumerate(actions):
-        if not isinstance(item, Mapping):
-            continue
-        ids = item.get("evidence_ids") or []
-        missing = _missing_in_ledger(ledger, ids)
-        if missing:
-            issues.append(
-                IntegrityIssue(
-                    object_type="output",
-                    object_id=f"recommended_actions[{idx}]",
-                    field="evidence_ids",
-                    missing_ids=missing,
-                    reason="not in ledger",
                 )
             )
 

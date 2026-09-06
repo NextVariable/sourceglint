@@ -150,20 +150,20 @@ class TestOutputCitations:
     def test_output_recommendation_citations(self):
         ledger = EvidenceLedger(":memory:")
         _seed(ledger)
-        eid = ledger.all()[0].evidence_id
-        output = {
-            "summary": "x",
-            "recommended_actions": [
-                {"action": "Apply pricing experiment.",
-                 "horizon": "Now",
-                 "insight_ids": ["ins_p"],
-                 "evidence_ids": [eid]},
-            ],
-        }
+        # Per Phase 1 Output schema: recommended_actions = {now, next, watch},
+        # each action has `action` + `insight_id`. We pass recommended_actions
+        # as the recommended_actions block.
         result = check_citations(
             ledger,
             insights=[],
-            output_recommendations=output["recommended_actions"],
+            output_recommended_actions={
+                "now": [
+                    {"action": "Apply pricing experiment.",
+                     "insight_id": "ins_p"},
+                ],
+                "next": [],
+                "watch": [],
+            },
             known_insight_ids={"ins_p"},
         )
         assert result.valid is True, result.issues
@@ -171,18 +171,34 @@ class TestOutputCitations:
     def test_output_recommendation_unknown_insight_id_fails(self):
         ledger = EvidenceLedger(":memory:")
         _seed(ledger)
-        eid = ledger.all()[0].evidence_id
-        output = {
-            "recommended_actions": [
-                {"action": "x", "horizon": "Now",
-                 "insight_ids": ["ins_phantom"], "evidence_ids": [eid]},
-            ],
-        }
         result = check_citations(
             ledger,
             insights=[],
-            output_recommendations=output["recommended_actions"],
+            output_recommended_actions={
+                "now": [
+                    {"action": "x", "insight_id": "ins_phantom"},
+                ],
+                "next": [],
+                "watch": [],
+            },
             known_insight_ids=set(),
+        )
+        assert result.valid is False
+
+    def test_output_recommendation_missing_insight_id_fails(self):
+        ledger = EvidenceLedger(":memory:")
+        _seed(ledger)
+        result = check_citations(
+            ledger,
+            insights=[],
+            output_recommended_actions={
+                "now": [
+                    {"action": "x"},
+                ],
+                "next": [],
+                "watch": [],
+            },
+            known_insight_ids={"ins_a"},
         )
         assert result.valid is False
 

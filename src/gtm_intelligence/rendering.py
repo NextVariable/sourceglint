@@ -1,33 +1,43 @@
-"""Phase 2 Deterministic Markdown Renderer (Phase 1 Output contract).
+"""Phase 2 Deterministic Markdown Renderer (strict Phase 1 Output contract).
 
-Driven by Phase 1 Output schema. The renderer:
+The renderer is a STRICT consumer of `schemas/output.schema.json`. Any
+field not declared in the schema is rejected at the contract layer; here
+we only read the fields the schema declares.
 
-  * Receives the Phase 1 Output JSON (validated upstream by the validation
-    layer + citation tier).
-  * Produces a deterministic Markdown document.
-  * Skips absent/empty sections silently (no "No data" filler).
-  * Renders evidence citations as markdown links to the canonicalized URL.
-  * Uses plain string concatenation; no template engine, no LLM.
+Phase 1 Output sections (in fixed order):
+  1. executive_intelligence       string
+  2. changes                      string[]
+  3. key_signals                  {signal_id, type[FACT|INFERENCE], what,
+                                   why_it_matters, level, gtm_implications}
+  4. user_voice                   {quote, evidence_id}
+  5. competitive_movement         string[]
+  6. weak_signals                 {topic, evidence_ids[], why_watch?}
+  7. recommended_actions          {now[], next[], watch[]} each action has
+                                   {action, insight_id?}
+  8. gaps                         {sources_unavailable[], uncertain[]}
+  9. coverage                     {sources_searched[], sources_unavailable[],
+                                   coverage_limitation?}
+  Confidence & Gaps section renders confidence + gaps + coverage.
 
-Section order (fixed by Phase 1 output contract):
-  1. Executive Intelligence
-  2. What Changed
-  3. Key Signals
-  4. User Voice
-  5. Competitive Movement
-  6. Weak Signals
-  7. Recommended Actions
-  8. Confidence & Gaps
+Citations: user_voice[].evidence_id and weak_signals[].evidence_ids[]
+are rendered as inline markdown links to canonical evidence URLs stored
+in the ledger. Citations into key_signals flow through
+signal_id -> insight_id linkage (rendered via insight/gat_implications),
+not via direct evidence_ids, per Phase 1 contract.
+
+The renderer is byte-stable, optional-section-aware, and uses plain
+Python string ops (no Jinja2).
 """
 from __future__ import annotations
 
-from typing import Mapping
+from typing import Iterable, Mapping
 
 from .ledger import EvidenceLedger
 
 
-# Ordered Markdown builders. Each returns either a populated string or ""
-# (empty => caller skips).
+# -------- helpers --------
+
+
 def _heading(level: int, text: str) -> str:
     return f"{'#' * level} {text}\n\n"
 
@@ -39,8 +49,8 @@ def _paragraph(text: str) -> str:
     return f"{text}\n\n"
 
 
-def _bullets(items: list[str]) -> str:
-    items = [i for i in items if i]
+def _bullets(items: Iterable[str]) -> str:
+    items = [i.strip() for i in items if i and i.strip()]
     if not items:
         return ""
     return "\n".join(f"- {i}" for i in items) + "\n\n"
@@ -50,79 +60,67 @@ def _evidence_lookup(ledger: EvidenceLedger) -> dict[str, object]:
     return {rec.evidence_id: rec for rec in ledger}
 
 
-def _link_for(lookup: Mapping[str, object], evidence_id: str) -> str:
-    rec = lookup.get(evidence_id)
+def _source_link(ledger_lookup: Mapping[str, object], evidence_id: str) -> str:
+    rec = ledger_lookup.get(evidence_id)
     if not rec:
-        return f"`[{evidence_id}]`"
+        return f"`{evidence_id}`"
     url = getattr(rec, "url", "") or ""
     label = getattr(rec, "source", "") or "source"
-    # Compact inline citation: [label](url)
-    if url:
-        return f"[{label}]({url})"
-    return f"`{label}`"
+    return f"[{label}]({url})" if url else f"`{label}`"
 
 
-def _cite_one(lookup: Mapping[str, object], evidence_id: str) -> str:
-    return f"({_link_for(lookup, evidence_id)}) `{evidence_id}`"
-
-
-def _cite_many(lookup: Mapping[str, object], evidence_ids: list[str]) -> str:
-    if not evidence_ids:
-        return ""
-    return " " + " ".join(_cite_one(lookup, e) for e in evidence_ids)
+# -------- sections --------
 
 
 def _executive_intelligence(out: Mapping[str, object]) -> str:
-    summary = out.get("summary")
-    if not isinstance(summary, str) or not summary.strip():
+    text = out.get("executive_intelligence")
+    if not isinstance(text, str) or not text.strip():
         return ""
-    return _heading(1, "Executive Intelligence") + _paragraph(summary.strip())
+    return _heading(1, "Executive Intelligence") + _paragraph(text.strip())
 
 
-def _what_changed(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
+def _what_changed(out: Mapping[str, object]) -> str:
     items = out.get("changes") or []
     if not isinstance(items, list) or not items:
         return ""
-    body = []
-    for item in items:
-        if not isinstance(item, Mapping):
-            continue
-        text = (item.get("change") or "").strip()
-        if not text:
-            continue
-        cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(text + cites)
-    return _heading(2, "What Changed") + _bullets(body)
+    bullets = [str(i).strip() for i in items if str(i).strip()]
+    return _heading(2, "What Changed") + _bullets(bullets)
 
 
-def _key_signals(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
+def _key_signals(out: Mapping[str, object]) -> str:
     items = out.get("key_signals") or []
     if not isinstance(items, list) or not items:
         return ""
     body = []
-    nested = []
     for item in items:
         if not isinstance(item, Mapping):
             continue
-        topic = (item.get("topic") or "").strip()
-        if not topic:
+        sig_id = (item.get("signal_id") or "").strip()
+        itype = (item.get("type") or "").strip()
+        what = (item.get("what") or "").strip()
+        level = (item.get("level") or "").strip()
+        why = (item.get("why_it_matters") or "").strip()
+        if not what:
             continue
-        score = item.get("score")
-        score_str = f" — score {score:.2f}" if isinstance(score, (int, float)) else ""
-        cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(f"**{topic}**{score_str}{cites}")
+        head_bits = []
+        if sig_id:
+            head_bits.append(f"`{sig_id}`")
+        if itype:
+            head_bits.append(itype)
+        if level:
+            head_bits.append(f"level: {level}")
+        head = " — ".join(head_bits)
+        line = f"**{what}**" + (f" — {head}" if head else "")
+        body.append(line)
+        if why:
+            body.append(f"  why: {why}")
         gtm_implications = item.get("gtm_implications") or {}
         if isinstance(gtm_implications, Mapping):
             for k, v in sorted(gtm_implications.items()):
                 if v is None or v == "":
                     continue
-                nested.append(f"{k}: {v}")
-    if not body:
-        return ""
-    text = _bullets(body)
-    if nested:
-        text += "\n" + _bullets(nested)
-    return _heading(2, "Key Signals") + text
+                body.append(f"  - {k}: {v}")
+    return _heading(2, "Key Signals") + _bullets(body)
 
 
 def _user_voice(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
@@ -133,32 +131,26 @@ def _user_voice(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
     for item in items:
         if not isinstance(item, Mapping):
             continue
-        text = (item.get("text") or "").strip()
-        if not text:
+        quote = (item.get("quote") or "").strip()
+        if not quote:
             continue
-        sentiment = item.get("sentiment")
-        quote = f"> {text}"
-        if sentiment:
-            quote += f" _[{sentiment}]_"
         eid = item.get("evidence_id")
+        line = f"> {quote}"
         if eid:
-            cite = _link_for(lookup, str(eid))
-            quote += f" {cite}"
-        body.append(quote)
+            line += f" {_source_link(lookup, str(eid))} `{eid}`"
+        body.append(line)
     if not body:
         return ""
     return _heading(2, "User Voice") + "\n".join(body) + "\n\n"
 
 
-def _competitive_movement(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
-    block = out.get("competitive_movement")
-    if not isinstance(block, Mapping):
+def _competitive_movement(out: Mapping[str, object]) -> str:
+    items = out.get("competitive_movement") or []
+    if not isinstance(items, list) or not items:
         return ""
-    summary = (block.get("summary") or "").strip()
-    if not summary:
-        return ""
-    cites = _cite_many(lookup, list(block.get("evidence_ids") or []))
-    return _heading(2, "Competitive Movement") + _paragraph(summary + (cites or ""))
+    return _heading(2, "Competitive Movement") + _bullets(
+        str(i).strip() for i in items
+    )
 
 
 def _weak_signals(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
@@ -172,13 +164,26 @@ def _weak_signals(out: Mapping[str, object], lookup: Mapping[str, object]) -> st
         topic = (item.get("topic") or "").strip()
         if not topic:
             continue
-        cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(topic + cites)
+        why = (item.get("why_watch") or "").strip()
+        eids = [str(e) for e in (item.get("evidence_ids") or []) if e]
+        cite_parts = [_source_link(lookup, e) for e in eids]
+        if cite_parts:
+            topic = topic + " " + " ".join(cite_parts)
+        body.append(topic)
+        if why:
+            body.append(f"  watch because: {why}")
     return _heading(2, "Weak Signals") + _bullets(body)
 
 
-def _recommended_actions(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
-    items = out.get("recommended_actions") or []
+def _action_list(
+    out: Mapping[str, object],
+    lookup: Mapping[str, object],
+    bucket: str,
+) -> str:
+    block = out.get("recommended_actions")
+    if not isinstance(block, Mapping):
+        return ""
+    items = block.get(bucket) or []
     if not isinstance(items, list) or not items:
         return ""
     body = []
@@ -188,66 +193,94 @@ def _recommended_actions(out: Mapping[str, object], lookup: Mapping[str, object]
         action = (item.get("action") or "").strip()
         if not action:
             continue
-        horizon = item.get("horizon")
-        priority = item.get("priority")
-        meta = []
-        if priority:
-            meta.append(f"priority `{priority}`")
-        if horizon:
-            meta.append(f"horizon: {horizon}")
-        meta_str = f" ({'; '.join(meta)})" if meta else ""
-        cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(f"{action}{meta_str}{cites}")
-    return _heading(2, "Recommended Actions") + _bullets(body)
-
-
-def _confidence_and_gaps(out: Mapping[str, object]) -> str:
-    confidence = out.get("confidence")
-    gaps = out.get("gaps") or []
-    coverage = out.get("coverage")
-
-    parts = []
-    if isinstance(confidence, Mapping):
-        overall = confidence.get("overall")
-        rationale = (confidence.get("rationale") or "").strip()
-        if isinstance(overall, (int, float)):
-            parts.append(f"- overall: {overall:.2f}")
-        if rationale:
-            parts.append(f"- rationale: {rationale}")
-    if isinstance(gaps, list):
-        for g in gaps:
-            if isinstance(g, str) and g.strip():
-                parts.append(f"- gap: {g.strip()}")
-    if isinstance(coverage, Mapping):
-        ss = coverage.get("sources_searched") or []
-        su = coverage.get("sources_unavailable") or []
-        if isinstance(ss, list) and ss:
-            parts.append(f"- sources searched: {', '.join(sorted(str(s) for s in ss if s))}")
-        if isinstance(su, list) and su:
-            parts.append(f"- sources unavailable: {', '.join(sorted(str(s) for s in su if s))}")
-    if not parts:
+        iid = (item.get("insight_id") or "").strip()
+        body.append(action + (f" — `{iid}`" if iid else ""))
+    if not body:
         return ""
-    return _heading(2, "Confidence & Gaps") + _bullets(parts)
+    title = {"now": "Now", "next": "Next", "watch": "Watch"}.get(bucket, bucket)
+    return _heading(3, title) + _bullets(body)
+
+
+def _recommended_actions(
+    out: Mapping[str, object], lookup: Mapping[str, object]
+) -> str:
+    block = out.get("recommended_actions")
+    if not isinstance(block, Mapping):
+        block = {}
+    has_any = any(block.get(b) for b in ("now", "next", "watch"))
+    if not has_any:
+        return ""
+    text = (
+        _action_list(out, lookup, "now")
+        + _action_list(out, lookup, "next")
+        + _action_list(out, lookup, "watch")
+    )
+    if not text:
+        return ""
+    return _heading(2, "Recommended Actions") + text
+
+
+def _confidence_gaps_coverage(out: Mapping[str, object]) -> str:
+    confidence = out.get("confidence")
+    gaps = out.get("gaps")
+    coverage = out.get("coverage")
+    if confidence is None and gaps is None and coverage is None:
+        return ""
+
+    body: list[str] = []
+    if isinstance(confidence, (int, float)):
+        body.append(f"overall: {float(confidence):.2f}")
+    if isinstance(gaps, Mapping):
+        su = gaps.get("sources_unavailable")
+        if isinstance(su, list) and su:
+            body.append(
+                "sources unavailable: " + ", ".join(sorted(str(s) for s in su if s))
+            )
+        un = gaps.get("uncertain")
+        if isinstance(un, list) and un:
+            body.append("uncertain judgments:")
+            body.extend(f"- {u}" for u in un if isinstance(u, str) and u.strip())
+    if isinstance(coverage, Mapping):
+        ss = coverage.get("sources_searched")
+        if isinstance(ss, list) and ss:
+            body.append(
+                "sources searched: " + ", ".join(sorted(str(s) for s in ss if s))
+            )
+        su_cov = coverage.get("sources_unavailable")
+        if isinstance(su_cov, list) and su_cov:
+            body.append(
+                "coverage gap: " + ", ".join(sorted(str(s) for s in su_cov if s))
+            )
+        lim = coverage.get("coverage_limitation")
+        if isinstance(lim, str) and lim.strip():
+            body.append(f"coverage limitation: {lim.strip()}")
+
+    if not body:
+        return ""
+    return _heading(2, "Confidence & Gaps") + _bullets(body)
+
+
+# -------- public --------
 
 
 def render_markdown(ledger: EvidenceLedger, output: Mapping[str, object]) -> str:
-    """Render Output contract -> deterministic Markdown.
+    """Render Phase 1 Output -> deterministic Markdown.
 
-    Sections are appended in fixed order. Empty/absent sections are skipped.
-    Plain Python string ops only.
+    Sections appended in fixed order. Empty/absent sections are silently
+    dropped. Plain Python string ops only.
     """
     if not isinstance(output, Mapping):
         output = {}
     lookup = _evidence_lookup(ledger)
     parts = [
         _executive_intelligence(output),
-        _what_changed(output, lookup),
-        _key_signals(output, lookup),
+        _what_changed(output),
+        _key_signals(output),
         _user_voice(output, lookup),
-        _competitive_movement(output, lookup),
+        _competitive_movement(output),
         _weak_signals(output, lookup),
         _recommended_actions(output, lookup),
-        _confidence_and_gaps(output),
+        _confidence_gaps_coverage(output),
     ]
     rendered = "".join(parts).rstrip() + "\n"
     return rendered

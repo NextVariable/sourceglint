@@ -127,19 +127,18 @@ def check_citations(
     *,
     known_signal_ids: Iterable[str] = (),
     known_insight_ids: Iterable[str] = (),
-    output_recommendations: Iterable[Mapping[str, object]] | None = None,
+    output_recommended_actions: Mapping[str, object] | None = None,
 ) -> ValidationResult:
     """Verify structural claim -> evidence chains.
 
     Two entry points:
       * `insights`: a list of insight mappings (FACT/INFERENCE/RECOMMENDATION).
-      * `output_recommendations`: a list of items from
-        output.recommended_actions[]; must trace to known insights OR
-        evidence directly.
-
-    Returns `CitationValidationResult` which raises `CitationIntegrityError`
-    on `raise_if_invalid()` (a distinct exception from the validator-tier
-    errors so callers can branch correctly).
+      * `output_recommended_actions`: the Phase 1 Output contract's
+        `recommended_actions` block (with now/next/watch buckets); each
+        action carries `action` + optional `insight_id`. Citation tier
+        verifies the `insight_id` exists in `known_insight_ids` (when the
+        set is non-empty) -- evidence traceability flows through the
+        insight, per Phase 1 Output schema.
     """
     issues: list[IntegrityIssue] = []
     known_signals = set(known_signal_ids)
@@ -155,47 +154,59 @@ def check_citations(
             )
         )
 
-    if output_recommendations is not None:
-        for idx, action in enumerate(output_recommendations):
-            if not isinstance(action, Mapping):
-                continue
-            eids = list(action.get("evidence_ids") or [])
-            ins_ids = list(action.get("insight_ids") or [])
-            missing_e = _missing_in_ledger(ledger, eids)
-            if missing_e:
-                issues.append(
-                    IntegrityIssue(
-                        object_type="output_recommendation",
-                        object_id=f"recommended_actions[{idx}]",
-                        field="evidence_ids",
-                        missing_ids=missing_e,
-                        reason="cited evidence not in ledger",
+    if output_recommended_actions is not None:
+        # Phase 1 schema: recommended_actions = {now: [], next: [], watch: []}
+        for bucket_name, items in [
+            ("now", output_recommended_actions.get("now", []) or []),
+            ("next", output_recommended_actions.get("next", []) or []),
+            ("watch", output_recommended_actions.get("watch", []) or []),
+        ]:
+            for idx, action in enumerate(items):
+                if not isinstance(action, Mapping):
+                    continue
+                if not (action.get("action") or "").strip():
+                    issues.append(
+                        IntegrityIssue(
+                            object_type="output_recommendation",
+                            object_id=f"recommended_actions.{bucket_name}[{idx}]",
+                            field="action",
+                            missing_ids=[],
+                            reason="empty action",
+                        )
                     )
-                )
-            missing_i = [
-                i for i in ins_ids
-                if (not known_insights) or i not in known_insights
-            ]
-            if missing_i:
-                issues.append(
-                    IntegrityIssue(
-                        object_type="output_recommendation",
-                        object_id=f"recommended_actions[{idx}]",
-                        field="insight_ids",
-                        missing_ids=missing_i,
-                        reason="output recommendation cites unknown insight",
+                iid = action.get("insight_id")
+                if not iid:
+                    issues.append(
+                        IntegrityIssue(
+                            object_type="output_recommendation",
+                            object_id=f"recommended_actions.{bucket_name}[{idx}]",
+                            field="insight_id",
+                            missing_ids=[],
+                            reason="no insight linkage; action cannot trace to evidence chain",
+                        )
                     )
-                )
-            if not eids and not ins_ids:
-                issues.append(
-                    IntegrityIssue(
-                        object_type="output_recommendation",
-                        object_id=f"recommended_actions[{idx}]",
-                        field="evidence_ids/insight_ids",
-                        missing_ids=[],
-                        reason="action has no traceability chain",
+                elif known_insights and str(iid) not in known_insights:
+                    issues.append(
+                        IntegrityIssue(
+                            object_type="output_recommendation",
+                            object_id=f"recommended_actions.{bucket_name}[{idx}]",
+                            field="insight_id",
+                            missing_ids=[str(iid)],
+                            reason="output action references unknown insight",
+                        )
                     )
-                )
+                elif not known_insights:
+                    # Strict fallback: no known_insight_ids provided, so any
+                    # non-empty insight_id reference is unverified.
+                    issues.append(
+                        IntegrityIssue(
+                            object_type="output_recommendation",
+                            object_id=f"recommended_actions.{bucket_name}[{idx}]",
+                            field="insight_id",
+                            missing_ids=[],
+                            reason="insight_id referenced but no known_insight_ids supplied",
+                        )
+                    )
 
     return CitationValidationResult(valid=not issues, issues=issues)
 

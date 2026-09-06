@@ -222,27 +222,19 @@ class TestOutputIntegrity:
         _seed(ledger)
         eid = ledger.all()[0].evidence_id
         output = {
-            "summary": "Summary",
-            "changes": [{"change": "new pricing", "evidence_ids": [eid]}],
+            "executive_intelligence": "Summary",
+            "user_voice": [{"quote": "too expensive", "evidence_id": eid}],
+            "weak_signals": [
+                {"topic": "k", "evidence_ids": [eid]},
+            ],
             "key_signals": [
                 {
                     "signal_id": "sig_k",
-                    "topic": "k",
-                    "evidence_ids": [eid],
-                    "score": 0.7,
-                    "gtm_implications": {"pricing": "v"},
+                    "type": "INFERENCE",
+                    "what": "k",
+                    "level": "high",
                 }
             ],
-            "user_voice": [{"text": "too expensive", "evidence_id": eid}],
-            "recommended_actions": [
-                {
-                    "action": "Revisit pricing.",
-                    "horizon": "Now",
-                    "insight_ids": ["ins_anything"],
-                    "evidence_ids": [eid],
-                }
-            ],
-            "confidence": {"overall": 0.7},
         }
         known_signal_ids = {"sig_k"}
         result = validate_output(ledger, output, known_signal_ids=known_signal_ids)
@@ -252,12 +244,24 @@ class TestOutputIntegrity:
         ledger = EvidenceLedger(":memory:")
         _seed(ledger)
         output = {
-            "summary": "x",
-            "user_voice": [{"text": "complaint", "evidence_id": "ev_ghost"}],
+            "executive_intelligence": "x",
+            "user_voice": [{"quote": "complaint", "evidence_id": "ev_ghost"}],
         }
         result = validate_output(ledger, output, known_signal_ids=set())
         assert result.valid is False
         assert any(i.field == "user_voice[].evidence_id" for i in result.issues)
+
+    def test_output_weak_signals_with_unknown_evidence_fails(self):
+        ledger = EvidenceLedger(":memory:")
+        _seed(ledger)
+        output = {
+            "weak_signals": [
+                {"topic": "k", "evidence_ids": ["ev_ghost"]},
+            ],
+        }
+        result = validate_output(ledger, output, known_signal_ids=set())
+        assert result.valid is False
+        assert any(i.field == "weak_signals[].evidence_ids" for i in result.issues)
 
     def test_optional_sections_all_absent_is_valid(self):
         ledger = EvidenceLedger(":memory:")
