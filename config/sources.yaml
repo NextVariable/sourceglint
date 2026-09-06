@@ -1,0 +1,103 @@
+# gtm-intelligence source registry — single source of truth (v0.2 §8.2, §15 MVP).
+# Schema: schemas/source_registry.schema.json
+#
+# SECURITY: `credentials` lists only the NAMES of required credentials.
+# Real secrets live in host credential storage — never commit them here.
+#
+# MVP scope (Frozen Decision D11): 5 source classes.
+#   host_web_search  — reuse host web search capability (T4 background)
+#   official_web     — first-party pages (T1): product/pricing/changelog/blog
+#   reddit           — community voice (T2), keyless free path first
+#   hacker_news      — community voice (T2), Algolia API free
+#   github           — first-party signals (T1): releases/activity
+
+- name: host_web_search
+  enabled: true
+  type: web
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 60
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 900
+
+- name: official_web
+  enabled: true
+  type: official
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 90
+  capabilities: [fetch]
+  markets: [global]
+  languages: [en]
+  cache_ttl: 3600
+
+- name: reddit
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 80
+  capabilities: [search, comments]
+  rate_limit: { rpm: 30 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 900
+
+- name: hacker_news
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 70
+  capabilities: [search, stories, comments]
+  rate_limit: { rpm: 60 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 1800
+
+- name: github
+  enabled: true
+  type: official
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 85
+  capabilities: [search, releases]
+  rate_limit: { rpm: 60 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 3600
+
+# --- Phase 2+ sources (declared, disabled — registry contract only, no code) ---
+
+- name: youtube
+  enabled: false
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 50
+  capabilities: [search, comments]
+  rate_limit: { rpm: 10 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 3600
+
+- name: product_hunt
+  enabled: false
+  type: marketplace
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 40
+  capabilities: [search, reviews]
+  markets: [global]
+  languages: [en]
+  cache_ttl: 3600

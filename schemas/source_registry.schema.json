@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gtm-intelligence.dev/source_registry.schema.json",
+  "title": "Source Registry",
+  "description": "Schema for config/sources.yaml — the single source of truth for data sources (v0.2 §8.2, PRD §20). Top level is an array of source entries. SECURITY CONTRACT: the credentials field declares only the NAMES of required credentials (e.g. 'github_token'). Real secrets must never appear here — they live in host credential storage. additionalProperties=false makes accidental secret leakage into an entry schema-invalid.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["name", "enabled", "type", "cost", "auth_required"],
+    "properties": {
+      "name": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$",
+        "description": "Unique source identifier used across plans/evidence/ reports (e.g. reddit, host_web_search)."
+      },
+      "enabled": {
+        "type": "boolean"
+      },
+      "type": {
+        "type": "string",
+        "enum": ["web", "official", "community", "marketplace", "secondary"],
+        "description": "Evidence-role class (v0.2 §8.1): web=host search,  official=first-party, community=T2, marketplace=T3,  secondary=T4."
+      },
+      "cost": {
+        "type": "string",
+        "enum": ["free", "paid"]
+      },
+      "auth_required": {
+        "type": "boolean"
+      },
+      "credentials": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Credential NAME only (snake_case). Secret values  (containing '=', uppercase tokens, etc.) are rejected."
+        },
+        "uniqueItems": true,
+        "description": "Names of credentials this source needs. Empty/absent =  no auth needed. Real values live in host secret storage."
+      },
+      "priority": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100,
+        "description": "Fan-out priority (higher = preferred). Absent = default  registry order."
+      },
+      "capabilities": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["search", "fetch", "comments", "stories", "releases", "reviews"]
+        },
+        "uniqueItems": true
+      },
+      "rate_limit": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rpm": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "rpd": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "markets": {
+        "type": "array",
+        "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/market_code" },
+        "uniqueItems": true
+      },
+      "languages": {
+        "type": "array",
+        "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/language_code" },
+        "uniqueItems": true
+      },
+      "cache_ttl": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Source-specific cache TTL in seconds."
+      }
+    }
+  }
+}

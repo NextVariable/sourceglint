@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gtm-intelligence.dev/output.schema.json",
+  "title": "Renderer Output Contract",
+  "description": "The deterministic Renderer's INPUT (v0.2 §12.2, PRD §16). Defines what the renderer receives — NOT markdown styling. ALL sections are optional: empty/absent sections are simply not rendered. Nothing is forced 'for completeness' — an insufficient-evidence run legitimately emits a minimal document.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "executive_intelligence": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-sentence answer to the user's question."
+    },
+    "changes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "The 3-7 most important changes (What Changed)."
+    },
+    "key_signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["signal_id", "type", "what", "level"],
+        "properties": {
+          "signal_id": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/signal_id" },
+          "type": {
+            "type": "string",
+            "enum": ["FACT", "INFERENCE"],
+            "description": "FACT and INFERENCE surface as key signals;  RECOMMENDATIONs live under recommended_actions."
+          },
+          "what": { "type": "string", "minLength": 1 },
+          "why_it_matters": { "type": "string" },
+          "level": {
+            "type": "string",
+            "enum": ["high", "medium", "weak"],
+            "description": "Signal level (renderer may bold/color by this)."
+          },
+          "gtm_implications": {
+            "type": "object",
+            "additionalProperties": { "type": ["string", "null"] },
+            "propertyNames": {
+              "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/gtm_dimension"
+            }
+          }
+        }
+      }
+    },
+    "user_voice": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["quote", "evidence_id"],
+        "properties": {
+          "quote": {
+            "type": "string",
+            "minLength": 1,
+            "description": "VERBATIM user quote (never paraphrased)."
+          },
+          "evidence_id": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" }
+        }
+      }
+    },
+    "competitive_movement": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Only present when the research question makes it relevant."
+    },
+    "weak_signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["topic", "evidence_ids"],
+        "properties": {
+          "topic": { "type": "string", "minLength": 1 },
+          "evidence_ids": {
+            "type": "array",
+            "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "why_watch": { "type": "string" }
+        }
+      }
+    },
+    "recommended_actions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "now": { "$ref": "#/$defs/action_list" },
+        "next": { "$ref": "#/$defs/action_list" },
+        "watch": { "$ref": "#/$defs/action_list" }
+      }
+    },
+    "confidence": {
+      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/confidence",
+      "description": "Overall confidence in this intelligence document."
+    },
+    "gaps": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sources_unavailable": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "uncertain": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Judgments that remain uncertain and why."
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sources_searched": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "sources_unavailable": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "coverage_limitation": {
+          "type": "string",
+          "description": "Free text: platforms not covered, data not obtainable."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "action_list": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["action"],
+        "properties": {
+          "action": { "type": "string", "minLength": 1 },
+          "insight_id": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/insight_id" }
+        }
+      }
+    }
+  }
+}
