@@ -1,0 +1,50 @@
+# Official-domain rules (Phase 4 §6).
+#
+# This file is the deterministic, configuration-driven source of truth
+# for "which URLs count as first-party evidence for which entity".
+#
+# Schema (intentionally tiny — we explicitly do NOT fold this into the
+# frozen Source Registry schema; see Phase 4 §26 ADR-trigger rule):
+#
+#   - owner: <string>           # entity identifier (PascalCase or snake)
+#     domains: [<domain>...]    # exact / subdomain matches
+#     github_owners: [<gh_user>...]   # github.com/<owner>/... matches
+#
+# Matching semantics (PRD §6, test suite official_web_classification):
+#   * domains        — label-aligned exact OR subdomain only
+#   * github_owners  — github.com/<owner>/<repo>/... with case-insensitive
+#                     owner equality
+#   * case + www + port are normalised in the matcher
+#   * spoof attempts (company.com.evil.org) are rejected by construction
+#
+# This file ships with TWO demo rules so that downstream tests can use
+# them. Real rules are added as evidence needs grow; the engine never
+# reads `looks like` heuristics — only what's listed here.
+#
+# Frozen decisions:
+#   * D6 (v0.2 §19): Source Registry is the SoT for source enablement.
+#     Official-domain rules are a SEPARATE config: one entity may have
+#     zero OR many official surfaces, and one Source may NOT be coupled
+#     to one owner. This decoupling is intentional.
+#   * No LLM/fuzzy inference in classification; everything deterministic.
+
+- owner: acme
+  domains:
+    - acme.com
+    - acme.io
+    - docs.acme.com
+  github_owners:
+    - acmehq
+    - acme-public
+
+- owner: balloon_co
+  domains:
+    - balloon.co.jp
+    - docs.balloon.co.jp
+
+- owner: example_corp
+  domains:
+    - example-corp.com
+    - blog.example-corp.com
+  github_owners:
+    - example-corp
