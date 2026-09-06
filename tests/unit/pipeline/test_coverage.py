@@ -3,7 +3,7 @@
 Contract:
   * CoverageReport is the deterministic, non-LLM metadata artifact that
     accompanies a pipeline run.
-  * Fields:
+  * Fields (Closeout §5):
       - requested_sources: list of source names the plan asked for
       - attempted_sources: list of source names that were actually called
       - successful_sources: subset of attempted with status=success/partial
@@ -12,7 +12,8 @@ Contract:
       - query_count: total expanded queries
       - raw_result_count: raw items returned by adapters (before normalization)
       - normalized_evidence_count: items after normalization
-      - deduplicated_count: items dropped by dedup
+      - duplicate_dropped_count: items DROPPED by dedup (Closeout §5)
+      - final_evidence_count: items KEPT after dedup (Closeout §5)
       - current_window_count: normalized evidence in 'current' window
       - baseline_window_count: normalized evidence in 'baseline' window
       - languages_covered: list of distinct query_language values
@@ -22,6 +23,7 @@ Contract:
   * Order is preserved per list.
   * CoverageReport is plain dict + summary() helper.
   * No LLM involvement anywhere.
+  * Arithmetic:  normalized - duplicate_dropped == final_evidence_count
 """
 from __future__ import annotations
 
@@ -40,7 +42,9 @@ def test_coverage_report_defaults():
     assert rep.query_count == 0
     assert rep.raw_result_count == 0
     assert rep.normalized_evidence_count == 0
-    assert rep.deduplicated_count == 0
+    assert rep.duplicate_dropped_count == 0
+    assert rep.final_evidence_count == 0
+    assert rep.deduplicated_count == 0  # back-compat alias
     assert rep.current_window_count == 0
     assert rep.baseline_window_count == 0
     assert list(rep.languages_covered) == []
@@ -55,16 +59,18 @@ def test_coverage_report_summary():
         attempted_sources=["reddit", "github"],
         successful_sources=["reddit"],
         failed_sources=["github"],
-        raw_result_count=5,
-        normalized_evidence_count=4,
-        deduplicated_count=1,
+        raw_result_count=10,
+        normalized_evidence_count=8,
+        time_filter_dropped_count=2,
+        duplicate_dropped_count=1,
+        final_evidence_count=5,
     )
     summary = rep.summary()
-    assert "requested=2" in summary
-    assert "attempted=2" in summary
-    assert "raw=5" in summary
-    assert "evidence=4" in summary
-    assert "dedup_dropped=1" in summary
+    assert "raw=10" in summary
+    assert "normalized=8" in summary
+    assert "time_drop=2" in summary
+    assert "dedup_drop=1" in summary
+    assert "final=5" in summary
 
 
 def test_build_coverage_report_minimal():
@@ -100,7 +106,9 @@ def test_build_coverage_report_counts():
     assert rep.query_count == 3
     assert rep.raw_result_count == 2
     assert rep.normalized_evidence_count == 1
-    assert rep.deduplicated_count == 0
+    assert rep.duplicate_dropped_count == 0
+    assert rep.final_evidence_count == 1
+    assert rep.deduplicated_count == 0  # back-compat
     assert "en" in rep.languages_covered
     assert "ja" in rep.languages_covered
     assert "global" in rep.markets_covered
@@ -264,7 +272,9 @@ def test_build_coverage_report_records_dedup_dropped():
         deduplicated_dropped=3,
         dropped_by_time_filter=0,
     )
-    assert rep.deduplicated_count == 3
+    assert rep.duplicate_dropped_count == 3
+    assert rep.deduplicated_count == 3  # back-compat alias
+    assert rep.final_evidence_count == max(0, 0 - 3)  # = 0
 
 
 def test_build_coverage_report_records_time_filter_dropped():
@@ -334,7 +344,9 @@ def test_build_coverage_report_to_dict():
     assert "query_count" in d
     assert "raw_result_count" in d
     assert "normalized_evidence_count" in d
-    assert "deduplicated_count" in d
+    assert "duplicate_dropped_count" in d
+    assert "time_filter_dropped_count" in d
+    assert "final_evidence_count" in d
     assert "current_window_count" in d
     assert "baseline_window_count" in d
     assert "languages_covered" in d

@@ -267,6 +267,18 @@ class ResearchPipeline:
             warnings.append(f"normalization_dropped={normalization_warnings}")
 
         # 7) Time filter.
+        # Snapshot post-normalize length BEFORE filtering so the coverage
+        # report can show "X raw -> Y normalized -> T time_filter_dropped
+        # -> D dedup_dropped -> N final" with each stage clearly distinct.
+        normalized_count = len(evidence_list)
+        # Snapshot post-normalize evidence BEFORE time filter so coverage
+        # metrics can separate "normalized" from "time-filter-kept".
+        normalized_evidence_pre_filter = list(evidence_list)
+        # 7) Time filter.
+        # Snapshot post-normalize length BEFORE filtering so the coverage
+        # report can show "X raw -> Y normalized -> T time_filter_dropped
+        # -> D dedup_dropped -> N final" with each stage clearly distinct.
+        normalized_count = len(evidence_list)
         tf = apply_time_filter(
             evidence_list,
             plan.get("time_window") or {},
@@ -275,12 +287,15 @@ class ResearchPipeline:
         evidence_list = tf.kept
         if tf.dropped:
             warnings.append(f"time_filter_dropped={len(tf.dropped)}")
+            warnings.append(f"time_filter_normalized_before_drop={normalized_count}")
 
         # 8) Deduplicate.
+        pre_dedup_count = len(evidence_list)
         dedup = deduplicate(evidence_list)
         evidence_list = dedup.kept
         if dedup.duplicate_count:
             warnings.append(f"dedup_dropped={dedup.duplicate_count}")
+        warnings.append(f"dedup_pre_drop={pre_dedup_count}")
 
         # 9) Write ledger.
         written: list[str] = []
@@ -292,6 +307,12 @@ class ResearchPipeline:
                 warnings.append(f"ledger_reject: {ev.get('evidence_id', '<')}: {exc}")
 
         # 10) Coverage report.
+        # `evidence_list` has been mutated through:
+        #   raw -> normalize -> time_filter -> dedup
+        # We pass the post-dedup list as `kept_evidence`; build_coverage
+        # will compute `final_evidence_count` from it and expose the
+        # pre-dedup / pre-time-filter counts too.
+        kept_evidence = evidence_list
         coverage = build_coverage_report(
             requested_sources=list({r.source for r in retrievals}),
             attempted_sources=sorted(by_source.keys()),
@@ -307,9 +328,10 @@ class ResearchPipeline:
                 for q in expanded
             ],
             raw_results=[rr.to_dict() for rr in raw_results],
-            normalized_evidence=evidence_list,
+            normalized_evidence=normalized_evidence_pre_filter,
             deduplicated_dropped=dedup.duplicate_count,
             dropped_by_time_filter=len(tf.dropped),
+            kept_evidence=kept_evidence,
         )
 
         # 11) All-sources-failed guard.

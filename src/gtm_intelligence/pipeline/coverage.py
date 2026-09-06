@@ -1,8 +1,24 @@
-"""CoverageReport (Phase 3 §19).
+"""CoverageReport (Phase 3 §19, Closeout §5).
 
 Deterministic, non-LLM metadata artifact that accompanies a pipeline run.
 Captures the per-source outcomes, the counts of items flowing through each
 stage, the languages/markets covered, and human-readable gaps + warnings.
+
+Semantic clarity (Closeout §5):
+  * `duplicate_dropped_count`   — items the dedup stage REMOVED (≥ 0)
+  * `final_evidence_count`      — items KEPT after dedup (≥ 0)
+  * `normalized_evidence_count` — items that landed in normalization (BEFORE
+                                   time filter and dedup). Users can derive
+                                   "items dropped by time filter" via
+                                   gap/warnings.
+  * `raw_result_count`          — items from adapters BEFORE normalization.
+
+  Arithmetic invariant (always enforced by tests):
+      normalized_evidence_count
+        - duplicate_dropped_count
+        == final_evidence_count
+
+  X raw → Y normalized → Z duplicates dropped → N final
 """
 from __future__ import annotations
 
@@ -23,7 +39,9 @@ class CoverageReport:
     query_count: int = 0
     raw_result_count: int = 0
     normalized_evidence_count: int = 0
-    deduplicated_count: int = 0
+    duplicate_dropped_count: int = 0
+    time_filter_dropped_count: int = 0
+    final_evidence_count: int = 0
     current_window_count: int = 0
     baseline_window_count: int = 0
     languages_covered: tuple[str, ...] = ()
@@ -31,21 +49,24 @@ class CoverageReport:
     gaps: tuple[str, ...] = ()
     warnings: tuple[str, ...] = ()
 
+    @property
+    def deduplicated_count(self) -> int:
+        """Back-compat alias for `duplicate_dropped_count`.
+
+        The previous name was ambiguous (could be read as either the count
+        of items dropped or the count of items retained). CoverageReport is
+        Phase 3 internal DTO — this alias keeps existing call sites working
+        while the new field name is the canonical one (Closeout §5).
+        """
+        return self.duplicate_dropped_count
+
     def summary(self) -> str:
         return (
-            f"requested={len(self.requested_sources)} "
-            f"attempted={len(self.attempted_sources)} "
-            f"succeeded={len(self.successful_sources)} "
-            f"failed={len(self.failed_sources)} "
             f"raw={self.raw_result_count} "
-            f"evidence={self.normalized_evidence_count} "
-            f"dedup_dropped={self.deduplicated_count} "
-            f"current={self.current_window_count} "
-            f"baseline={self.baseline_window_count} "
-            f"langs={len(self.languages_covered)} "
-            f"markets={len(self.markets_covered)} "
-            f"gaps={len(self.gaps)} "
-            f"warnings={len(self.warnings)}"
+            f"normalized={self.normalized_evidence_count} "
+            f"time_drop={self.time_filter_dropped_count} "
+            f"dedup_drop={self.duplicate_dropped_count} "
+            f"final={self.final_evidence_count}"
         )
 
     def to_dict(self) -> dict:
@@ -57,7 +78,9 @@ class CoverageReport:
             "query_count": self.query_count,
             "raw_result_count": self.raw_result_count,
             "normalized_evidence_count": self.normalized_evidence_count,
-            "deduplicated_count": self.deduplicated_count,
+            "duplicate_dropped_count": self.duplicate_dropped_count,
+            "time_filter_dropped_count": self.time_filter_dropped_count,
+            "final_evidence_count": self.final_evidence_count,
             "current_window_count": self.current_window_count,
             "baseline_window_count": self.baseline_window_count,
             "languages_covered": list(self.languages_covered),
@@ -106,8 +129,17 @@ def build_coverage_report(
     normalized_evidence: Iterable[Mapping[str, object]],
     deduplicated_dropped: int,
     dropped_by_time_filter: int,
+    kept_evidence: Iterable[Mapping[str, object]] | None = None,
 ) -> CoverageReport:
-    """Build the final CoverageReport from pipeline inputs."""
+    """Build the final CoverageReport from pipeline inputs.
+
+    Stage accounting (Closeout §5):
+
+      X  raw_result_count
+      Y  normalized_evidence_count (after normalization, BEFORE time filter)
+      Y - dropped_by_time_filter = items entering dedup
+      items_entering_dedup - duplicate_dropped_count = final_evidence_count
+    """
     req = list(requested_sources)
     att = list(attempted_sources)
     succ, fail = _partition_sources(source_statuses)
@@ -115,6 +147,7 @@ def build_coverage_report(
     queries_list = list(expanded_queries)
     raw_list = list(raw_results)
     norm_list = list(normalized_evidence)
+    kept = list(kept_evidence) if kept_evidence is not None else norm_list
 
     languages = _distinct_preserve_first(
         str(q.get("query_language") or "") for q in queries_list
@@ -146,7 +179,9 @@ def build_coverage_report(
         query_count=len(queries_list),
         raw_result_count=len(raw_list),
         normalized_evidence_count=len(norm_list),
-        deduplicated_count=int(deduplicated_dropped),
+        duplicate_dropped_count=int(deduplicated_dropped),
+        time_filter_dropped_count=int(dropped_by_time_filter),
+        final_evidence_count=len(kept),
         current_window_count=current_count,
         baseline_window_count=baseline_count,
         languages_covered=languages,

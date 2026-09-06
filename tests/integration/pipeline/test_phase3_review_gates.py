@@ -176,7 +176,8 @@ def test_gate_c_golden_research_x20_deterministic():
         snapshots.append((
             tuple(sorted(result.evidence_ids)),
             ledger.count(),
-            result.coverage.deduplicated_count,
+            result.coverage.duplicate_dropped_count,
+            result.coverage.final_evidence_count,
         ))
     first = snapshots[0]
     assert all(s == first for s in snapshots)

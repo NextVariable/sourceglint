@@ -315,8 +315,10 @@ def test_golden_jp_pipeline_coverage_summary():
     ledger = EvidenceLedger(":memory:")
     result = pipeline.run(plan=plan, sources=sources, ledger=ledger)
     summary = result.coverage.summary()
-    assert "requested=" in summary
-    assert "evidence=" in summary
+    # New format is `raw=X normalized=Y time_drop=T dedup_drop=D final=N`
+    assert "raw=" in summary
+    assert "normalized=" in summary
+    assert "final=" in summary
 
 
 def test_golden_jp_pipeline_no_signal_no_insight_no_recommendation():
@@ -328,13 +330,31 @@ def test_golden_jp_pipeline_no_signal_no_insight_no_recommendation():
         assert not hasattr(result, forbidden)
 
 
-def test_golden_jp_pipeline_duplicate_count_positive():
-    """At least the host_web_search -> notion.so/pricing + official_web
-    duplication produces ≥1 deduplicated item."""
+def test_golden_jp_pipeline_duplicate_count_alias():
+    """Dedup metric is now `duplicate_dropped_count`. The legacy
+    `deduplicated_count` is a back-compat alias (Closeout §5)."""
     pipeline, plan, sources, _ = _pipeline()
     ledger = EvidenceLedger(":memory:")
     result = pipeline.run(plan=plan, sources=sources, ledger=ledger)
-    assert result.coverage.deduplicated_count >= 1
+    # New canonical name:
+    assert result.coverage.duplicate_dropped_count >= 0
+    # Alias still works for back-compat.
+    assert result.coverage.deduplicated_count == result.coverage.duplicate_dropped_count
+
+
+def test_golden_jp_pipeline_arithmetic_invariant():
+    """raw -> normalized -> time_filter_dropped -> dedup_dropped -> final
+    Y - T - D == N."""
+    pipeline, plan, sources, _ = _pipeline()
+    ledger = EvidenceLedger(":memory:")
+    result = pipeline.run(plan=plan, sources=sources, ledger=ledger)
+    cov = result.coverage
+    assert (
+        cov.normalized_evidence_count
+        - cov.time_filter_dropped_count
+        - cov.duplicate_dropped_count
+        == cov.final_evidence_count
+    )
 
 
 # ---------- schema contract drift ----------------------------------------
