@@ -151,12 +151,17 @@ def build_retrieval_plans(
 
     plans: list[RetrievalPlan] = []
     for q in expanded_queries:
-        if not isinstance(q, dict):
+        # Accept both dict and ExpandedQuery dataclass.
+        if hasattr(q, "text") and not isinstance(q, dict):
+            text = str(getattr(q, "text", "") or "").strip()
+            qlang = str(getattr(q, "query_language", "") or "en")
+        elif isinstance(q, dict):
+            text = str(q.get("text") or "").strip()
+            qlang = str(q.get("query_language") or "en")
+        else:
             continue
-        text = str(q.get("text") or "").strip()
         if not text:
             continue
-        qlang = str(q.get("query_language") or "en")
         for src in ordered:
             if not _language_compatible(src.get("languages") or [], qlang):
                 continue
