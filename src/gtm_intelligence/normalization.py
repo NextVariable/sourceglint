@@ -97,16 +97,23 @@ def _validate_engagement(eng: Mapping[str, object]) -> dict:
     return out
 
 
-def _tier_for(source: str) -> int:
-    return _TIER_MAP.get(source, 3)  # unknown sources fall back to T3
+def _known_tier(source: str) -> int | None:
+    """Return the deterministic tier for known sources, or None for unknown.
+
+    Unknown sources must NEVER receive a synthetic neutral score (PRD
+    Closeout §3). The Phase 1 evidence schema declares source_tier and
+    evidence_quality as OPTIONAL — unknown sources omit both fields.
+    """
+    return _TIER_MAP.get(source)
 
 
-def _quality_for(source: str, tier: int) -> float:
-    if source in _TIER_MAP:
-        return _QUALITY_MAP.get(tier, 0.5)
-    # Unknown source — use a conservative neutral quality (not 0.8 which is
-    # reserved for explicitly-declared T3 marketplace sources).
-    return 0.5
+def _known_quality(tier: int) -> float:
+    """Tier -> quality for KNOWN sources only.
+
+    Caller MUST check `_known_tier(source)` first; this helper assumes
+    the tier is already a real 1-4 value (never None).
+    """
+    return _QUALITY_MAP.get(tier, 0.5)
 
 
 def _truncate(text: str, n: int) -> str:
@@ -153,8 +160,8 @@ def normalize_raw(
         )
 
     canonical_url = canonicalize_url(raw.url)
-    tier = _tier_for(raw.source)
-    quality = _quality_for(raw.source, tier)
+    tier = _known_tier(raw.source)
+    quality = _known_quality(tier) if tier is not None else None
 
     out: dict[str, Any] = {
         "evidence_id": derive_evidence_id(
@@ -167,16 +174,18 @@ def normalize_raw(
             }
         ),
         "source": raw.source,
-        "source_tier": tier,
         "source_type": raw.source_type,
         "url": canonical_url,
         "title": raw.title,
         "snippet": _truncate(raw.text, _SNIPPET_MAX),
         "retrieved_at": as_of,
-        "evidence_quality": quality,
         "language": raw.language or "en",
         "window": window,
     }
+    if tier is not None:
+        out["source_tier"] = tier
+    if quality is not None:
+        out["evidence_quality"] = quality
 
     if raw.author:
         out["author"] = raw.author

@@ -387,12 +387,16 @@ def test_normalize_determinism_x20():
 
 
 def test_normalize_evidence_quality_within_range():
-    """evidence_quality is always in [0, 1]."""
-    sources = ["official_web", "reddit", "host_web_search", "unknown_xyz"]
+    """evidence_quality is always in [0, 1] when present (None = unknown)."""
+    sources = ["official_web", "reddit", "host_web_search"]
     for src in sources:
         r = _raw(source=src)
         e = normalize_raw(r, as_of="2026-09-06T10:00:00Z")
         assert 0.0 <= e["evidence_quality"] <= 1.0
+    # Unknown source MUST omit the synthetic default (Closeout §3).
+    unknown_r = _raw(source="unknown_xyz")
+    unknown_e = normalize_raw(unknown_r, as_of="2026-09-06T10:00:00Z")
+    assert "evidence_quality" not in unknown_e
 
 
 def test_normalize_published_at_accepts_plus_offset():
@@ -402,12 +406,16 @@ def test_normalize_published_at_accepts_plus_offset():
     assert e["published_at"] == "2026-08-30T12:00:00+09:00"
 
 
-def test_normalize_source_unknown_uses_default_tier_3():
+def test_normalize_source_unknown_omits_tier_and_quality():
+    """Unknown source MUST NOT be assigned a synthetic T3 / 0.5 default.
+
+    Per Closeout §3: source_tier and evidence_quality are OPTIONAL in the
+    Evidence schema. Unknown sources must omit both. Replaces the prior
+    'fallback to T3 / 0.5' assertion."""
     r = _raw(source="unknown_source")
     e = normalize_raw(r, as_of="2026-09-06T10:00:00Z")
-    # Unknown source falls back to T3 / quality 0.5
-    assert e["source_tier"] == 3
-    assert abs(e["evidence_quality"] - 0.5) < 1e-9
+    assert "source_tier" not in e
+    assert "evidence_quality" not in e
 
 
 def test_validate_evidence_payload_helper():
