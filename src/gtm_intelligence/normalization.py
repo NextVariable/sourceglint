@@ -163,6 +163,16 @@ def normalize_raw(
     tier = _known_tier(raw.source)
     quality = _known_quality(tier) if tier is not None else None
 
+    # Phase 4 §6 + §20: when raw_metadata declares an official-domain match,
+    # the verified-owner flag wins over the source-tier heuristic. The
+    # official flag is itself the verification, so we promote to T1 even
+    # for sources not in our tier map. This is a tier-resolution tweak; no
+    # new Evidence field is added (both `source_tier` and `evidence_quality`
+    # remain optional in the Phase 1 schema).
+    if bool(raw.raw_metadata.get("official")):
+        tier = 1
+        quality = 1.0
+
     out: dict[str, Any] = {
         "evidence_id": derive_evidence_id(
             {
