@@ -97,11 +97,22 @@ class EvidenceRecord:
 
 
 class EvidenceLedger:
-    """JSONL-backed evidence ledger."""
+    """JSONL-backed evidence ledger.
+
+    Pass path=":memory:" for an in-memory ledger (no on-disk artifact,
+    no directory created). Otherwise path may be a PathLike or string
+    pointing to a writable location; the parent directory is created on
+    first write.
+    """
+
+    _IN_MEMORY = ":memory:"
 
     def __init__(self, path: os.PathLike[str] | str) -> None:
-        self.path = Path(path)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(path, str) and path == self._IN_MEMORY:
+            self.path = None  # type: ignore[assignment]
+        else:
+            self.path = Path(path)
+            self.path.parent.mkdir(parents=True, exist_ok=True)
         self._index: dict[str, EvidenceRecord] = {}
         self._load_existing()
 
@@ -182,13 +193,15 @@ class EvidenceLedger:
     # --- internal -----------------------------------------------------------
 
     def _append_line(self, record: EvidenceRecord) -> None:
+        if self.path is None:
+            return  # in-memory mode
         line = json.dumps(record.to_payload(), ensure_ascii=False, sort_keys=True)
         # Append atomically: open in append mode, write line + newline.
         with self.path.open("a", encoding="utf-8") as fh:
             fh.write(line + "\n")
 
     def _load_existing(self) -> None:
-        if not self.path.exists():
+        if self.path is None or not self.path.exists():
             return
         with self.path.open(encoding="utf-8") as fh:
             for ln_no, raw in enumerate(fh, start=1):
