@@ -110,11 +110,17 @@ def _quality_for(source: str, tier: int) -> float:
 
 
 def _truncate(text: str, n: int) -> str:
+    """Truncate to ≤ n Unicode code points (matches JSON Schema maxLength).
+
+    JSON Schema `maxLength` counts code points, not bytes. Python's
+    `len()` and slice operator are both code-point-counted, so `text[:n]`
+    is the correct truncation. We do NOT add ellipsis or otherwise
+    summarize — the deterministic first-n slice preserves auditability.
+    """
     if not text:
         return text
     if len(text) <= n:
         return text
-    # Deterministic byte-stable truncation. Not LLM summary.
     return text[:n]
 
 
