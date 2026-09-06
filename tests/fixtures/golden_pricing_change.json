@@ -1,0 +1,153 @@
+{
+  "scenario": "ai_meeting_pricing_change",
+  "evidence": [
+    {
+      "source": "reddit",
+      "source_type": "discussion",
+      "url": "https://www.reddit.com/r/productivity/comments/pricing01/meeting_notes_ai_raised_pricing/",
+      "snippet": "The new pricing for the AI meeting notes tier is twice what it was last quarter, and renewal is steep.",
+      "author": "alice_pm",
+      "published_at": "2026-04-12T10:00:00Z",
+      "retrieved_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "source": "hacker_news",
+      "source_type": "discussion",
+      "url": "https://news.ycombinator.com/item?id=40000001",
+      "snippet": "We evaluated three AI meeting tools last week; the price jumps hurt mid-market buyers.",
+      "author": "bob_ops",
+      "published_at": "2026-04-13T11:30:00Z",
+      "retrieved_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "source": "github",
+      "source_type": "release_notes",
+      "url": "https://github.com/example/meeting-ai/releases/tag/v3.0.0",
+      "snippet": "v3.0.0: introduces two new tiers; team plan now $29/seat/month, up from $14/seat/month.",
+      "author": "release_bot",
+      "published_at": "2026-04-10T00:00:00Z",
+      "retrieved_at": "2026-09-01T00:00:00Z"
+    },
+    {
+      "source": "reddit",
+      "source_type": "discussion",
+      "url": "https://www.reddit.com/r/startups/comments/pricing02/still_worth_it_for_our_team/",
+      "snippet": "Even at the new price we keep it because the transcription accuracy is unmatched in Japanese.",
+      "author": "carol_cto",
+      "published_at": "2026-04-14T09:00:00Z",
+      "retrieved_at": "2026-09-01T00:00:00Z"
+    }
+  ],
+  "signals": [
+    {
+      "topic": "AI meeting notes pricing tier jump",
+      "evidence_indices": [0, 1, 2],
+      "representative_evidence_indices": [2],
+      "source_diversity": ["reddit", "hacker_news", "github"],
+      "volume": 3,
+      "recency": 0.85,
+      "signal_type": "cross_source",
+      "novelty": 0.6,
+      "score": 0.78,
+      "confidence": 0.7,
+      "factors": {
+        "decision_relevance": 0.95,
+        "evidence_quality": 0.85,
+        "recency": 0.85,
+        "market_signal": 0.45,
+        "novelty": 0.6
+      },
+      "supporting_evidence_indices": [1],
+      "counter_evidence_indices": [3]
+    }
+  ],
+  "insights": [
+    {
+      "type": "FACT",
+      "statement": "v3.0.0 raised team plan pricing from $14/seat to $29/seat.",
+      "evidence_indices": [2],
+      "signal_ids": []
+    },
+    {
+      "type": "INFERENCE",
+      "statement": "Mid-market buyers are voicing price sensitivity across multiple communities.",
+      "evidence_indices": [0, 1],
+      "signal_ids": []
+    },
+    {
+      "type": "INFERENCE",
+      "statement": "Japanese transcription accuracy keeps a defensive premium segment despite the price jump.",
+      "evidence_indices": [3],
+      "signal_ids": []
+    },
+    {
+      "type": "RECOMMENDATION",
+      "statement": "Validate a localized Japanese retention offer before expanding globally.",
+      "action": "Design a JP-locale grandfathering offer and pilot for 4 weeks.",
+      "priority": "P0",
+      "horizon": "Now",
+      "evidence_indices": [3],
+      "signal_ids": []
+    }
+  ],
+  "output": {
+    "summary": "AI meeting notes vendor raised team-plan pricing 2x in v3.0.0; mid-market is price-sensitive, JP transcription accuracy still anchors a premium segment.",
+    "changes": [
+      {"change": "v3.0.0 raises team plan to $29/seat from $14/seat.", "evidence_indices": [2]},
+      {"change": "Renewal feedback split: complaint vs. retention due to JP accuracy.", "evidence_indices": [0, 1]}
+    ],
+    "key_signals": [
+      {
+        "topic": "AI meeting notes pricing tier jump",
+        "evidence_indices": [0, 1, 2],
+        "score": 0.78,
+        "novelty": 0.6,
+        "gtm_implications": {
+          "pricing": "Reconsider tiered grandfathering for mid-market.",
+          "messaging": "Lead with accuracy proof in JP segment.",
+          "retention": "Watch downgrade rates at month 2."
+        },
+        "supporting_evidence_indices": [1],
+        "counter_evidence_indices": [3]
+      }
+    ],
+    "user_voice": [
+      {"text": "The new pricing is twice what it was last quarter.", "evidence_indices": [0], "sentiment": "negative"},
+      {"text": "Price jumps hurt mid-market buyers.", "evidence_indices": [1], "sentiment": "negative"},
+      {"text": "Even at the new price we keep it for JP accuracy.", "evidence_indices": [3], "sentiment": "positive"}
+    ],
+    "competitive_movement": {
+      "summary": "No direct competitor pricing moves captured in this window.",
+      "evidence_indices": []
+    },
+    "weak_signals": [
+      {
+        "topic": "Low-engagement but persistent: complaints about onboarding flow at new tier.",
+        "evidence_indices": [0]
+      }
+    ],
+    "recommended_actions": [
+      {
+        "action": "Design a JP-locale grandfathering offer and pilot for 4 weeks.",
+        "horizon": "Now",
+        "priority": "P0",
+        "evidence_indices": [3]
+      },
+      {
+        "action": "Brief sales on mid-market renewal playbook before Q4.",
+        "horizon": "Next",
+        "priority": "P1",
+        "evidence_indices": [0, 1]
+      }
+    ],
+    "confidence": {
+      "overall": 0.72,
+      "rationale": "Cross-source confirmation of price change (3 sources) and 4 supporting voices; one counter-voice is anchored on JP accuracy retention."
+    },
+    "gaps": ["No competitor pricing-change data captured this run."],
+    "coverage": {
+      "sources_searched": ["reddit", "hacker_news", "github", "official_web"],
+      "sources_unavailable": []
+    }
+  }
+}

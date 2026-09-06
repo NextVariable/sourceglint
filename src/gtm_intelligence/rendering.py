@@ -91,9 +91,7 @@ def _what_changed(out: Mapping[str, object], lookup: Mapping[str, object]) -> st
         if not text:
             continue
         cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(f"- {text}{cites}")
-    if not body:
-        return ""
+        body.append(text + cites)
     return _heading(2, "What Changed") + _bullets(body)
 
 
@@ -102,6 +100,7 @@ def _key_signals(out: Mapping[str, object], lookup: Mapping[str, object]) -> str
     if not isinstance(items, list) or not items:
         return ""
     body = []
+    nested = []
     for item in items:
         if not isinstance(item, Mapping):
             continue
@@ -111,16 +110,19 @@ def _key_signals(out: Mapping[str, object], lookup: Mapping[str, object]) -> str
         score = item.get("score")
         score_str = f" — score {score:.2f}" if isinstance(score, (int, float)) else ""
         cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(f"- **{topic}**{score_str}{cites}")
+        body.append(f"**{topic}**{score_str}{cites}")
         gtm_implications = item.get("gtm_implications") or {}
         if isinstance(gtm_implications, Mapping):
             for k, v in sorted(gtm_implications.items()):
                 if v is None or v == "":
                     continue
-                body.append(f"    - {k}: {v}")
+                nested.append(f"{k}: {v}")
     if not body:
         return ""
-    return _heading(2, "Key Signals") + _bullets(body)
+    text = _bullets(body)
+    if nested:
+        text += "\n" + _bullets(nested)
+    return _heading(2, "Key Signals") + text
 
 
 def _user_voice(out: Mapping[str, object], lookup: Mapping[str, object]) -> str:
@@ -171,9 +173,7 @@ def _weak_signals(out: Mapping[str, object], lookup: Mapping[str, object]) -> st
         if not topic:
             continue
         cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(f"- {topic}{cites}")
-    if not body:
-        return ""
+        body.append(topic + cites)
     return _heading(2, "Weak Signals") + _bullets(body)
 
 
@@ -197,9 +197,7 @@ def _recommended_actions(out: Mapping[str, object], lookup: Mapping[str, object]
             meta.append(f"horizon: {horizon}")
         meta_str = f" ({'; '.join(meta)})" if meta else ""
         cites = _cite_many(lookup, list(item.get("evidence_ids") or []))
-        body.append(f"- {action}{meta_str}{cites}")
-    if not body:
-        return ""
+        body.append(f"{action}{meta_str}{cites}")
     return _heading(2, "Recommended Actions") + _bullets(body)
 
 
