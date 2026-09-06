@@ -1,0 +1,21 @@
+{
+  "evidence_id": "ev_reddit_meetingnotes_1",
+  "source": "reddit",
+  "source_tier": 2,
+  "source_type": "comment",
+  "author": "u/ops_lead",
+  "title": "Thread: meeting notes AI",
+  "snippet": "Granola's auto-summary is the first one that doesn't sound like a robot wrote it.",
+  "url": "https://www.reddit.com/r/ProductivityApps/comments/meetingnotes/granola/",
+  "published_at": "2026-08-28T10:15:00Z",
+  "retrieved_at": "2026-09-06T09:30:00Z",
+  "market": "global",
+  "locale": "en-US",
+  "language": "en",
+  "query_language": "en",
+  "engagement": { "upvotes": 218, "comments": 41 },
+  "evidence_quality": 0.6,
+  "query": "granola meeting notes launch",
+  "window": "current",
+  "tags": ["product_praise", "ai_summary"]
+}

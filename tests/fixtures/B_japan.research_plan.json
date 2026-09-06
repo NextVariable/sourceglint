@@ -1,0 +1,17 @@
+{
+  "topic": "AI translation apps in Japan",
+  "entities": ["deepL", "papago"],
+  "market": "jp",
+  "locale": "ja-JP",
+  "languages": ["en", "ja"],
+  "time_window": { "days": 30 },
+  "decision_context": "Validating Japan as Phase-2 localization market for our translation product",
+  "mode": "market",
+  "required_evidence_types": ["T2_community", "T1_official"],
+  "queries": [
+    "AI translation app japan",
+    "AI翻訳 アプリ おすすめ",
+    "DeepL 日本語 精度"
+  ],
+  "source_priorities": ["reddit", "official_web", "hacker_news"]
+}

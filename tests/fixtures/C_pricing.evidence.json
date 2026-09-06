@@ -1,0 +1,19 @@
+{
+  "evidence_id": "ev_web_pricing_1",
+  "source": "official_web",
+  "source_tier": 1,
+  "source_type": "page",
+  "title": "Pricing update",
+  "snippet": "Team plan now $24/user/mo (was $18). Effective 2026-09-01.",
+  "url": "https://www.notion.com/pricing",
+  "published_at": "2026-09-01T08:00:00Z",
+  "retrieved_at": "2026-09-06T11:00:00Z",
+  "market": "global",
+  "locale": "en-US",
+  "language": "en",
+  "query_language": "en",
+  "evidence_quality": 1.0,
+  "query": "notion pricing",
+  "window": "current",
+  "tags": ["pricing", "official"]
+}

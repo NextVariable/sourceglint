@@ -1,0 +1,15 @@
+{
+  "signal_id": "sig_meetingnotes_ai_differentiator",
+  "topic": "Natural-sounding AI summaries are the new differentiator in meeting notes",
+  "evidence_ids": ["ev_reddit_meetingnotes_1", "ev_hn_meetingnotes_2", "ev_web_granola_3"],
+  "representative_evidence_ids": ["ev_reddit_meetingnotes_1"],
+  "source_diversity": 3,
+  "volume": 12,
+  "recency": 0.85,
+  "signal_type": "cross_source",
+  "novelty": 1.0,
+  "score": 0.78,
+  "confidence": 0.8,
+  "supporting_evidence_ids": ["ev_reddit_meetingnotes_1", "ev_hn_meetingnotes_2"],
+  "counter_evidence_ids": []
+}

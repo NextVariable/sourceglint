@@ -1,0 +1,19 @@
+{
+  "evidence_id": "ev_reddit_price_fair",
+  "source": "reddit",
+  "source_tier": 2,
+  "source_type": "comment",
+  "author": "u/enterprise_admin",
+  "snippet": "Honestly the price is fair for what we get — per-seat is cheaper than hiring an ops tool.",
+  "url": "https://www.reddit.com/r/notion/comments/expensive/",
+  "published_at": "2026-09-03T14:20:00Z",
+  "retrieved_at": "2026-09-06T12:05:00Z",
+  "market": "global",
+  "locale": "en-US",
+  "language": "en",
+  "query_language": "en",
+  "engagement": { "upvotes": 87, "comments": 12 },
+  "evidence_quality": 0.6,
+  "window": "current",
+  "tags": ["pricing", "defense"]
+}

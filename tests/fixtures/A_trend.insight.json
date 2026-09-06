@@ -1,0 +1,14 @@
+{
+  "insight_id": "ins_meetingnotes_summary_tone",
+  "type": "INFERENCE",
+  "statement": "Meeting-notes buyers now differentiate on summary quality (natural tone), not capture accuracy.",
+  "signal_ids": ["sig_meetingnotes_ai_differentiator"],
+  "evidence_ids": ["ev_reddit_meetingnotes_1", "ev_hn_meetingnotes_2"],
+  "confidence": 0.74,
+  "gtm_implications": {
+    "messaging": "Lead with 'human-sounding summaries' rather than 'accurate transcription'",
+    "product": null,
+    "competitor": "Granola is the current quality benchmark in community perception"
+  },
+  "rationale": "Cross-source praise converges on summary naturalness; capture accuracy is assumed table stakes."
+}

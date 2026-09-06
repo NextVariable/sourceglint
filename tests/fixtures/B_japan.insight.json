@@ -1,0 +1,13 @@
+{
+  "insight_id": "ins_jptranslate_quality_gap",
+  "type": "INFERENCE",
+  "statement": "Japanese users perceive a residual naturalness gap in DeepL's Japanese output, opening room for a quality-focused entrant.",
+  "signal_ids": ["sig_jptranslate_naturalness"],
+  "evidence_ids": ["ev_reddit_jptranslate_1"],
+  "confidence": 0.55,
+  "gtm_implications": {
+    "market": "Japan demand exists but centers on output naturalness, not feature count",
+    "localization": "ja output quality is the wedge; needs native-speaker eval, not just MT metrics"
+  },
+  "rationale": "Local-language evidence is thin (single thread) but specific; treat as weak-moderate signal pending P2 validation market."
+}

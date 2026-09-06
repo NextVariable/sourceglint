@@ -1,0 +1,19 @@
+{
+  "evidence_id": "ev_reddit_too_expensive",
+  "source": "reddit",
+  "source_tier": 2,
+  "source_type": "comment",
+  "author": "u/smb_owner",
+  "snippet": "Way too expensive for a 5-person team now. Looking at alternatives.",
+  "url": "https://www.reddit.com/r/notion/comments/expensive/",
+  "published_at": "2026-09-02T09:00:00Z",
+  "retrieved_at": "2026-09-06T12:00:00Z",
+  "market": "global",
+  "locale": "en-US",
+  "language": "en",
+  "query_language": "en",
+  "engagement": { "upvotes": 320, "comments": 88 },
+  "evidence_quality": 0.6,
+  "window": "current",
+  "tags": ["pricing", "complaint", "churn"]
+}

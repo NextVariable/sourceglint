@@ -1,0 +1,55 @@
+{
+  "executive_intelligence": "Natural-sounding AI summaries have become the new quality benchmark in meeting-notes discussions over the last 30 days.",
+  "changes": [
+    "Summary quality (tone) replaced capture accuracy as the community's top praise topic",
+    "Granola repeatedly cited as the benchmark implementation"
+  ],
+  "key_signals": [
+    {
+      "signal_id": "sig_meetingnotes_ai_differentiator",
+      "type": "INFERENCE",
+      "what": "Buyers differentiate meeting-notes tools on summary naturalness",
+      "why_it_matters": "Feature parity in capture is now table stakes; messaging must shift",
+      "level": "high",
+      "gtm_implications": {
+        "messaging": "Lead with 'human-sounding summaries'",
+        "competitor": "Granola is the quality benchmark"
+      }
+    }
+  ],
+  "user_voice": [
+    {
+      "quote": "Granola's auto-summary is the first one that doesn't sound like a robot wrote it.",
+      "evidence_id": "ev_reddit_meetingnotes_1"
+    }
+  ],
+  "competitive_movement": ["Granola positioned as AI-native; Notion shipping assistant features"],
+  "weak_signals": [
+    {
+      "topic": "Diarization accuracy complaints resurfacing in enterprise threads",
+      "evidence_ids": ["ev_reddit_meetingnotes_1"],
+      "why_watch": "Enterprise segment may re-prioritize speaker attribution"
+    }
+  ],
+  "recommended_actions": {
+    "now": [
+      { "action": "Audit our summary tone against 20 Granola outputs", "insight_id": "ins_meetingnotes_summary_tone" }
+    ],
+    "next": [
+      { "action": "Rewrite homepage hero to lead with summary quality", "insight_id": "ins_meetingnotes_summary_tone" }
+    ],
+    "watch": [
+      { "action": "Track diarization complaints weekly", "insight_id": "ins_meetingnotes_diarization" }
+    ]
+  },
+  "confidence": 0.7,
+  "gaps": {
+    "sources_unavailable": ["youtube"],
+    "uncertain": ["whether summary-quality preference persists past launch novelty"]
+  },
+  "coverage": {
+    "sources_searched": ["reddit", "hacker_news", "official_web"],
+    "sources_unavailable": ["youtube"],
+    "coverage_limitation": "YouTube comments not covered in MVP window"
+  }
+}

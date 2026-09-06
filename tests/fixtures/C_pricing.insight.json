@@ -1,0 +1,19 @@
+{
+  "insight_id": "ins_pricing_smb_risk",
+  "type": "RECOMMENDATION",
+  "statement": "Re-evaluate our SMB positioning before Notion's price delta widens further.",
+  "signal_ids": ["sig_pricing_change"],
+  "evidence_ids": ["ev_web_pricing_1", "ev_reddit_a1b2c3"],
+  "confidence": 0.72,
+  "gtm_implications": {
+    "pricing": "SMB plans become our relative-advantage zone",
+    "competitor": "Follow-on SMB discounting is likely within 60 days",
+    "messaging": "Prepare 'simple predictable pricing' counter-narrative"
+  },
+  "action": {
+    "action": "Model SMB tier pricing vs Notion's new price within 2 weeks",
+    "priority": "now",
+    "horizon": "14d"
+  },
+  "rationale": "Official price anchor moved up 33%; SMB churn discussion is community-confirmed."
+}

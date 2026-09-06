@@ -1,0 +1,15 @@
+{
+  "signal_id": "sig_pricing_contradiction",
+  "topic": "Notion price hike reaction is split: SMB churn vs enterprise price-fairness",
+  "evidence_ids": ["ev_reddit_too_expensive", "ev_reddit_price_fair"],
+  "representative_evidence_ids": ["ev_reddit_too_expensive", "ev_reddit_price_fair"],
+  "source_diversity": 1,
+  "volume": 5,
+  "recency": 0.9,
+  "signal_type": "contradictory",
+  "novelty": 0.4,
+  "score": 0.6,
+  "confidence": 0.65,
+  "supporting_evidence_ids": ["ev_reddit_too_expensive"],
+  "counter_evidence_ids": ["ev_reddit_price_fair"]
+}

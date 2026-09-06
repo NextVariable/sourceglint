@@ -1,0 +1,17 @@
+{
+  "topic": "AI meeting notes products",
+  "entities": ["notion", "granola", "fireflies"],
+  "market": "global",
+  "locale": "en-US",
+  "languages": ["en"],
+  "time_window": { "days": 30 },
+  "decision_context": "Evaluating whether to expand our meeting-notes feature set",
+  "mode": "trend",
+  "required_evidence_types": ["T2_community", "T1_official"],
+  "queries": [
+    "AI meeting notes new feature",
+    "notion ai meeting notes",
+    "granola meeting notes launch"
+  ],
+  "source_priorities": ["reddit", "hacker_news", "official_web"]
+}

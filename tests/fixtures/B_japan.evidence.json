@@ -1,0 +1,20 @@
+{
+  "evidence_id": "ev_reddit_jptranslate_1",
+  "source": "reddit",
+  "source_tier": 2,
+  "source_type": "comment",
+  "author": "u/日本語学習者",
+  "snippet": "DeepL の日本語訳はまだ不自然なところがある。papago は韓国語以外も結構使える。",
+  "url": "https://www.reddit.com/r/ja/comments/translate/deepl/",
+  "published_at": "2026-08-25T23:40:00Z",
+  "retrieved_at": "2026-09-06T10:00:00Z",
+  "market": "jp",
+  "locale": "ja-JP",
+  "language": "ja",
+  "query_language": "ja",
+  "engagement": { "upvotes": 96, "comments": 12 },
+  "evidence_quality": 0.6,
+  "query": "DeepL 日本語 精度",
+  "window": "current",
+  "tags": ["translation_quality", "comparison"]
+}
