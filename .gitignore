@@ -10,6 +10,11 @@ htmlcov/
 build/
 dist/
 
+# Secrets / env
+.env
+.env.*
+*.env
+
 # Eval / run artifacts（每次 run 的 JSONL 与报告是可回放审计物，不入库）
 evals/runs/
 runs/
