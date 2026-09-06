@@ -40,11 +40,18 @@
   enabled: true
   type: community
   cost: free
-  auth_required: false
-  credentials: []
+  # Phase 4 §9: Reddit's official OAuth2 client_credentials flow
+  # requires REDDIT_CLIENT_ID + REDDIT_CLIENT_SECRET. The adapter is
+  # contract-complete and raises AdapterAuthMissing BEFORE any HTTP
+  # call when either credential is absent — letting the orchestrator
+  # record AUTH_MISSING and gracefully degrade.
+  auth_required: true
+  credentials:
+    - REDDIT_CLIENT_ID
+    - REDDIT_CLIENT_SECRET
   priority: 80
   capabilities: [search, comments]
-  rate_limit: { rpm: 30 }
+  rate_limit: { rpm: 60 }
   markets: [global]
   languages: [en]
   cache_ttl: 900

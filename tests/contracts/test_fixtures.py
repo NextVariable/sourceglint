@@ -8,6 +8,7 @@ Naming convention: <scenario>.<contract>.json where contract ∈
 
 from __future__ import annotations
 
+import json
 import pathlib
 import sys
 
@@ -57,12 +58,43 @@ def test_sources_yaml_validates_against_registry_schema():
 
 
 def test_sources_yaml_has_no_real_secrets():
-    """Seed registry contains no credential values (contract hygiene)."""
+    """Seed registry contains no credential values (contract hygiene).
+
+    Phase 3 Closeout §1: credential NAMES now follow the POSIX env-var
+    shape (`^[A-Za-z_][A-Za-z0-9_]*$`) — so both lowercase (snake_case)
+    AND uppercase (REDDIT_CLIENT_ID) env-var names are accepted. The
+    stricter rule we enforce here is: NEVER A SECRET VALUE (no '=', no
+    spaces, no leading digit, no body-only separators). Whether the
+    name is lower- or upper-case is the host integration's choice.
+    """
+    import re
+
+    from pathlib import Path as _P
+
     import yaml
+
+    # The schema is the single source of truth here — re-load it so this
+    # test stays in lock-step with the frozen contract.
+    schema_path = _P(__file__).resolve().parents[2] / "schemas" / "source_registry.schema.json"
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    cred_item_pattern = re.compile(
+        schema["items"]["properties"]["credentials"]["items"]["pattern"]
+    )
 
     with (CONFIG_DIR / "sources.yaml").open(encoding="utf-8") as fh:
         registry = yaml.safe_load(fh)
     for entry in registry:
         for cred in entry.get("credentials", []):
-            assert cred == cred.lower(), f"credential name not snake_case: {cred}"
-            assert "=" not in cred and " " not in cred
+            # The schema pattern is the only authority on credential
+            # name shape (Closeout §1).
+            assert cred_item_pattern.fullmatch(cred), (
+                f"credential name {cred!r} violates source_registry "
+                f"schema pattern {cred_item_pattern.pattern!r}"
+            )
+            # Belt-and-braces guards: secret-shaped VALUES must NEVER
+            # appear under any circumstances. The schema rejects '='/
+            # spaces/etc. in addition, but a runtime check here proves
+            # nothing slipped through YAML loading.
+            assert "=" not in cred, f"credential '=' forbidden: {cred!r}"
+            assert " " not in cred, f"credential ' ' forbidden: {cred!r}"
+            assert not cred[0].isdigit(), f"credential leading digit forbidden: {cred!r}"
