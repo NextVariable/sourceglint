@@ -196,9 +196,14 @@ def test_registry_rejects_secret_like_credential_value():
         load_registry(yaml_text=bad_yaml)
 
 
-def test_registry_rejects_uppercase_credential_name():
-    """Schema enforces snake_case lowercase start on credential names."""
-    bad_yaml = """
+def test_registry_accepts_uppercase_credential_name():
+    """GITHUB_TOKEN is a valid environment-variable name (Closeout §1).
+
+    The earlier `^[a-z][a-z0-9_]*$` pattern was over-restrictive and
+    wrongly rejected legitimate env-var credential names. Schema now
+    uses POSIX env-var shape `^[A-Za-z_][A-Za-z0-9_]*$`.
+    """
+    good_yaml = """
 - name: github
   enabled: true
   type: official
@@ -210,8 +215,8 @@ def test_registry_rejects_uppercase_credential_name():
   markets: [global]
   languages: [en]
 """
-    with pytest.raises(Exception):
-        load_registry(yaml_text=bad_yaml)
+    reg = load_registry(yaml_text=good_yaml)
+    assert reg.entries[0].credentials == ("GITHUB_TOKEN",)
 
 
 def test_registry_loads_yaml_with_no_credentials_field():

@@ -33,11 +33,11 @@
         "type": "array",
         "items": {
           "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*$",
-          "description": "Credential NAME only (snake_case). Secret values  (containing '=', uppercase tokens, etc.) are rejected."
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+          "description": "Credential NAME only — standard environment-variable name (POSIX shell). Secret-shaped values (containing '=', spaces, leading digits, or other embedded special characters) are rejected at schema validation."
         },
         "uniqueItems": true,
-        "description": "Names of credentials this source needs. Empty/absent =  no auth needed. Real values live in host secret storage."
+        "description": "Names of credentials this source needs. Empty/absent = no auth needed. Real values live in host secret storage."
       },
       "priority": {
         "type": "integer",
