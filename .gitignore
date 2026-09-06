@@ -19,6 +19,9 @@ dist/
 evals/runs/
 runs/
 
+# Local retrieval cache (Phase 3 §17 / Closeout §4)
+.cache/
+
 # OS
 .DS_Store
 

@@ -60,11 +60,35 @@ from .time_filter import apply_time_filter, TimeWindowError
 
 @dataclass(frozen=True)
 class PipelineConfig:
-    """Pipeline-wide configuration. as_of is injected (deterministic)."""
+    """Pipeline-wide configuration. as_of is injected (deterministic).
+
+    Cache TTL ownership (Closeout §4):
+      1. per-request override via `cache_ttl_seconds` on PipelineConfig
+         (set by the orchestrator to the registry entry's `cache_ttl`)
+      2. `default_cache_ttl_seconds` (Phase 3 default = 900 s)
+
+    Phase 3 wires rule (1) from the SourceEntry cache_ttl that the
+    registry runtime already loads. Phase 4 may add a per-request
+    override hook on the orchestrator.run(...) signature without
+    touching this config schema.
+    """
 
     as_of: str
     window: str = "current"
     cache: RetrievalCache | None = None
+    default_cache_ttl_seconds: int = 900
+    cache_ttl_seconds: int | None = None  # explicit per-request override
+
+    def __post_init__(self):
+        # __setattr__ is frozen — go around via object.__setattr__.
+        if self.default_cache_ttl_seconds < 0:
+            raise ValueError(
+                f"default_cache_ttl_seconds must be >= 0; got {self.default_cache_ttl_seconds}"
+            )
+        if self.cache_ttl_seconds is not None and self.cache_ttl_seconds < 0:
+            raise ValueError(
+                f"cache_ttl_seconds must be >= 0 or None; got {self.cache_ttl_seconds}"
+            )
 
 
 @dataclass(frozen=True)
@@ -139,11 +163,14 @@ class ResearchPipeline:
         # Build a SourceRegistry from the passed-in sources so we honor
         # the test/runtime registry, not config/sources.yaml.
         import yaml as _yaml
-        from .source_registry import SourceRegistry, _coerce_entry
+        from .source_registry import _coerce_entry as _ce
         try:
             reg_yaml = _yaml.safe_dump(list(sources), allow_unicode=True, sort_keys=True)
-            validated = load_registry(yaml_text=reg_yaml)
-            registry = validated
+            registry = load_registry(yaml_text=reg_yaml)
+            # Build a name -> SourceEntry map for cache_ttl lookups (Closeout §4).
+            source_entries_by_name = {
+                e["name"]: _ce(e) for e in (sources or [])
+            }
         except ConfigValidationError:
             raise
         eligible = eligible_sources_for(
@@ -202,7 +229,16 @@ class ResearchPipeline:
                     rep.append_warning(f"unavailable: {exc}")
                     break
                 # Cache write.
-                self._cache_put(source_name, r, plan, [_rr.to_dict() for _rr in out])
+                ttl = self._ttl_for_source(
+                    source_name, source_entries_by_name
+                )
+                self._cache_put(
+                    source_name,
+                    r,
+                    plan,
+                    [_rr.to_dict() for _rr in out],
+                    ttl_seconds=ttl,
+                )
                 adapter_results.extend(out)
 
             raw_results.extend(adapter_results)
@@ -321,14 +357,50 @@ class ResearchPipeline:
                 return None
         return out
 
+    def _ttl_for_source(
+        self,
+        source_name: str,
+        source_entries_by_name: Mapping[str, object],
+    ) -> int:
+        """Resolve cache TTL for one source.
+
+        Priority (Closeout §4):
+          1. explicit per-request override on PipelineConfig.cache_ttl_seconds
+          2. source-specific cache_ttl from the registry entry
+             (cache_ttl == 0 is treated as "do not cache", returns 0)
+          3. PipelineConfig.default_cache_ttl_seconds (900)
+        """
+        cfg_ttl = self.config.cache_ttl_seconds
+        if cfg_ttl is not None:
+            return cfg_ttl
+        entry = source_entries_by_name.get(source_name)
+        if entry is None:
+            return self.config.default_cache_ttl_seconds
+        entry_ttl = getattr(entry, "cache_ttl", None)
+        if entry_ttl is None:
+            return self.config.default_cache_ttl_seconds
+        if entry_ttl <= 0:
+            return 0
+        return entry_ttl
+
     def _cache_put(
         self,
         source: str,
         retrieval,
         plan: Mapping[str, object],
         items: list[dict],
+        *,
+        ttl_seconds: int,
     ) -> None:
+        """Write raw-result items to the cache at the resolved TTL.
+
+        ttl_seconds <= 0 means "do not cache". A cache failure NEVER
+        breaks the pipeline (Closeout §17: cache must not be required
+        for correctness).
+        """
         if self.config.cache is None:
+            return
+        if ttl_seconds <= 0:
             return
         key = cache_key_for(
             source=source,
@@ -337,13 +409,11 @@ class ResearchPipeline:
             market=retrieval.market,
             time_window=retrieval.time_window,
         )
-        # TTL = source's cache_ttl (or 900 default). The orchestrator doesn't
-        # know per-source TTL — leave default; Phase 4 can wire per-source TTL.
         try:
             self.config.cache.set(
                 key,
                 items,
-                ttl_seconds=900,
+                ttl_seconds=ttl_seconds,
                 as_of=self.config.as_of,
             )
         except Exception:  # pragma: no cover - cache failure must not break pipeline
