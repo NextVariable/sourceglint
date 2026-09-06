@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gtm-intelligence.dev/common.schema.json",
+  "title": "gtm-intelligence common definitions",
+  "description": "Shared definitions reused across gtm-intelligence contracts. Single source of truth for ID formats, confidence scale, timestamp format, market/locale/language codes, and the GTM dimension enum. Change Control: any edit here is a contract change and requires an ADR.",
+  "$defs": {
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^ev_[a-z0-9_]{1,64}$",
+      "description": "Evidence ID. Prefix ev_. Deterministic-derived (source +  stable hash) by the ledger generator, never a random UUID.  Must be stable to support dedup, citation integrity and  regression tests."
+    },
+    "signal_id": {
+      "type": "string",
+      "pattern": "^sig_[a-z0-9_]{1,64}$",
+      "description": "Signal Cluster ID. Prefix sig_. Deterministic-derived."
+    },
+    "insight_id": {
+      "type": "string",
+      "pattern": "^ins_[a-z0-9_]{1,64}$",
+      "description": "Insight ID. Prefix ins_. Deterministic-derived."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Canonical confidence / score scale across ALL contracts:  0.0-1.0. UI/renderer maps to High/Medium/Low; the contract  keeps a single SoT (PRD §7)."
+    },
+    "iso_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC3339 / ISO 8601 UTC timestamp, e.g. 2026-08-30T12:00:00Z.  Offset forms (+09:00) are accepted by format; storage is  UTC-preferred."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://",
+      "description": "Absolute http(s) URL. No other schemes. Scheme is never  trusted from model output — injected by renderer from ledger."
+    },
+    "market_code": {
+      "type": "string",
+      "pattern": "^(global|[a-z]{2})$",
+      "description": "Market: 'global' or ISO 3166-1 alpha-2 lowercase (jp, us, de...)."
+    },
+    "locale_code": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$",
+      "description": "Locale (BCP-47 style), e.g. ja-JP, de-DE, en. Language part  lowercase, region uppercase."
+    },
+    "language_code": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}$",
+      "description": "Bare language code (ISO 639), e.g. en, ja, de. Region goes  in locale, not here."
+    },
+    "gtm_dimension": {
+      "type": "string",
+      "enum": [
+        "market", "icp", "pain_point", "product", "positioning", "messaging",
+        "pricing", "competitor", "channel", "creator", "content", "launch",
+        "localization", "distribution", "conversion", "retention"
+      ],
+      "description": "Finite GTM dimension enum (v0.2 §19 D-implied + PRD §12).  Extending requires an explicit WHY + ADR; ad-hoc additions  for single test cases are forbidden."
+    },
+    "non_negative_int": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}
