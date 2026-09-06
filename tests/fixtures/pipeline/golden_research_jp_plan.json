@@ -1,0 +1,17 @@
+{
+  "topic": "AI Meeting Assistant",
+  "mode": "competitor",
+  "market": "jp",
+  "locale": "ja-JP",
+  "languages": ["en", "ja"],
+  "time_window": {"days": 30},
+  "entities": ["Notion AI", "Notion 値上げ"],
+  "decision_context": "watch JP pricing changes for AI meeting assistant market",
+  "queries": [
+    "Notion AI 値上げ",
+    "AI meeting assistant Japan pricing",
+    "Notion AI vs 代替",
+    "Notion 競合 日本語"
+  ],
+  "source_priorities": ["reddit", "hacker_news", "github", "official_web", "host_web_search"]
+}
