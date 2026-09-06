@@ -181,16 +181,35 @@ def test_d_coverage_reports_failures():
 
 
 def test_e_no_network_imports_in_src():
-    """No requests/httpx/aiohttp/urllib3 import in any src/ module."""
+    """No requests/httpx/aiohttp/urllib3 import in any src/ module.
+
+    Phase 4 contract clarification: Phase 4 introduces REAL source
+    connectors (HN, GitHub, Reddit) and explicitly chose stdlib `urllib`
+    over `requests`/`httpx` for new-dependency avoidance. The single
+    stdlib HTTP client lives at `src/gtm_intelligence/connectors/_http.py`
+    and is the ONLY src/ file that may speak directly to urllib. All
+    other Phase 4 connectors (host_search, official_web, hacker_news,
+    github, reddit) must consume THIS client and never import urllib on
+    their own. Verified by the `_http.py` explicit allowlist below; if
+    ANY OTHER src/ file uses `urllib.request`, this gate fails. The
+    broader rule — no `requests`/`httpx`/`urllib3`/`aiohttp` — is
+    unchanged.
+    """
     src_dir = ROOT / "src"
     forbidden = ("requests", "httpx", "aiohttp", "urllib3")
+    # Phase 4: explicit allowlist for the stdlib HTTP client module.
+    http_client_module = src_dir / "gtm_intelligence" / "connectors" / "_http.py"
     violations = []
     for path in src_dir.rglob("*.py"):
+        is_http_client = path.resolve() == http_client_module.resolve()
         text = path.read_text(encoding="utf-8")
         for mod in forbidden:
             if re.search(rf"^import {mod}\b|^from {mod}\b", text, re.M):
                 violations.append((str(path.relative_to(ROOT)), mod))
-        # Disallow direct socket.socket and urllib.request as active lines.
+        # Disallow direct socket.socket and urllib.request as active lines,
+        # EXCEPT in the explicit Phase 4 HTTP client module.
+        if is_http_client:
+            continue
         for line in text.splitlines():
             ls = line.lstrip()
             if ls.startswith("#"):
