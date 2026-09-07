@@ -1,4 +1,9 @@
-"""Phase 5 integration test infrastructure (JSON Schema registry)."""
+"""Phase 5 integration test support — JSON Schema registry + fixture loaders.
+
+NOT named conftest.py: tests/contracts tests do `from conftest import ...` and a
+second top-level conftest module would shadow it under the rootdir import
+mode when both trees run in one pytest session.
+"""
 from __future__ import annotations
 
 import json

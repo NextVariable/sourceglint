@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from conftest import load_json, load_jsonl, load_schema, validate
+from _support import load_json, load_jsonl, load_schema, validate
 from gtm_intelligence.intelligence import pipeline
 from gtm_intelligence.intelligence.model import (
     FakeClusterScript,
@@ -60,7 +60,7 @@ def _run(scenario_meta: dict):
 
 
 @pytest.mark.parametrize("name", list(GOLDEN["scenarios"].keys()))
-def test_golden_runs_are_byte_identical_20x(name, signal_schema):
+def test_golden_runs_are_byte_identical_20x(name):
     meta = GOLDEN["scenarios"][name]
     records = load_jsonl(meta["file"])
     expect = meta["expect"]

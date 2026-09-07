@@ -40,7 +40,7 @@ from pathlib import Path
 
 import yaml
 
-from conftest import load_jsonl, load_schema, validate
+from _support import load_jsonl, load_schema, validate
 from gtm_intelligence.intelligence import cache as cache_mod
 from gtm_intelligence.intelligence import pipeline as pipeline_mod
 from gtm_intelligence.intelligence import signals as signals_mod
