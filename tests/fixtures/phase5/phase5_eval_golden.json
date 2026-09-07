@@ -1,0 +1,91 @@
+{
+  "scenarios": {
+    "A_cross_source": {
+      "file": "A_cross_source.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "scripts": [
+        {
+          "label": "Translation latency dropped to sub-second",
+          "claim": "vendors cut translation latency under one second",
+          "evidence_ids": ["ev_a1", "ev_a2", "ev_a3"],
+          "decision_relevance": 0.8,
+          "semantic_novelty": 0.7
+        }
+      ],
+      "expect": {
+        "signal_types": ["cross_source"],
+        "evidence_ids": [["ev_a1", "ev_a2", "ev_a3"]],
+        "min_source_diversity": 2,
+        "languages_present": ["en", "ja"]
+      }
+    },
+    "B_keyword_similar": {
+      "file": "B_keyword_similar.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "scripts": [
+        {
+          "label": "AI agent platform launched",
+          "claim": "product launched an AI agent platform",
+          "evidence_ids": ["ev_b1"],
+          "decision_relevance": 0.75
+        },
+        {
+          "label": "AI launch broke workspaces",
+          "claim": "users report the AI agents are broken",
+          "evidence_ids": ["ev_b2"],
+          "decision_relevance": 0.8,
+          "semantic_novelty": 0.5
+        }
+      ],
+      "expect": {
+        "signal_types": ["single_source", "single_source"],
+        "evidence_ids": [["ev_b1"], ["ev_b2"]],
+        "note": "shared keyword 'AI launch' must NOT merge a product launch with a user complaint (precision over recall)"
+      }
+    },
+    "C_voc_contradiction": {
+      "file": "C_voc_contradiction.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "scripts": [
+        {
+          "label": "Voice AI price hike splits users",
+          "claim": "the price increase is polarizing",
+          "evidence_ids": ["ev_c1", "ev_c2"],
+          "supporting_evidence_ids": ["ev_c1"],
+          "counter_evidence_ids": ["ev_c2"],
+          "contradiction_kind": "factual",
+          "contradiction_confidence": 0.8,
+          "decision_relevance": 0.85
+        }
+      ],
+      "expect": {
+        "signal_types": ["contradictory"],
+        "counter_ids": [["ev_c2"]]
+      }
+    },
+    "D_weak_emerging": {
+      "file": "D_weak_emerging.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "scripts": [
+        {
+          "label": "Prompt-cache billing emerges",
+          "claim": "a new pricing form for cached tokens is appearing",
+          "evidence_ids": ["ev_d1"],
+          "decision_relevance": 0.85,
+          "semantic_novelty": 0.9
+        },
+        {
+          "label": "Baseline pricing page",
+          "claim": "standard pricing existed before",
+          "evidence_ids": ["ev_dbase"]
+        }
+      ],
+      "expect": {
+        "signal_types": ["emerging"],
+        "volume": [1],
+        "weak_candidate": true,
+        "note": "baseline-only cluster ev_dbase must be dropped; ev_d1 is emerging + weak (low volume, high novelty, high relevance)"
+      }
+    }
+  }
+}
