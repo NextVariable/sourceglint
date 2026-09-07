@@ -129,34 +129,3 @@ def test_url_canonicalization_stable():
     a = canonicalize_url("https://Example.com/A?utm_source=tw&b=2&a=1#frag")
     b = canonicalize_url("https://example.com/A?a=1&b=2&utm_source=tw#frag")
     assert a == b
-
-
-def test_golden_render_does_not_use_network(tmp_path):
-    """The integration test imports modules and runs the chain. It must
-    finish in milliseconds (no network calls).
-
-    Phase 4 reality: the integration suite now includes the Phase 4
-    review gates, which exercise a real-subset golden × 20 runs
-    (Gate H). We exclude the gates file here because:
-      (a) it's a meta-validation, not a Phase 4 capability test, AND
-      (b) its 20-iteration golden is intentionally slower than the
-          bit-second assertions this test was originally written to
-          guard against (infinite loops in render paths).
-    The actual no-network guarantee lives in Gate D
-    (`test_gate_d_no_real_socket_in_src`) inside the Phase 4 review
-    gates file. We only verify returncode here, not wall-clock.
-    """
-    import subprocess
-    import sys
-    res = subprocess.run(
-        [
-            sys.executable, "-m", "pytest",
-            str(TESTS / "integration"),
-            "--ignore",
-            str(TESTS / "integration" / "pipeline" / "test_phase4_review_gates.py"),
-            "-q", "--no-header",
-        ],
-        capture_output=True, text=True,
-        cwd=str(ROOT),
-    )
-    assert res.returncode == 0, res.stdout + res.stderr
