@@ -6,9 +6,10 @@ endpoint, do NOT store credentials, and DO NOT log or echo tokens.
 PRD §8 rules:
   * public anonymous API works (60 req/h). `GITHUB_TOKEN` is optional
     and lifts the budget to 5000 req/h.
-  * MVP scope (PRD §15 + §8): search repositories. The Phase 4 sources
-    config still lists `releases` capability on the github entry; the
-    Phase 4.5+ adapter may add that, but is intentionally out of scope
+  * MVP scope (PRD §15 + §8): search repositories. The sources config
+    was aligned to this reality (Phase 4 §44): the github entry lists
+    only `search` — it must never out-claim the adapter. A future
+    adapter may add `releases`, but that is intentionally out of scope
     for this commit (PRD §8 explicitly says "doesn't need all GitHub
     objects at once").
   * `created_at` ≠ `published_at` ≠ `updated_at`. We use `created_at`

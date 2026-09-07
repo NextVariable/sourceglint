@@ -9,7 +9,7 @@
 #   official_web     — first-party pages (T1): product/pricing/changelog/blog
 #   reddit           — community voice (T2), keyless free path first
 #   hacker_news      — community voice (T2), Algolia API free
-#   github           — first-party signals (T1): releases/activity
+#   github           — first-party signals (T1): repo search/activity
 
 - name: host_web_search
   enabled: true
@@ -76,7 +76,10 @@
   auth_required: false
   credentials: []
   priority: 85
-  capabilities: [search, releases]
+  # Capability honesty (Phase 4 §44): the MVP adapter implements repo
+  # SEARCH only. `releases` was listed here before the adapter existed;
+  # a future adapter may re-add it, config must never out-claim code.
+  capabilities: [search]
   rate_limit: { rpm: 60 }
   markets: [global]
   languages: [en]
