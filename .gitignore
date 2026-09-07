@@ -22,6 +22,9 @@ runs/
 # Local retrieval cache (Phase 3 §17 / Closeout §4)
 .cache/
 
+# Local pytest scratch space (dev artifact; see docs for the TMPDIR note)
+.pytest_tmp/
+
 # OS
 .DS_Store
 
