@@ -29,6 +29,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping
 
+from .cache import SemanticCache, build_cache_key
 from .dtos import ClusterDraft, PreparedEvidence, ResearchContext, ValidatedCluster
 from .ids import derive_cluster_id
 from .model import (
@@ -39,7 +40,7 @@ from .model import (
     ModelStatus,
 )
 from .preparation import model_payloads
-from .prompts import TASK_CLUSTERING
+from .prompts import TASK_CLUSTERING, prompt_version
 
 #: Keys that must exist on the model payload envelope.
 _CLUSTER_KEYS = ("label", "claim", "evidence_ids")
@@ -176,26 +177,50 @@ def cluster(
     model: IntelligenceModel,
     *,
     research_context: ResearchContext | None = None,
+    cache: SemanticCache | None = None,
 ) -> ClusteringOutcome:
     """Run the semantic-clustering step for one prepared evidence set.
 
     `prepared` is sorted by evidence_id by `prepare_evidence`; we re-sort
     defensively so the payload handed to the model (and the derived ids)
-    never depend on caller order.
+    never depend on caller order. With `cache`, an identical prior run
+    (same prompt version / model / evidence set / context) skips the
+    model call (PRD §28).
     """
     items = sorted(prepared, key=lambda e: e.evidence_id)
     if not items:
         raise ValueError("no evidence to cluster")
     ctx = research_context or ResearchContext()
+    ctx_dict = ctx.to_dict()
     payload: dict[str, Any] = {
         "evidence_items": model_payloads(items),
-        "research_context": ctx.to_dict(),
+        "research_context": ctx_dict,
     }
-    response: ModelResponse = model.complete_structured(
-        task=TASK_CLUSTERING,
-        payload=payload,
-        response_schema=CLUSTERING_RESPONSE_SCHEMA,
-    )
+    cache_key: str | None = None
+    if cache is not None:
+        cache_key = build_cache_key(
+            task=TASK_CLUSTERING,
+            prompt_version=prompt_version(TASK_CLUSTERING),
+            model_id=model.model_id,
+            evidence_ids=(e.evidence_id for e in items),
+            research_context=ctx_dict,
+        )
+        cached = cache.get(cache_key)
+        if cached is not None:
+            response = cached
+        else:
+            response = model.complete_structured(
+                task=TASK_CLUSTERING,
+                payload=payload,
+                response_schema=CLUSTERING_RESPONSE_SCHEMA,
+            )
+            cache.put(cache_key, response)
+    else:
+        response = model.complete_structured(
+            task=TASK_CLUSTERING,
+            payload=payload,
+            response_schema=CLUSTERING_RESPONSE_SCHEMA,
+        )
     if not response.ok:
         raise IntelligencePipelineError(
             f"clustering failed: status={response.status.value} "

@@ -37,6 +37,7 @@ from .dtos import (
     ResearchContext,
     ValidatedCluster,
 )
+from .cache import SemanticCache, build_cache_key
 from .model import (
     CONTRADICTION_RESPONSE_SCHEMA,
     IntelligenceModel,
@@ -44,7 +45,7 @@ from .model import (
     ModelStatus,
 )
 from .preparation import model_payloads
-from .prompts import TASK_CONTRADICTION
+from .prompts import TASK_CONTRADICTION, prompt_version
 
 _VALID_KINDS = {
     CONTRADICTION_NONE,
@@ -96,12 +97,18 @@ def analyze_contradictions(
     *,
     evidence_by_id: Mapping[str, PreparedEvidence],
     research_context: ResearchContext | None = None,
+    cache: SemanticCache | None = None,
 ) -> ContradictionOutcome:
-    """Classify support vs counter for every cluster, one model call each."""
+    """Classify support vs counter for every cluster, one model call each.
+
+    When `cache` is provided, a hit (same task/prompt version/model/
+    evidence set/context) skips the model call entirely (PRD §28).
+    """
     if not clusters:
         return ContradictionOutcome()
     ctx = research_context or ResearchContext()
     ctx_dict = ctx.to_dict()
+    prompt_version_id = prompt_version(TASK_CONTRADICTION)
 
     assessments: list[ContradictionAssessment] = []
     warnings: list[str] = []
@@ -119,11 +126,31 @@ def analyze_contradictions(
             "evidence_items": model_payloads(members),
             "research_context": ctx_dict,
         }
-        response: ModelResponse = model.complete_structured(
-            task=TASK_CONTRADICTION,
-            payload=payload,
-            response_schema=CONTRADICTION_RESPONSE_SCHEMA,
-        )
+        cache_key: str | None = None
+        if cache is not None:
+            cache_key = build_cache_key(
+                task=TASK_CONTRADICTION,
+                prompt_version=prompt_version_id,
+                model_id=model.model_id,
+                evidence_ids=member_ids,
+                research_context=ctx_dict,
+            )
+            cached = cache.get(cache_key)
+            if cached is not None:
+                response = cached
+            else:
+                response = model.complete_structured(
+                    task=TASK_CONTRADICTION,
+                    payload=payload,
+                    response_schema=CONTRADICTION_RESPONSE_SCHEMA,
+                )
+                cache.put(cache_key, response)
+        else:
+            response = model.complete_structured(
+                task=TASK_CONTRADICTION,
+                payload=payload,
+                response_schema=CONTRADICTION_RESPONSE_SCHEMA,
+            )
         if not response.ok:
             reason = (
                 f"contradiction model unavailable for {cluster.cluster_id}: "
