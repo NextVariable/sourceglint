@@ -24,6 +24,7 @@ from ..intelligence.dtos import ResearchContext
 from ..intelligence.guardrails import detect_recommendation_leakage
 from ..intelligence.model import ModelResponse, ModelStatus
 from .dtos import FACT, FactDraft, InsightDiagnostics
+from .grounding import VOC_PREFIXES, check_fact_grounding
 from .ids import derive_insight_id
 from .model import (
     FACT_SYNTHESIS_RESPONSE_SCHEMA,
@@ -54,21 +55,15 @@ PHASE6A_RECOMMENDATION_PATTERNS: tuple[str, ...] = (
 )
 
 #: Patterns that indicate the recommendation is reported user voice,
-#: NOT assistant-generated advice (§28).
-_VOC_PREFIXES: tuple[str, ...] = (
-    "users say", "users report", "users mention", "users claim",
-    "users state", "users write", "community members say",
-    "one source reports", "several sources report",
-    "users complain", "customers say", "customers report",
+#: NOT assistant-generated advice (§28). Shared with the grounding
+#: validator (grounding.VOC_PREFIXES).
+_VOC_RE = re.compile(
+    "|".join(re.escape(p) for p in VOC_PREFIXES),
+    re.IGNORECASE,
 )
 
 _P6A_RE_RE = re.compile(
     "|".join(re.escape(p) for p in PHASE6A_RECOMMENDATION_PATTERNS),
-    re.IGNORECASE,
-)
-
-_VOC_RE = re.compile(
-    "|".join(re.escape(p) for p in _VOC_PREFIXES),
     re.IGNORECASE,
 )
 
@@ -97,7 +92,7 @@ def _detect_phase6a_leakage(text: str) -> list[str]:
 def _is_after_voc_prefix(text: str, phrase: str) -> bool:
     """Check if `phrase` appears after a VOC reporting prefix."""
     lower = text.lower()
-    for voc in _VOC_PREFIXES:
+    for voc in VOC_PREFIXES:
         voc_pos = lower.find(voc)
         if voc_pos >= 0:
             phrase_pos = lower.find(phrase)
@@ -115,12 +110,18 @@ def validate_fact(
     valid_signal_ids: set[str],
     evidence_by_id: Mapping[str, Any],
     signal_evidence_map: Mapping[str, set[str]],
+    code_counts: Mapping[str, tuple[int, int]] | None = None,
 ) -> list[str]:
     """Code-side FACT guardrails (PRD §14, §32, §34).
 
     Returns a list of violation strings (empty = valid). Each violation
     is a human-readable description of what failed. Hallucinated refs
     are REJECTED — never stripped or repaired (§32: No Silent Repair).
+
+    `code_counts` maps a cited signal_id to its code-computed
+    (current_count, baseline_count) pair (§37); it feeds the
+    unsupported-quantification guard so the model may mirror code-provided
+    counts but may not invent numbers.
     """
     violations: list[str] = []
 
@@ -158,6 +159,21 @@ def validate_fact(
     leakage = _detect_phase6a_leakage(draft.statement)
     if leakage:
         violations.append(f"recommendation leakage: {', '.join(leakage)}")
+
+    # 7. Grounding (§12, §13, §37): quantification / causality /
+    #    universality / future must be backed by cited evidence or
+    #    code-computed counts. Runs only when referential checks passed —
+    #    a hallucinated ref is already rejected on its own (§32).
+    if not any("hallucinated" in v or "does not belong" in v for v in violations):
+        grounding = check_fact_grounding(
+            draft.statement,
+            signal_ids=draft.signal_ids,
+            evidence_ids=draft.evidence_ids,
+            signal_evidence_map=signal_evidence_map,
+            evidence_by_id=evidence_by_id,
+            code_counts=code_counts,
+        )
+        violations.extend(f"grounding: {g}" for g in grounding)
 
     return violations
 
@@ -214,6 +230,10 @@ def synthesize_facts(
     ctx = research_context or ResearchContext()
     valid_signal_ids = {ps.signal_id for ps in prepared_signals}
     signal_evidence_map = {ps.signal_id: set(ps.evidence_ids) for ps in prepared_signals}
+    code_counts = {
+        ps.signal_id: (ps.current_count, ps.baseline_count)
+        for ps in prepared_signals
+    }
 
     # Build cache key
     all_evidence_ids = set()
@@ -234,7 +254,7 @@ def synthesize_facts(
         if cached is not None and cached.ok:
             return _parse_fact_response(
                 cached, prepared_signals, evidence_by_id,
-                valid_signal_ids, signal_evidence_map,
+                valid_signal_ids, signal_evidence_map, code_counts,
             )
 
     # Build payload
@@ -259,7 +279,7 @@ def synthesize_facts(
 
     return _parse_fact_response(
         response, prepared_signals, evidence_by_id,
-        valid_signal_ids, signal_evidence_map,
+        valid_signal_ids, signal_evidence_map, code_counts,
     )
 
 
@@ -269,6 +289,7 @@ def _parse_fact_response(
     evidence_by_id: Mapping[str, Any],
     valid_signal_ids: set[str],
     signal_evidence_map: Mapping[str, set[str]],
+    code_counts: Mapping[str, tuple[int, int]] | None = None,
 ) -> FactSynthesisResult:
     """Parse model response into validated + rejected FactDrafts."""
     if not response.ok:
@@ -301,6 +322,7 @@ def _parse_fact_response(
             valid_signal_ids=valid_signal_ids,
             evidence_by_id=evidence_by_id,
             signal_evidence_map=signal_evidence_map,
+            code_counts=code_counts,
         )
         if violations:
             rejected.append(draft)

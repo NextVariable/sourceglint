@@ -75,7 +75,10 @@ class TestValidateFact:
     def test_valid_fact(self):
         draft = self._valid_draft()
         signals = [_ps()]
-        ev = {"ev_1": {"evidence_id": "ev_1"}, "ev_2": {"evidence_id": "ev_2"}}
+        ev = {
+            "ev_1": {"evidence_id": "ev_1", "snippet": "Price increased from $10 to $15"},
+            "ev_2": {"evidence_id": "ev_2", "snippet": "Users complaining about the price hike"},
+        }
         sem = _signal_evidence_map(*signals)
         violations = validate_fact(draft, valid_signal_ids={"sig_a"},
                                     evidence_by_id=ev, signal_evidence_map=sem)
@@ -160,6 +163,59 @@ class TestValidateFact:
                         for v in violations if "leak" in v.lower())
 
 
+    def test_grounded_fact_with_counts_passes(self):
+        """§37: a number that mirrors a code-computed count is grounded."""
+        signals = [_ps("sig_a", evidence_ids=("ev_1",), current_count=7, baseline_count=0)]
+        sem = _signal_evidence_map(*signals)
+        draft = FactDraft(
+            statement=(
+                "The issue appears in 7 current-window evidence items "
+                "and 0 baseline items."
+            ),
+            signal_ids=("sig_a",), evidence_ids=("ev_1",), confidence=0.8,
+        )
+        ev = {"ev_1": {"evidence_id": "ev_1", "snippet": "Translation latency complaints"}}
+        violations = validate_fact(
+            draft, valid_signal_ids={"sig_a"},
+            evidence_by_id=ev, signal_evidence_map=sem,
+            code_counts={"sig_a": (7, 0)},
+        )
+        assert violations == []
+
+    def test_unsupported_quantification_rejected(self):
+        """§12: 'several' in evidence ≠ '80%' in the FACT statement."""
+        signals = [_ps("sig_a", evidence_ids=("ev_1",))]
+        sem = _signal_evidence_map(*signals)
+        draft = FactDraft(
+            statement="80% of users complained about translation latency.",
+            signal_ids=("sig_a",), evidence_ids=("ev_1",), confidence=0.8,
+        )
+        ev = {"ev_1": {"evidence_id": "ev_1", "snippet": "Several users complained"}}
+        violations = validate_fact(
+            draft, valid_signal_ids={"sig_a"},
+            evidence_by_id=ev, signal_evidence_map=sem,
+        )
+        assert any("grounding" in v and "quantification" in v for v in violations)
+
+    def test_unsupported_causality_rejected_not_stripped(self):
+        """§12 + §32: an unsupported causal claim is rejected, not repaired."""
+        signals = [_ps("sig_a", evidence_ids=("ev_1", "ev_2"))]
+        sem = _signal_evidence_map(*signals)
+        draft = FactDraft(
+            statement="The price increase caused the sales decline.",
+            signal_ids=("sig_a",), evidence_ids=("ev_1", "ev_2"), confidence=0.8,
+        )
+        ev = {
+            "ev_1": {"evidence_id": "ev_1", "snippet": "Price increased this quarter"},
+            "ev_2": {"evidence_id": "ev_2", "snippet": "Sales declined this quarter"},
+        }
+        violations = validate_fact(
+            draft, valid_signal_ids={"sig_a"},
+            evidence_by_id=ev, signal_evidence_map=sem,
+        )
+        assert any("grounding" in v and "causality" in v for v in violations)
+
+
 class TestSynthesizeFacts:
     def test_basic_synthesis(self):
         signals = [_ps()]
@@ -172,7 +228,10 @@ class TestSynthesizeFacts:
                 rationale="Official pricing page",
             )
         ])
-        ev = {"ev_1": {"evidence_id": "ev_1"}, "ev_2": {"evidence_id": "ev_2"}}
+        ev = {
+            "ev_1": {"evidence_id": "ev_1", "snippet": "Price increased from $10 to $15"},
+            "ev_2": {"evidence_id": "ev_2", "snippet": "Users complaining about the price hike"},
+        }
         ctx = ResearchContext()
         result = synthesize_facts(signals, model, ev, research_context=ctx)
         assert len(result.validated) == 1

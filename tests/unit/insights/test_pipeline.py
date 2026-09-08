@@ -196,3 +196,22 @@ class TestRunInsightPipeline:
         # Facts should still be present
         fact_types = [i for i in result.insights if i["type"] == "FACT"]
         assert len(fact_types) >= 1
+
+    def test_gate_d_fabricated_quantification_rejected(self):
+        """Gate D (§12, §32): a fabricated '80%' never reaches output."""
+        signals, evidence, model = _full_setup()
+        # The scripted model fabricates a percentage the evidence cannot
+        # support ("several users" in evidence, "80%" in the statement).
+        model.fact_scripts = (
+            FakeFactScript(
+                signal_ids=("sig_pricing",),
+                statement="80% of users complained about the price hike.",
+                evidence_ids=("ev_1",),
+                confidence=0.9,
+            ),
+        )
+        model.inference_scripts = ()
+        model.gtm_scripts = ()
+        result = run_insight_pipeline(signals, evidence, model)
+        assert result.insights == ()
+        assert any("grounding" in w and "quantification" in w for w in result.warnings)
