@@ -1,0 +1,162 @@
+{
+  "as_of": "2026-09-07T00:00:00Z",
+  "scenarios": {
+    "A_now_watch_ordering": {
+      "file": "A_now_watch.jsonl",
+      "note": "Strong fact → now action; weaker inference → watch. Deterministic ordering by priority.",
+      "insights": [
+        {
+          "insight_id": "ins_price_a_fact",
+          "type": "FACT",
+          "statement": "The pricing page lists the current entry-plan price after the recent listing change.",
+          "confidence": 0.9,
+          "signal_ids": ["sig_price_a"],
+          "evidence_ids": ["ev_a1", "ev_a2"]
+        },
+        {
+          "insight_id": "ins_price_a_inf",
+          "type": "INFERENCE",
+          "statement": "Buyer attention to the entry price appears to be rising after the listing change.",
+          "confidence": 0.6,
+          "signal_ids": ["sig_price_a"],
+          "evidence_ids": ["ev_a1", "ev_a2"]
+        }
+      ],
+      "weak_signal_ids": [],
+      "contradiction_ids": [],
+      "expect": {
+        "n_recommendations": 2,
+        "buckets": ["now", "watch"],
+        "first_action_class": "experiment",
+        "note": "Fact-backed experiment scores now; low-impact investigate lands watch."
+      }
+    },
+    "B_weak_cap": {
+      "file": "B_weak_cap.jsonl",
+      "note": "Weak single-source insight. Model proposes a strategic change → code cap rejects it; only a bounded experiment survives.",
+      "insights": [
+        {
+          "insight_id": "ins_price_b_fact",
+          "type": "FACT",
+          "statement": "A single community post mentions a possible entry-offer tweak in the current window.",
+          "confidence": 0.5,
+          "signal_ids": ["sig_price_b"],
+          "evidence_ids": ["ev_b1"]
+        }
+      ],
+      "weak_signal_ids": ["ins_price_b_fact"],
+      "contradiction_ids": [],
+      "expect": {
+        "n_recommendations": 1,
+        "buckets": ["next"],
+        "surviving_action_class": "experiment",
+        "rejected_change": true,
+        "note": "Weak-signal policy (§18): change exceeds cap, experiment survives."
+      }
+    },
+    "C_contradiction_segments": {
+      "file": "C_contradiction_segments.jsonl",
+      "note": "Contradictory insights for two segments produce opposed actions that are classified segment_specific — never auto-resolved.",
+      "insights": [
+        {
+          "insight_id": "ins_price_c_std",
+          "type": "INFERENCE",
+          "statement": "Standard-tier buyers show mixed reactions to the current price rather than a uniform view.",
+          "confidence": 0.55,
+          "signal_ids": ["sig_price_c_std"],
+          "evidence_ids": ["ev_c1"]
+        },
+        {
+          "insight_id": "ins_price_c_pre",
+          "type": "INFERENCE",
+          "statement": "Premium-tier buyers show the opposite mixed reactions to the current price.",
+          "confidence": 0.55,
+          "signal_ids": ["sig_price_c_pre"],
+          "evidence_ids": ["ev_c2"]
+        }
+      ],
+      "weak_signal_ids": [],
+      "contradiction_ids": ["ins_price_c_std", "ins_price_c_pre"],
+      "expect": {
+        "n_recommendations": 2,
+        "conflict_kind": "segment_specific",
+        "conflict_groups": 1,
+        "note": "Both sides kept; conflict_group_id wired to both diagnostics."
+      }
+    },
+    "D_semantic_dedup": {
+      "file": "D_semantic_dedup.jsonl",
+      "note": "Two near-identical entry-offer experiments → one deterministic winner; loser recorded on the winner's diagnostics.",
+      "insights": [
+        {
+          "insight_id": "ins_price_d_fact",
+          "type": "FACT",
+          "statement": "The pricing page lists the entry plan at the current monthly price.",
+          "confidence": 0.8,
+          "signal_ids": ["sig_price_d"],
+          "evidence_ids": ["ev_d1", "ev_d2"]
+        }
+      ],
+      "weak_signal_ids": [],
+      "contradiction_ids": [],
+      "expect": {
+        "n_recommendations": 1,
+        "winner_is_shorter_action": true,
+        "note": "Equal priority/confidence → §28 tie-break: shorter action wins."
+      }
+    },
+    "E_specificity_guard": {
+      "file": "E_specificity_guard.jsonl",
+      "note": "Model invents an ungrounded budget and an ungrounded persona → both rejected; only the grounded candidate survives.",
+      "insights": [
+        {
+          "insight_id": "ins_price_e_fact",
+          "type": "FACT",
+          "statement": "The pricing page lists the Team plan at its current monthly price.",
+          "confidence": 0.85,
+          "signal_ids": ["sig_price_e"],
+          "evidence_ids": ["ev_e1"]
+        }
+      ],
+      "weak_signal_ids": [],
+      "contradiction_ids": [],
+      "expect": {
+        "n_recommendations": 1,
+        "rejected_budget": true,
+        "rejected_persona": true,
+        "note": "§33: money and persona specificity must be grounded in the cited evidence pool."
+      }
+    },
+    "F_jp_bilingual": {
+      "file": "F_jp_bilingual.jsonl",
+      "note": "EN + JA evidence feed one cross-source signal; the recommendation grounds Japanese wording in the cited JA evidence.",
+      "insights": [
+        {
+          "insight_id": "ins_trans_f_fact",
+          "type": "FACT",
+          "statement": "An official Japanese blog post reports improved Japanese translation quality in the meeting tool.",
+          "confidence": 0.85,
+          "signal_ids": ["sig_trans_f"],
+          "evidence_ids": ["ev_f1", "ev_f2"]
+        },
+        {
+          "insight_id": "ins_trans_f_inf",
+          "type": "INFERENCE",
+          "statement": "Meeting-tool translation quality appears to be gaining attention as a competitive dimension.",
+          "confidence": 0.6,
+          "signal_ids": ["sig_trans_f"],
+          "evidence_ids": ["ev_f1", "ev_f2"]
+        }
+      ],
+      "weak_signal_ids": [],
+      "contradiction_ids": [],
+      "expect": {
+        "n_recommendations": 1,
+        "languages_present": ["en", "ja"],
+        "ja_evidence_cited": true,
+        "ja_wording_in_statement": true,
+        "note": "Bilingual golden: JA evidence reaches the support chain and its wording grounds the recommendation statement."
+      }
+    }
+  }
+}
