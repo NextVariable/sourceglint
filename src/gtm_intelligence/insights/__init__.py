@@ -14,7 +14,7 @@ Pipeline (PRD §8):
       → synthesize_inferences()     inferences.py    (model drafts, code validates)
       → validate_inferences()       inferences.py    (code gate)
       → derive_gtm_implications()   gtm_implications.py (model drafts, code checks)
-      → deduplicate_insights()      dedup.py         (code + model semantic judgment)
+      → deduplicate_insights()      dedup.py         (code: structural + signal overlap)
       → validate_insight_schema()   validation.py    (code gate)
       → InsightPipelineResult
 
