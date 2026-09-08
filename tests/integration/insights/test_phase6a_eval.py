@@ -25,10 +25,10 @@ K (offline — FakeInsightModel only).
 from __future__ import annotations
 
 import json
-import pathlib
-from typing import Any
 
 import pytest
+
+from _support_insights import load_json, load_jsonl
 
 from gtm_intelligence.insights.facts import _detect_phase6a_leakage
 from gtm_intelligence.insights.gtm_implications import GTM_DIMENSIONS
@@ -44,9 +44,6 @@ from gtm_intelligence.insights.validation import (
     validate_insight_against_frozen_schema,
     validate_insight_schema,
 )
-
-_ROOT = pathlib.Path(__file__).resolve().parents[3]
-_FIXTURE_DIR = _ROOT / "tests" / "fixtures"
 
 SCENARIOS: tuple[str, ...] = (
     "A_direct_fact",
@@ -65,16 +62,12 @@ assert SCENARIOS, "scenario list must not be empty"
 # --- fixture loaders --------------------------------------------------------
 
 
-def _load_json(name: str) -> dict[str, Any]:
-    path = _FIXTURE_DIR.joinpath(*name.split("/"))
-    with path.open(encoding="utf-8") as fh:
-        return json.load(fh)
+def _load_json(name: str) -> dict:
+    return load_json(name)
 
 
-def _load_jsonl(name: str) -> list[dict[str, Any]]:
-    path = _FIXTURE_DIR.joinpath(*name.split("/"))
-    with path.open(encoding="utf-8") as fh:
-        return [json.loads(line) for line in fh if line.strip()]
+def _load_jsonl(name: str) -> list[dict]:
+    return load_jsonl(name)
 
 
 def _load_scenario(name: str) -> tuple[dict, list[dict], dict]:
