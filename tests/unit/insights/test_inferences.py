@@ -277,3 +277,65 @@ class TestSynthesizeInferences:
         result = synthesize_inferences(facts, ["ins_fact_1"], signals, model, ev, research_context=ctx)
         assert len(result.validated) == 1
         assert len(result.rejected) == 1
+
+    def test_confidence_capped_by_supporting_fact_ceiling(self):
+        """§26: inference confidence must not exceed what its supporting
+        facts allow (min fact confidence, discounted by distance)."""
+        facts = [_fact()]  # confidence 0.9, distance 1 → ceiling 0.765
+        signals = [_ps()]
+        model = FakeInsightModel(inference_scripts=[
+            FakeInferenceScript(
+                fact_ids=("ins_fact_1",), signal_ids=("sig_a",),
+                statement="Price sensitivity may be rising.",
+                evidence_ids=("ev_1",), confidence=0.95,
+                inference_distance=1,
+            )
+        ])
+        ev = {"ev_1": {}}
+        ctx = ResearchContext()
+        result = synthesize_inferences(facts, ["ins_fact_1"], signals, model, ev, research_context=ctx)
+        assert len(result.validated) == 1
+        assert result.validated[0].confidence == pytest.approx(0.765, abs=1e-6)
+        assert any("confidence" in w and "capped" in w for w in result.warnings)
+
+    def test_confidence_below_ceiling_unchanged(self):
+        facts = [_fact()]
+        signals = [_ps()]
+        model = FakeInsightModel(inference_scripts=[
+            FakeInferenceScript(
+                fact_ids=("ins_fact_1",), signal_ids=("sig_a",),
+                statement="Price sensitivity may be rising.",
+                evidence_ids=("ev_1",), confidence=0.4,
+                inference_distance=1,
+            )
+        ])
+        ev = {"ev_1": {}}
+        ctx = ResearchContext()
+        result = synthesize_inferences(facts, ["ins_fact_1"], signals, model, ev, research_context=ctx)
+        assert result.validated[0].confidence == pytest.approx(0.4)
+        assert not any("capped" in w for w in result.warnings)
+
+    def test_ceiling_discounts_longer_inference_distance(self):
+        """§27: distance 2 permits less confidence than distance 0."""
+        facts = [_fact()]
+        signals = [_ps()]
+        model = FakeInsightModel(inference_scripts=[
+            FakeInferenceScript(
+                fact_ids=("ins_fact_1",), signal_ids=("sig_a",),
+                statement="Short leap.", evidence_ids=("ev_1",),
+                confidence=0.85, inference_distance=0,
+            ),
+            FakeInferenceScript(
+                fact_ids=("ins_fact_1",), signal_ids=("sig_a",),
+                statement="Longer leap.", evidence_ids=("ev_1",),
+                confidence=0.85, inference_distance=2,
+            ),
+        ])
+        ev = {"ev_1": {}}
+        ctx = ResearchContext()
+        result = synthesize_inferences(facts, ["ins_fact_1"], signals, model, ev, research_context=ctx)
+        confs = {d.inference_distance: d.confidence for d in result.validated}
+        # distance 0 → ceiling 0.9, model 0.85 unchanged; distance 2 →
+        # ceiling 0.9 * 0.7 = 0.63, model 0.85 capped.
+        assert confs[0] == pytest.approx(0.85)
+        assert confs[2] == pytest.approx(0.63)

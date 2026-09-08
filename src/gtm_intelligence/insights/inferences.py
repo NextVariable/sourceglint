@@ -19,7 +19,7 @@ The model NEVER invents evidence, mints IDs, or generates recommendations.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Iterable, Mapping
 
 from ..intelligence.cache import SemanticCache, build_cache_key
@@ -34,6 +34,35 @@ from .model import (
     TASK_INFERENCE_SYNTHESIS,
 )
 from .prompts import get_insight_prompt
+
+
+# --- confidence ceiling (§26, §27) -----------------------------------------
+
+#: Per-inference-distance confidence discount (§27): a longer reasoning
+#: leap permits less confidence than a direct abstraction, even when the
+#: supporting facts are themselves high-confidence.
+DISTANCE_DISCOUNT_STEP = 0.15
+
+
+def inference_confidence_ceiling(
+    fact_confidences: Iterable[float],
+    inference_distance: int,
+) -> float | None:
+    """Maximum confidence an INFERENCE may carry (§26).
+
+    ceiling = min(supporting fact confidences) * (1 - 0.15 * distance)
+
+    Returns None when there are no supporting facts to bound against.
+    A deterministic code-side cap: model confidence above the ceiling is
+    clamped (with an explicit warning), never silently accepted (§32 —
+    the clamp is reported, not hidden).
+    """
+    confs = [float(c) for c in fact_confidences]
+    if not confs:
+        return None
+    base = min(confs)
+    discount = max(0.0, 1.0 - DISTANCE_DISCOUNT_STEP * int(inference_distance))
+    return max(0.0, min(1.0, base * discount))
 
 
 # --- validation (§16, §27, §35) -------------------------------------------
@@ -200,6 +229,9 @@ def synthesize_inferences(
         for f, fid in zip(facts, fact_insight_ids)
     }
     signal_evidence_map = {ps.signal_id: set(ps.evidence_ids) for ps in prepared_signals}
+    fact_confidence_by_id = {
+        fid: f.confidence for f, fid in zip(facts, fact_insight_ids)
+    }
 
     # Build cache key (§30: includes fact structural IDs)
     all_evidence_ids = set()
@@ -222,6 +254,7 @@ def synthesize_inferences(
             return _parse_inference_response(
                 cached, valid_fact_ids, valid_signal_ids,
                 evidence_by_id, fact_evidence_map, signal_evidence_map,
+                fact_confidence_by_id,
             )
 
     # Build payload
@@ -245,6 +278,7 @@ def synthesize_inferences(
     return _parse_inference_response(
         response, valid_fact_ids, valid_signal_ids,
         evidence_by_id, fact_evidence_map, signal_evidence_map,
+        fact_confidence_by_id,
     )
 
 
@@ -255,6 +289,7 @@ def _parse_inference_response(
     evidence_by_id: Mapping[str, Any],
     fact_evidence_map: Mapping[str, set[str]],
     signal_evidence_map: Mapping[str, set[str]],
+    fact_confidence_by_id: Mapping[str, float] | None = None,
 ) -> InferenceSynthesisResult:
     """Parse model response into validated + rejected InferenceDrafts."""
     if not response.ok:
@@ -278,7 +313,11 @@ def _parse_inference_response(
                 evidence_ids=tuple(str(e) for e in inf_raw.get("evidence_ids") or []),
                 confidence=float(inf_raw.get("confidence") or 0.0),
                 rationale=str(inf_raw.get("rationale") or ""),
-                inference_distance=int(inf_raw.get("inference_distance") or 1),
+                # `or 1` would corrupt a legal distance of 0 → explicit default.
+                inference_distance=(
+                    int(inf_raw["inference_distance"])
+                    if inf_raw.get("inference_distance") is not None else 1
+                ),
             )
         except (TypeError, ValueError) as exc:
             warnings.append(f"inference_synthesis: draft {i} parse error: {exc}")
@@ -299,6 +338,22 @@ def _parse_inference_response(
                 f"{'; '.join(violations)}"
             )
         else:
+            # §26: clamp confidence to the supporting-fact ceiling. The
+            # clamp is EXPLICIT (warning), not a silent repair (§32).
+            fact_confidences = [
+                conf for fid in draft.fact_ids
+                if (conf := (fact_confidence_by_id or {}).get(fid)) is not None
+            ]
+            ceiling = inference_confidence_ceiling(
+                fact_confidences, draft.inference_distance
+            )
+            if ceiling is not None and draft.confidence > ceiling:
+                warnings.append(
+                    f"inference_synthesis: confidence capped from {draft.confidence:.4f} "
+                    f"to {ceiling:.4f} (supporting-fact ceiling, distance="
+                    f"{draft.inference_distance})"
+                )
+                draft = replace(draft, confidence=ceiling)
             validated.append(draft)
             ins_id = derive_insight_id(
                 type=INFERENCE,

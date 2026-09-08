@@ -29,6 +29,7 @@ from .facts import FactSynthesisResult, synthesize_facts
 from .gtm_implications import derive_gtm_implications
 from .inferences import InferenceSynthesisResult, synthesize_inferences
 from .preparation import prepare_signals
+from .support import compute_support_strength, distinct_source_count
 from .validation import validate_insight_schema
 
 _FACT_STAGE = "fact_synthesis"
@@ -140,8 +141,7 @@ def run_insight_pipeline(
     # 8. Deterministic order: insight_id ascending
     validated_insights.sort(key=lambda i: str(i.get("insight_id") or ""))
 
-    # 9. Build diagnostics
-    fact_id_set = set(fact_result.insight_ids)
+    # 9. Build diagnostics (§16, §26, §35)
     diagnostics: list[InsightDiagnostics] = []
     for ins_dict in validated_insights:
         ins_type = ins_dict["type"]
@@ -161,10 +161,19 @@ def run_insight_pipeline(
             bool(ps.counter_evidence_summaries)
             for ps in prepared if ps.signal_id in set(signal_ids)
         )
+        support_strength = compute_support_strength(
+            insight_type=ins_type,
+            n_signals=len(signal_ids),
+            n_evidence=len(evidence_ids),
+            n_sources=distinct_source_count(evidence_ids, evidence_by_id),
+            n_facts=len(supporting_facts),
+            contradiction_preserved=contradiction,
+            weak_signal=weak,
+        )
         diagnostics.append(InsightDiagnostics(
             insight_id=ins_dict["insight_id"],
             type=ins_type,
-            support_strength=float(ins_dict.get("confidence") or 0.0),
+            support_strength=support_strength,
             inference_distance=inference_distance,
             supporting_fact_ids=supporting_facts,
             supporting_signal_ids=signal_ids,
