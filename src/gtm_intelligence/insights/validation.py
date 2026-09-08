@@ -15,10 +15,15 @@ Key invariants (insight.schema.json):
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any, Mapping
 
 from .gtm_implications import GTM_DIMENSIONS
 from .ids import is_valid_insight_id
+
+#: Repo root: src/gtm_intelligence/insights/validation.py → parents[3]
+_SCHEMAS_DIR = Path(__file__).resolve().parents[3] / "schemas"
 
 #: insight.schema.json — the ONLY keys an insight dict may carry.
 INSIGHT_SCHEMA_KEYS = frozenset({
@@ -84,4 +89,49 @@ def validate_insight_schema(insight: Mapping[str, Any]) -> list[str]:
             if key not in GTM_DIMENSIONS:
                 violations.append(f"unknown GTM dimension: {key}")
 
+    return violations
+
+
+# --- frozen-schema gate (PRD §4 Gate B) ------------------------------------
+
+
+def _insight_schema() -> dict:
+    return json.loads((_SCHEMAS_DIR / "insight.schema.json").read_text(encoding="utf-8"))
+
+
+def _common_schema() -> dict:
+    return json.loads((_SCHEMAS_DIR / "common.schema.json").read_text(encoding="utf-8"))
+
+
+def _insight_validator():
+    """Draft 2020-12 validator wired with the frozen common.schema.json ref."""
+    import jsonschema
+    from referencing import Registry, Resource
+
+    reg = Registry().with_resources(
+        [("common.schema.json", Resource.from_contents(_common_schema()))]
+    )
+    return jsonschema.Draft202012Validator(_insight_schema(), registry=reg)
+
+
+def validate_insight_against_frozen_schema(insight: Mapping[str, Any]) -> list[str]:
+    """Validate against the REAL schemas/insight.schema.json (Gate B).
+
+    `validate_insight_schema()` is a fast dependency-free mirror used inside
+    the hot loop; this function is the authoritative gate. It is used by the
+    contract/eval tests to prove no drift between code and frozen schema.
+
+    Returns a list of violation strings (empty = valid).
+    """
+    import jsonschema
+
+    try:
+        validator = _insight_validator()
+    except Exception as exc:  # pragma: no cover - schema packaging broken
+        return [f"insight validator unavailable: {exc}"]
+
+    violations: list[str] = []
+    for err in sorted(validator.iter_errors(dict(insight)), key=lambda e: list(e.path)):
+        loc = "/".join(str(p) for p in err.path) or "<root>"
+        violations.append(f"{loc}: {err.message}")
     return violations

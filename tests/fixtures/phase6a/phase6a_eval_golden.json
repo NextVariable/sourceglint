@@ -1,0 +1,117 @@
+{
+  "scenarios": {
+    "A_direct_fact": {
+      "file": "A_direct_fact.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "signals": [
+        {
+          "signal_id": "sig_a_pricing",
+          "topic": "Pricing increase confirmed cross-source",
+          "evidence_ids": ["ev_a1", "ev_a2", "ev_a3"],
+          "signal_type": "cross_source",
+          "score": 0.72,
+          "confidence": 0.85,
+          "supporting_evidence_ids": ["ev_a1", "ev_a2", "ev_a3"],
+          "counter_evidence_ids": []
+        }
+      ],
+      "expect": {
+        "insight_types": ["FACT"],
+        "has_gtm_implications": true,
+        "no_recommendation": true,
+        "min_confidence": 0.7,
+        "note": "Direct first-party fact — no excessive inference"
+      }
+    },
+    "B_cross_source": {
+      "file": "B_cross_source.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "signals": [
+        {
+          "signal_id": "sig_b_translation",
+          "topic": "Translation latency dropped below one second",
+          "evidence_ids": ["ev_b1", "ev_b2", "ev_b3"],
+          "signal_type": "cross_source",
+          "score": 0.78,
+          "confidence": 0.82,
+          "supporting_evidence_ids": ["ev_b1", "ev_b2", "ev_b3"],
+          "counter_evidence_ids": []
+        }
+      ],
+      "expect": {
+        "insight_types": ["FACT", "INFERENCE"],
+        "has_gtm_implications": true,
+        "no_recommendation": true,
+        "min_confidence": 0.5,
+        "languages_present": ["en", "ja"],
+        "note": "Multiple independent sources support cross-source inference"
+      }
+    },
+    "C_contradictory_voc": {
+      "file": "C_contradictory_voc.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "signals": [
+        {
+          "signal_id": "sig_c_voc",
+          "topic": "Translation experience splits users",
+          "evidence_ids": ["ev_c1", "ev_c2"],
+          "signal_type": "contradictory",
+          "score": 0.65,
+          "confidence": 0.7,
+          "supporting_evidence_ids": ["ev_c1"],
+          "counter_evidence_ids": ["ev_c2"]
+        }
+      ],
+      "expect": {
+        "insight_types": ["FACT", "INFERENCE"],
+        "no_recommendation": true,
+        "contradiction_preserved": true,
+        "note": "Opposing views must not be flattened to one-sided conclusion"
+      }
+    },
+    "D_weak_emerging": {
+      "file": "D_weak_emerging.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "weak_signal_ids": ["sig_d_emerging"],
+      "signals": [
+        {
+          "signal_id": "sig_d_emerging",
+          "topic": "Prompt-cache billing model emerging",
+          "evidence_ids": ["ev_d1"],
+          "signal_type": "emerging",
+          "score": 0.45,
+          "confidence": 0.5,
+          "supporting_evidence_ids": ["ev_d1"],
+          "counter_evidence_ids": []
+        }
+      ],
+      "expect": {
+        "insight_types": ["FACT"],
+        "no_recommendation": true,
+        "weak_signal_preserved": true,
+        "note": "Low volume + high novelty — preserved but calibrated"
+      }
+    },
+    "E_recommendation_trap": {
+      "file": "E_recommendation_trap.jsonl",
+      "as_of": "2026-09-07T00:00:00Z",
+      "signals": [
+        {
+          "signal_id": "sig_e_pricing",
+          "topic": "Users report product is too expensive",
+          "evidence_ids": ["ev_e1", "ev_e2"],
+          "signal_type": "cross_source",
+          "score": 0.7,
+          "confidence": 0.75,
+          "supporting_evidence_ids": ["ev_e1", "ev_e2"],
+          "counter_evidence_ids": []
+        }
+      ],
+      "expect": {
+        "insight_types": ["FACT"],
+        "no_recommendation": true,
+        "note": "Evidence easily induces 'should lower price' — Phase 6A must NOT produce action advice"
+      }
+    }
+  }
+}
