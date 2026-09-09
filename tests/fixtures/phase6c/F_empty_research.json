@@ -1,0 +1,36 @@
+{
+  "note": "F: 0 evidence retrieved. The brief MUST emit the fixed no-evidence statement and never a fabricated 'no major changes' (§20).",
+  "ctx": {
+    "query": "Anything at all about a never-covered topic",
+    "mode": "general",
+    "market": "global",
+    "languages": ["en"],
+    "time_window": "Last 30 days",
+    "as_of": "2026-09-09",
+    "entities": [],
+    "decision_context": ""
+  },
+  "signals": [],
+  "insights": [],
+  "insight_diagnostics": {},
+  "recommendations": [],
+  "recommendation_diagnostics": {},
+  "conflicts": [],
+  "coverage": {
+    "markets_covered": [],
+    "languages_covered": [],
+    "final_evidence_count": 0,
+    "current_window_count": 0,
+    "baseline_window_count": 0,
+    "successful_sources": [],
+    "failed_sources": ["all"],
+    "sources_unavailable": ["all"],
+    "coverage_limitation": "No source returned usable evidence."
+  },
+  "expect": {
+    "no_evidence": true,
+    "sections_rendered": [],
+    "contains": ["No usable evidence was retrieved for this research request."],
+    "not_contains": ["## What We Know", "## Recommended Actions", "No major changes"]
+  }
+}

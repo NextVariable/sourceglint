@@ -1,0 +1,61 @@
+{
+  "note": "C: a contradictory signal must surface in Watchouts with both directions visible (supporting vs against evidence) — never hidden (§13, Gate G).",
+  "ctx": {
+    "query": "Price perception for the entry tier",
+    "mode": "trend",
+    "market": "jp",
+    "languages": ["en"],
+    "time_window": "Last 30 days",
+    "as_of": "2026-09-09",
+    "entities": [],
+    "decision_context": "Whether price perception is a risk"
+  },
+  "signals": [
+    {
+      "signal_id": "sig_c1",
+      "topic": "Price perception is split",
+      "evidence_ids": ["ev_c1", "ev_c2"],
+      "supporting_evidence_ids": ["ev_c1"],
+      "counter_evidence_ids": ["ev_c2"],
+      "signal_type": "contradictory",
+      "source_diversity": 1,
+      "volume": 2,
+      "score": 0.55,
+      "confidence": 0.6,
+      "novelty": 0.4
+    }
+  ],
+  "insights": [
+    {
+      "insight_id": "ins_c_fact",
+      "type": "FACT",
+      "statement": "Community voices split on whether the entry price is fair.",
+      "confidence": 0.8,
+      "signal_ids": ["sig_c1"],
+      "evidence_ids": ["ev_c1", "ev_c2"]
+    }
+  ],
+  "insight_diagnostics": {
+    "ins_c_fact": {"support_strength": 0.6, "weak_signal": false, "contradiction_preserved": true}
+  },
+  "recommendations": [],
+  "recommendation_diagnostics": {},
+  "conflicts": [],
+  "coverage": {
+    "markets_covered": ["jp"],
+    "languages_covered": ["en"],
+    "final_evidence_count": 2,
+    "current_window_count": 2,
+    "baseline_window_count": 0,
+    "successful_sources": ["community"],
+    "failed_sources": [],
+    "sources_unavailable": [],
+    "coverage_limitation": ""
+  },
+  "expect": {
+    "sections_rendered": ["executive", "facts", "watchouts", "coverage", "sources"],
+    "contains": ["## Watchouts", "**Price perception is split** *(conflicting evidence)*", "supporting:", "against:"],
+    "not_contains": ["No usable evidence", "## What It Likely Means"],
+    "evidence_in_markdown": ["ev_c1", "ev_c2"]
+  }
+}

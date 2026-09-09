@@ -1,0 +1,76 @@
+{
+  "note": "D: only weak/emerging evidence exists. The brief must label it (weak — monitor) and MUST NOT present it as confirmed in What We Know / What It Likely Means (§14, Gate H).",
+  "ctx": {
+    "query": "Early evaluation-criteria shift in meeting tools",
+    "mode": "trend",
+    "market": "jp",
+    "languages": ["en"],
+    "time_window": "Last 30 days",
+    "as_of": "2026-09-09",
+    "entities": [],
+    "decision_context": "Watching for new evaluation criteria"
+  },
+  "signals": [
+    {
+      "signal_id": "sig_d1",
+      "topic": "Possible shift in evaluation criteria",
+      "evidence_ids": ["ev_d1"],
+      "signal_type": "emerging",
+      "source_diversity": 1,
+      "volume": 1,
+      "score": 0.3,
+      "confidence": 0.4,
+      "novelty": 0.95
+    }
+  ],
+  "insights": [
+    {
+      "insight_id": "ins_d_weak",
+      "type": "INFERENCE",
+      "statement": "A possible but unconfirmed shift in evaluation criteria is worth monitoring.",
+      "confidence": 0.42,
+      "signal_ids": ["sig_d1"],
+      "evidence_ids": ["ev_d1"]
+    }
+  ],
+  "insight_diagnostics": {
+    "ins_d_weak": {"support_strength": 0.25, "weak_signal": true, "contradiction_preserved": false}
+  },
+  "recommendations": [
+    {
+      "insight_id": "ins_d_r_watch",
+      "type": "RECOMMENDATION",
+      "statement": "Keep a monitoring lane for this criterion.",
+      "confidence": 0.45,
+      "action": {"action": "Add the emerging criterion to the monthly monitoring lane.", "priority": "watch"}
+    }
+  ],
+  "recommendation_diagnostics": {
+    "ins_d_r_watch": {
+      "priority": 0.28, "overall_risk": "LOW",
+      "supporting_insight_ids": ["ins_d_weak"],
+      "contradiction_present": false, "weak_signal_present": true,
+      "conflict_group_id": ""
+    }
+  },
+  "conflicts": [],
+  "coverage": {
+    "markets_covered": ["jp"],
+    "languages_covered": ["en"],
+    "final_evidence_count": 1,
+    "current_window_count": 1,
+    "baseline_window_count": 0,
+    "successful_sources": ["community"],
+    "failed_sources": [],
+    "sources_unavailable": [],
+    "coverage_limitation": ""
+  },
+  "expect": {
+    "sections_rendered": ["actions", "emerging", "coverage", "sources"],
+    "selected_inference_ids": [],
+    "selected_fact_ids": [],
+    "contains": ["## Emerging Signals", "*(weak — monitor)*", "### WATCH"],
+    "not_contains": ["## What We Know", "## What It Likely Means"],
+    "evidence_in_markdown": ["ev_d1"]
+  }
+}

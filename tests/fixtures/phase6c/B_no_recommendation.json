@@ -1,0 +1,61 @@
+{
+  "note": "B: signals and insights exist, but NO recommendation met the support threshold (§19).",
+  "ctx": {
+    "query": "Entry-plan listing change reception",
+    "mode": "trend",
+    "market": "jp",
+    "languages": ["en"],
+    "time_window": "Last 30 days",
+    "as_of": "2026-09-09",
+    "entities": [],
+    "decision_context": "Deciding whether any action is warranted"
+  },
+  "signals": [
+    {
+      "signal_id": "sig_b1",
+      "topic": "Entry-plan listing change is visible",
+      "evidence_ids": ["ev_b1", "ev_b2"],
+      "signal_type": "cross_source",
+      "source_diversity": 2,
+      "volume": 2,
+      "score": 0.6,
+      "confidence": 0.7,
+      "novelty": 0.6
+    }
+  ],
+  "insights": [
+    {
+      "insight_id": "ins_b_fact",
+      "type": "FACT",
+      "statement": "The entry-plan listing changed in the current window and community threads reference it.",
+      "confidence": 0.85,
+      "signal_ids": ["sig_b1"],
+      "evidence_ids": ["ev_b1", "ev_b2"]
+    }
+  ],
+  "insight_diagnostics": {
+    "ins_b_fact": {"support_strength": 0.7, "weak_signal": false, "contradiction_preserved": false}
+  },
+  "recommendations": [],
+  "recommendation_diagnostics": {},
+  "conflicts": [],
+  "coverage": {
+    "markets_covered": ["jp"],
+    "languages_covered": ["en"],
+    "final_evidence_count": 2,
+    "current_window_count": 2,
+    "baseline_window_count": 0,
+    "successful_sources": ["official", "community"],
+    "failed_sources": [],
+    "sources_unavailable": [],
+    "coverage_limitation": ""
+  },
+  "expect": {
+    "sections_rendered": ["executive", "facts", "coverage", "sources"],
+    "selected_fact_ids": ["ins_b_fact"],
+    "selected_recommendation_ids": [],
+    "contains": ["## What We Know", "## Coverage", "No recommendation met the support threshold."],
+    "not_contains": ["## Recommended Actions", "## What It Likely Means"],
+    "evidence_in_markdown": ["ev_b1", "ev_b2"]
+  }
+}

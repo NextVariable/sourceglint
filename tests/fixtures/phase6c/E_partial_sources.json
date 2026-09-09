@@ -1,0 +1,63 @@
+{
+  "note": "E: several sources failed or are unavailable (auth_missing). The brief must render normally AND carry the coverage warning (§19) without failing the whole document.",
+  "ctx": {
+    "query": "Entry-offer reception across channels",
+    "mode": "trend",
+    "market": "jp",
+    "languages": ["en"],
+    "time_window": "Last 30 days",
+    "as_of": "2026-09-09",
+    "entities": [],
+    "decision_context": "Understanding channel-level reception"
+  },
+  "signals": [
+    {
+      "signal_id": "sig_e1",
+      "topic": "Entry offer is discussed on official and community channels",
+      "evidence_ids": ["ev_e1", "ev_e2"],
+      "signal_type": "cross_source",
+      "source_diversity": 2,
+      "volume": 2,
+      "score": 0.65,
+      "confidence": 0.72,
+      "novelty": 0.6
+    }
+  ],
+  "insights": [
+    {
+      "insight_id": "ins_e_fact",
+      "type": "FACT",
+      "statement": "The entry offer is covered on the official page and in community discussion.",
+      "confidence": 0.82,
+      "signal_ids": ["sig_e1"],
+      "evidence_ids": ["ev_e1", "ev_e2"]
+    }
+  ],
+  "insight_diagnostics": {
+    "ins_e_fact": {"support_strength": 0.68, "weak_signal": false, "contradiction_preserved": false}
+  },
+  "recommendations": [],
+  "recommendation_diagnostics": {},
+  "conflicts": [],
+  "coverage": {
+    "requested_sources": ["official", "community", "reddit", "hacker_news"],
+    "attempted_sources": ["official", "community", "hacker_news"],
+    "successful_sources": ["official", "community"],
+    "failed_sources": ["hacker_news"],
+    "markets_covered": ["jp"],
+    "languages_covered": ["en"],
+    "final_evidence_count": 2,
+    "current_window_count": 2,
+    "baseline_window_count": 0,
+    "sources_unavailable": ["reddit", "hacker_news"],
+    "coverage_limitation": "Reddit unavailable (auth_missing); Hacker News failed during retrieval.",
+    "gaps": ["reddit auth_missing", "hacker_news failure"],
+    "warnings": []
+  },
+  "expect": {
+    "sections_rendered": ["executive", "facts", "coverage", "sources"],
+    "contains": ["## What We Know", "## Coverage", "Sources unavailable: hacker_news, reddit", "Coverage limitation: Reddit unavailable (auth_missing)"],
+    "not_contains": ["No usable evidence"],
+    "evidence_in_markdown": ["ev_e1", "ev_e2"]
+  }
+}

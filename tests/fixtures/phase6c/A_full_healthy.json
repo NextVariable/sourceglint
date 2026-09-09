@@ -1,0 +1,176 @@
+{
+  "note": "A full healthy chain: JP/EN evidence, official+community, current+baseline, contradictory price signal, weak JA translation signal, FACT/INFERENCE, NOW/NEXT/WATCH, one segment_specific conflict. Serves as the JP bilingual golden (§36).",
+  "ctx": {
+    "query": "Interpreter-focused meeting assistants in Japan",
+    "mode": "market",
+    "market": "jp",
+    "locale": "ja-JP",
+    "languages": ["ja", "en"],
+    "time_window": "Last 30 days",
+    "as_of": "2026-09-09",
+    "entities": ["meeting-tool-vendor"],
+    "decision_context": "Positioning for the next cycle in Japan"
+  },
+  "signals": [
+    {
+      "signal_id": "sig_a1",
+      "topic": "Interpreter positioning is becoming a visible differentiator",
+      "evidence_ids": ["ev_a1", "ev_a2"],
+      "signal_type": "cross_source",
+      "source_diversity": 2,
+      "volume": 2,
+      "score": 0.82,
+      "confidence": 0.88,
+      "novelty": 0.9
+    },
+    {
+      "signal_id": "sig_a2",
+      "topic": "Japanese meeting translation-quality complaints are rising",
+      "evidence_ids": ["ev_a4"],
+      "signal_type": "emerging",
+      "source_diversity": 1,
+      "volume": 1,
+      "score": 0.4,
+      "confidence": 0.45,
+      "novelty": 0.95
+    },
+    {
+      "signal_id": "sig_a3",
+      "topic": "Price tolerance splits by segment",
+      "evidence_ids": ["ev_a5", "ev_a6"],
+      "supporting_evidence_ids": ["ev_a5"],
+      "counter_evidence_ids": ["ev_a6"],
+      "signal_type": "contradictory",
+      "source_diversity": 1,
+      "volume": 2,
+      "score": 0.6,
+      "confidence": 0.6,
+      "novelty": 0.5
+    }
+  ],
+  "insights": [
+    {
+      "insight_id": "ins_a_fact",
+      "type": "FACT",
+      "statement": "Interpreter support was added to the entry offer in the current window and is already a named comparison topic in community threads.",
+      "confidence": 0.9,
+      "signal_ids": ["sig_a1"],
+      "evidence_ids": ["ev_a1", "ev_a2"]
+    },
+    {
+      "insight_id": "ins_a_inf",
+      "type": "INFERENCE",
+      "statement": "Interpreter support is becoming a decision factor for Japanese-market buyers, but perceived quality is still uneven.",
+      "confidence": 0.68,
+      "signal_ids": ["sig_a1"],
+      "evidence_ids": ["ev_a1", "ev_a2"]
+    },
+    {
+      "insight_id": "ins_a_weak",
+      "type": "INFERENCE",
+      "statement": "Japanese-language translation complaints may be early friction that interpreter positioning could amplify.",
+      "confidence": 0.45,
+      "signal_ids": ["sig_a2"],
+      "evidence_ids": ["ev_a4"]
+    }
+  ],
+  "insight_diagnostics": {
+    "ins_a_fact": {"support_strength": 0.88, "weak_signal": false, "contradiction_preserved": false},
+    "ins_a_inf": {"support_strength": 0.62, "weak_signal": false, "contradiction_preserved": false},
+    "ins_a_weak": {"support_strength": 0.3, "weak_signal": true, "contradiction_preserved": false}
+  },
+  "recommendations": [
+    {
+      "insight_id": "ins_a_r_now",
+      "type": "RECOMMENDATION",
+      "statement": "A/B test interpreter-first landing copy for Japan.",
+      "confidence": 0.74,
+      "action": {"action": "Run a two-week A/B test of interpreter-first landing copy for the Japanese market.", "priority": "now", "horizon": "30d"}
+    },
+    {
+      "insight_id": "ins_a_r_next",
+      "type": "RECOMMENDATION",
+      "statement": "Ship interpreter messaging after the test confirms lift.",
+      "confidence": 0.6,
+      "action": {"action": "Ship the winning interpreter messaging variant to the full JP funnel.", "priority": "next", "horizon": "60d"}
+    },
+    {
+      "insight_id": "ins_a_r_watch",
+      "type": "RECOMMENDATION",
+      "statement": "Monitor JA translation-quality complaints weekly.",
+      "confidence": 0.5,
+      "action": {"action": "Track Japanese translation-quality complaints in a weekly watchlist.", "priority": "watch"}
+    }
+  ],
+  "recommendation_diagnostics": {
+    "ins_a_r_now": {
+      "priority": 0.8, "overall_risk": "MEDIUM",
+      "supporting_insight_ids": ["ins_a_fact", "ins_a_inf"],
+      "contradiction_present": true, "weak_signal_present": false,
+      "conflict_group_id": "conf_a_price"
+    },
+    "ins_a_r_next": {
+      "priority": 0.58, "overall_risk": "LOW",
+      "supporting_insight_ids": ["ins_a_inf"],
+      "contradiction_present": false, "weak_signal_present": false,
+      "conflict_group_id": ""
+    },
+    "ins_a_r_watch": {
+      "priority": 0.3, "overall_risk": "LOW",
+      "supporting_insight_ids": ["ins_a_weak"],
+      "contradiction_present": false, "weak_signal_present": true,
+      "conflict_group_id": ""
+    }
+  },
+  "conflicts": [
+    {
+      "group_id": "conf_a_price",
+      "kind": "segment_specific",
+      "rationale": "Enterprise willingness-to-pay evidence and SMB price-sensitivity evidence point in opposite directions.",
+      "rec_ids": ["ins_a_r_now"],
+      "gtm_dimensions": ["pricing", "icp"]
+    }
+  ],
+  "coverage": {
+    "requested_sources": ["official", "community", "reddit"],
+    "attempted_sources": ["official", "community", "reddit"],
+    "successful_sources": ["official", "community"],
+    "failed_sources": ["reddit"],
+    "markets_covered": ["jp"],
+    "languages_covered": ["ja", "en"],
+    "current_window_count": 4,
+    "baseline_window_count": 2,
+    "final_evidence_count": 6,
+    "raw_result_count": 8,
+    "normalized_evidence_count": 6,
+    "duplicate_dropped_count": 0,
+    "time_filter_dropped_count": 2,
+    "sources_unavailable": ["reddit"],
+    "coverage_limitation": "Reddit unavailable due to missing credentials.",
+    "gaps": ["reddit"],
+    "warnings": []
+  },
+  "expect": {
+    "sections_rendered": ["executive", "facts", "inferences", "actions", "watchouts", "emerging", "coverage", "sources"],
+    "selected_fact_ids": ["ins_a_fact"],
+    "selected_inference_ids": ["ins_a_inf"],
+    "selected_recommendation_ids": ["ins_a_r_now", "ins_a_r_next", "ins_a_r_watch"],
+    "contains": [
+      "## What We Know",
+      "## What It Likely Means",
+      "## Recommended Actions",
+      "### NOW",
+      "### NEXT",
+      "### WATCH",
+      "## Watchouts",
+      "**Segment nuance**: Enterprise willingness-to-pay evidence",
+      "## Emerging Signals",
+      "*(weak — monitor)*",
+      "## Coverage",
+      "Sources unavailable: reddit",
+      "## Sources"
+    ],
+    "not_contains": ["No usable evidence", "No recommendation met the support threshold"],
+    "evidence_in_markdown": ["ev_a1", "ev_a2", "ev_a4", "ev_a5", "ev_a6"]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "$comment": "Phase 6C eval manifest — scenario → fixture files. Each scenario JSON carries the full validated input (ctx/signals/insights/diagnostics/recommendations/conflicts/coverage) and its expectations; evidence lives in the .jsonl files.",
+  "as_of": "2026-09-09",
+  "scenarios": {
+    "A_full_healthy": {
+      "file": "A_full_healthy.json",
+      "evidence": "A_full_healthy.evidence.jsonl",
+      "golden_markdown": "A_full_healthy.expected.md",
+      "runs": 50
+    },
+    "B_no_recommendation": {
+      "file": "B_no_recommendation.json",
+      "evidence": "B_no_recommendation.evidence.jsonl",
+      "runs": 50
+    },
+    "C_contradictory": {
+      "file": "C_contradictory.json",
+      "evidence": "C_contradictory.evidence.jsonl",
+      "runs": 50
+    },
+    "D_weak_emerging": {
+      "file": "D_weak_emerging.json",
+      "evidence": "D_weak_emerging.evidence.jsonl",
+      "runs": 50
+    },
+    "E_partial_sources": {
+      "file": "E_partial_sources.json",
+      "evidence": "E_partial_sources.evidence.jsonl",
+      "runs": 50
+    },
+    "F_empty_research": {
+      "file": "F_empty_research.json",
+      "evidence": null,
+      "runs": 50
+    }
+  }
+}
