@@ -8,7 +8,7 @@ No LLM is used to recognise modes (§12). The chain is:
 
 Mode-selection failure degrades to ``general`` and NEVER blocks
 execution. Market parsing is a small ISO-ish table plus raw-string
-fallback; multi-market requests are noted but the engine runs single-
+fallback; multi-market queries are noted but the engine runs single-
 market (a limitation, recorded — no silent merge, §13).
 """
 from __future__ import annotations

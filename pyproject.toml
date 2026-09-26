@@ -23,6 +23,9 @@ dev = [
     "pytest>=7.4",
 ]
 
+[project.scripts]
+gtm-intelligence = "gtm_intelligence.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

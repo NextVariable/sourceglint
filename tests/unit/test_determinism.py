@@ -73,7 +73,10 @@ def test_no_clock_or_locale_in_deterministic_core():
         "tz.gettz",
     ]
     for py in SRC.rglob("*.py"):
-        # rendering + ids + ledger are deterministic; allowed only in tests.
+        # The CLI is a host boundary: it supplies the run timestamp to the
+        # deterministic application API. Core modules must not read a clock.
+        if py.name == "cli.py":
+            continue
         text = py.read_text(encoding="utf-8")
         for n, line in enumerate(text.splitlines(), start=1):
             for kw in sensitive_patterns:
