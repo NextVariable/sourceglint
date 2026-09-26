@@ -26,6 +26,8 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from .application.api import run_gtm_intelligence
+from .application.runtime import default_adapter_factory
+from .host_stdio import StdioHostSource
 from .interface.request import MODES
 
 EXIT_OK = 0
@@ -61,6 +63,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--baseline", action="store_true",
                    help="Include prior-window baseline evidence.")
     p.add_argument("--model", default=None, metavar="FILE|MOD:ATTR", help=_MODEL_HELP)
+    p.add_argument("--host-sources-stdio", action="store_true",
+                   help="Ask the host agent to handle host_web_search and official_web via JSON lines.")
     p.add_argument("--registry", default=None, metavar="YAML",
                    help="source registry YAML (default config/sources.yaml).")
     p.add_argument("--as-of", default=None, metavar="ISO",
@@ -141,6 +145,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         sources = _load_registry(args.registry)
         model = _load_model(args.model)
+        adapter_factory = None
+        if args.host_sources_stdio:
+            def adapter_factory(name, plan):
+                if name in ("host_web_search", "official_web"):
+                    return StdioHostSource(name)
+                return default_adapter_factory(name, plan)
         result = run_gtm_intelligence(
             args.query,
             mode=args.mode,
@@ -151,6 +161,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             target=args.target,
             baseline=args.baseline,
             model=model,
+            adapter_factory=adapter_factory,
             sources=sources,
             as_of=args.as_of or datetime.now(timezone.utc),
         )

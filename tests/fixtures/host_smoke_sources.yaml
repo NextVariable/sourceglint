@@ -1,0 +1,11 @@
+- name: official_web
+  enabled: true
+  type: official
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 90
+  capabilities: [fetch]
+  markets: [global]
+  languages: [en]
+  cache_ttl: 3600
