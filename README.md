@@ -1,14 +1,15 @@
 # gtm-intelligence
 
-Recent, evidence-linked intelligence for product managers, GTM teams, and technology workers. It helps people find new developments, emerging needs, tools, and real user feedback across fragmented sources. Product and GTM decision support is a deeper use case, not a requirement for every research question. See [the product positioning decision](docs/adr/0002-discovery-first-positioning.md).
+Given a topic, this Skill researches what appeared and what people discussed recently across available sources. It combines duplicate coverage, surfaces tools, workflows, user needs and feedback, and keeps dates and original links. Product managers, creators, GTM teams, and technology workers can use the research for different purposes. Product/GTM recommendations are optional. See [the positioning decision](docs/adr/0002-discovery-first-positioning.md) and [the default-output decision](docs/adr/0003-research-default.md).
 
 ## Current state
 
 The deterministic engine and host-neutral Python API are available. A host must inject a model implementing `IntelligenceModel.complete_structured` for semantic stages. The package does not ship a model provider or API credentials. The CLI accepts a trusted local model factory through `--model`; without one it exits with an actionable error.
 
-The Skill uses `--discovery-only` for information-seeking questions. That path still retrieves and evaluates evidence, but skips recommendation generation and renders a Recent Intelligence Brief. The default path retains the existing GTM decision brief for explicit judgment or action questions. This routing has an offline integration test; realistic discovery-quality and source-coverage acceptance remain open.
+The default path retrieves and evaluates evidence, skips GTM implications and recommendations, and renders a Recent Intelligence Brief. If sources are retrieved but no signal is validated, it still shows a limited dated evidence list, explicitly not a proven pattern. `--decision-support` opts into the existing GTM decision brief when the user asks for implications or actions. This routing has offline integration tests; realistic discovery quality and source coverage remain unverified.
 
-The default source registry is `config/sources.yaml`. Hacker News and GitHub have standalone adapters; Reddit needs its documented OAuth credentials. Host Web Search and Official Web need host-provided search/fetch capabilities. Source coverage and failures appear in the result rather than being silently treated as evidence.
+
+The public runtime does not yet retrieve a prior comparison window. A baseline request now fails explicitly instead of returning a current-only brief as if it were a trend comparison. Recent discussion and engagement can be reported, but claims that a topic is rising require separate prior-window evidence.
 
 ## Local use
 
@@ -23,12 +24,11 @@ The public API is `gtm_intelligence.application.api.run_gtm_intelligence`. It re
 ```sh
 .venv/bin/python -m gtm_intelligence \
   'Recent changes in AI meeting assistants' \
-  --discovery-only \
   --model path/to/trusted_model_factory.py \
   --as-of 2026-09-26T00:00:00Z
 ```
 
-The model file must define `build_model()` and return an `IntelligenceModel` implementation. Only run model files you trust; they are executable Python. For a host integration, call the Python API and inject the host's model and retrieval capabilities directly.
+The model file must define `build_model()` and return an `IntelligenceModel` implementation. Only run model files you trust; they are executable Python. Add `--decision-support` only for an explicit decision question. For a host integration, call the Python API and inject the host's model and retrieval capabilities directly.
 
 ## Verification
 

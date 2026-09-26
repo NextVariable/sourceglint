@@ -45,6 +45,7 @@ def run_insight_pipeline(
     research_context: ResearchContext | None = None,
     cache: SemanticCache | None = None,
     weak_signal_ids: set[str] | None = None,
+    include_gtm_implications: bool = True,
 ) -> InsightPipelineResult:
     """Run the full Signal → FACT → INFERENCE → Insight pipeline (Phase 6A).
 
@@ -97,13 +98,17 @@ def run_insight_pipeline(
     ]
     all_insights = fact_insights + inference_insights
 
-    gtm_result = derive_gtm_implications(
-        all_insights, model, research_context=ctx, cache=cache,
-    )
-    warnings.extend(gtm_result.warnings)
+    if include_gtm_implications:
+        gtm_result = derive_gtm_implications(
+            all_insights, model, research_context=ctx, cache=cache,
+        )
+        warnings.extend(gtm_result.warnings)
+        gtm_map = {gi.insight_id: gi.implications for gi in gtm_result.implications}
+    else:
+        gtm_result = None
+        gtm_map = {}
 
     # 5. Build insight dicts (conforming to insight.schema.json)
-    gtm_map = {gi.insight_id: gi.implications for gi in gtm_result.implications}
     insight_dicts: list[dict] = []
     for draft, ins_id, ins_type in all_insights:
         ins_dict: dict[str, Any] = {
@@ -186,8 +191,9 @@ def run_insight_pipeline(
     model_status = {
         _FACT_STAGE: fact_result.model_status,
         _INFERENCE_STAGE: inference_result.model_status,
-        _GTM_STAGE: gtm_result.model_status,
     }
+    if gtm_result is not None:
+        model_status[_GTM_STAGE] = gtm_result.model_status
 
     return InsightPipelineResult(
         insights=tuple(validated_insights),

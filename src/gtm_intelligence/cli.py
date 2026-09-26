@@ -61,9 +61,9 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Named entity (product/company). Repeatable.")
     p.add_argument("--target", default="", help="Primary entity of interest.")
     p.add_argument("--baseline", action="store_true",
-                   help="Include prior-window baseline evidence.")
-    p.add_argument("--discovery-only", action="store_true",
-                   help="Research recent findings without generating recommendations.")
+                   help="Reserved: exits with an error until prior-window retrieval is implemented.")
+    p.add_argument("--decision-support", action="store_true",
+                   help="Add product/GTM implications and recommendations when requested.")
     p.add_argument("--model", default=None, metavar="FILE|MOD:ATTR", help=_MODEL_HELP)
     p.add_argument("--host-sources-stdio", action="store_true",
                    help="Ask the host agent to handle host_web_search and official_web via JSON lines.")
@@ -162,7 +162,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             entities=tuple(args.entities),
             target=args.target,
             baseline=args.baseline,
-            discovery_only=args.discovery_only,
+            decision_support=args.decision_support,
             model=model,
             adapter_factory=adapter_factory,
             sources=sources,

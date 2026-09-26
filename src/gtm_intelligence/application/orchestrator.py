@@ -101,6 +101,7 @@ def _run_insights(
     research_context: ResearchContext,
     cache: Any,
     weak_signal_ids: set[str],
+    include_gtm_implications: bool = True,
 ) -> tuple[Any, list[str]]:
     """Phase 6A. Raises nothing for ordinary emptiness (pipeline returns
     an empty result with warnings)."""
@@ -112,6 +113,7 @@ def _run_insights(
         research_context=research_context,
         cache=cache,
         weak_signal_ids=weak_signal_ids,
+        include_gtm_implications=include_gtm_implications,
     )
     warnings.extend(f"insights: {w}" for w in result.warnings)
     return result, warnings
@@ -293,6 +295,7 @@ def orchestrate(
         research_context=research_ctx,
         cache=ctx.semantic_cache,
         weak_signal_ids=weak_ids,
+        include_gtm_implications=include_recommendations,
     )
     warnings.extend(ins_warnings)
     insights = insight_result.insights

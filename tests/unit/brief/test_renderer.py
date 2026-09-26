@@ -25,6 +25,7 @@ from gtm_intelligence.brief.sections import (
     inferences,
     no_evidence_markdown,
     research_context,
+    recent_items,
     sources,
     watchouts,
 )
@@ -94,6 +95,19 @@ class TestSectionRender:
         assert watchouts(self._selected(), {}) == ""
         assert emerging(self._selected(), {}) == ""
         assert sources(self._selected(), {}) == ""
+
+    def test_discovery_fallback_keeps_source_text_inert(self):
+        rec = evidence("e1", url="https://x.example/a")
+        rec["title"] = "<script>[Act](https://bad.example)</script>"
+        rec["snippet"] = "A user said *hello* and [click](https://bad.example)."
+        ledger = make_ledger(rec)
+        sel = self._selected(context=BriefContext(discovery_only=True), ledger=ledger)
+        md = recent_items(sel, ledger)
+        assert "## Recent Evidence" in md
+        assert "&lt;script&gt;" in md
+        assert r"\[Act\]" in md
+        assert "<script>" not in md
+        assert "no validated pattern was established" in md
 
     def test_empty_brief_coverage_states_missing_layers(self):
         """§19: with no content the Coverage section honestly states which

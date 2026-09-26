@@ -42,3 +42,4 @@
 |-----|------|------|
 | [0001](0001-gtm-intelligence-core-architecture.md) | 核心架构基线（确定性引擎 + LLM JSON + 代码渲染） | Accepted |
 | [0002](0002-discovery-first-positioning.md) | 近期信息与需求发现优先，决策支持按需深入 | Accepted |
+| [0003](0003-research-default.md) | 近期研究默认输出，建议需明确启用 | Accepted |

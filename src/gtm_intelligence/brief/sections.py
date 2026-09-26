@@ -13,6 +13,8 @@ there is exactly one formatting layer for headings/bullets/citations
 """
 from __future__ import annotations
 
+import html
+import re
 from typing import Iterable, Mapping
 
 from .. import rendering
@@ -36,6 +38,12 @@ H = SECTION_HEADINGS
 def _inline(text: object) -> str:
     """Collapse newlines for single-line Markdown bullets (format only)."""
     return " ".join(str(text or "").split())
+
+
+def _untrusted_inline(text: object) -> str:
+    """Render retrieved source text as text, not Markdown or HTML."""
+    value = html.escape(_inline(text), quote=False)
+    return re.sub(r"([\\`*_{}\[\]()#+.!|])", r"\\\1", value)
 
 
 def _rec_field(rec: object, name: str, default: str = "") -> str:
@@ -202,6 +210,37 @@ def emerging(sel: SelectedBrief, lookup: Mapping[str, object]) -> str:
         suffix = f" — {cite}" if cite else ""
         body.append(f"- **{_inline(item.label)}** *(weak — monitor)*{suffix}")
     return _heading(2, H["emerging"]) + "\n".join(body) + "\n\n"
+
+
+def recent_items(sel: SelectedBrief, ledger: object) -> str:
+    """Show retrieved items when discovery produced no validated finding.
+
+    These are source observations, not promoted facts or trend claims.
+    """
+    if not sel.context.discovery_only or sel.facts or sel.inferences or sel.emerging:
+        return ""
+    if ledger is None:
+        return ""
+    records = list(ledger)
+    if not records:
+        return ""
+    records.sort(
+        key=lambda rec: (str(rec.published_at or ""), str(rec.evidence_id)),
+        reverse=True,
+    )
+    lines = [
+        "Retrieved items are listed below; no validated pattern was established."
+    ]
+    for rec in records[:10]:
+        label = _untrusted_inline(rec.title or rec.snippet or rec.url)
+        link = f"[{label}]({rec.url.replace(')', '%29')})" if rec.url else label
+        meta = " · ".join(part for part in (rec.source, rec.published_at) if part)
+        lines.append(f"- {link}" + (f" — {meta}" if meta else ""))
+        if rec.snippet:
+            lines.append(f"  {_untrusted_inline(rec.snippet[:280])}")
+    if len(records) > 10:
+        lines.append(f"Showing 10 of {len(records)} retrieved items.")
+    return _heading(2, "Recent Evidence") + "\n".join(lines) + "\n\n"
 
 
 # -------- Coverage (§18, §19) --------

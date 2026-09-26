@@ -64,6 +64,14 @@ def test_api_requires_host_timestamp():
         run_gtm_intelligence("Recent AI products", model=FakeIntelligenceModel())
 
 
+def test_baseline_request_fails_instead_of_silently_skipping_prior_window():
+    with pytest.raises(ValueError, match="baseline comparisons are not yet available"):
+        run_gtm_intelligence(
+            "Is AI video demand rising?", baseline=True,
+            model=FakeIntelligenceModel(), as_of=AS_OF,
+        )
+
+
 def test_api_reports_no_evidence_without_inventing_a_finding():
     result = run_gtm_intelligence(
         "Recent AI products",
@@ -78,9 +86,9 @@ def test_api_reports_no_evidence_without_inventing_a_finding():
     assert result.stage_statuses["signals"] == "skipped"
 
 
-def test_discovery_only_no_evidence_uses_research_title():
+def test_default_no_evidence_uses_research_title():
     result = run_gtm_intelligence(
-        "What new AI tools are people discussing?", discovery_only=True,
+        "What new AI tools are people discussing?",
         model=FakeIntelligenceModel(), sources=[SOURCE],
         adapter_factory=lambda name, plan: FakeSourceAdapter(name=name),
         as_of=AS_OF,
@@ -114,6 +122,9 @@ def test_api_keeps_evidence_when_no_signal_is_supported():
     assert result.diagnostics["evidence_count"] == 1
     assert result.diagnostics["signal_count"] == 0
     assert result.brief_markdown
+    assert "## Recent Evidence" in result.brief_markdown
+    assert "no validated pattern was established" in result.brief_markdown
+    assert "https://news.ycombinator.com/item?id=123" in result.brief_markdown
 
 
 def test_public_api_runs_evidence_through_to_a_cited_brief():
@@ -125,7 +136,8 @@ def test_public_api_runs_evidence_through_to_a_cited_brief():
         "published_at": "2026-09-08T12:00:00Z",
     }])
     result = run_gtm_intelligence(
-        "Recent AI products", model=OneFactModel(), sources=[SOURCE],
+        "Recent AI products", decision_support=True,
+        model=OneFactModel(), sources=[SOURCE],
         adapter_factory=lambda name, plan: adapter, as_of=AS_OF,
     )
     assert result.diagnostics["evidence_count"] == 1
@@ -137,7 +149,7 @@ def test_public_api_runs_evidence_through_to_a_cited_brief():
     assert "https://news.ycombinator.com/item?id=123" in result.brief_markdown
 
 
-def test_discovery_only_preserves_findings_without_unrequested_action():
+def test_default_discovery_preserves_findings_without_unrequested_action():
     adapter = FakeSourceAdapter(name="hacker_news", results=[{
         "source": "hacker_news", "source_type": "post", "source_native_id": "123",
         "url": "https://news.ycombinator.com/item?id=123",
@@ -145,9 +157,10 @@ def test_discovery_only_preserves_findings_without_unrequested_action():
         "text": "A new AI product was discussed by users.",
         "published_at": "2026-09-08T12:00:00Z",
     }])
+    model = OneFactModel()
     result = run_gtm_intelligence(
         "What new AI products are people discussing?",
-        discovery_only=True, model=OneFactModel(), sources=[SOURCE],
+        model=model, sources=[SOURCE],
         adapter_factory=lambda name, plan: adapter, as_of=AS_OF,
     )
     assert result.diagnostics["evidence_count"] == 1
@@ -159,3 +172,6 @@ def test_discovery_only_preserves_findings_without_unrequested_action():
     assert "Interview users about the AI product." not in result.brief_markdown
     assert "No recommendation met the support threshold" not in result.brief_markdown
     assert "https://news.ycombinator.com/item?id=123" in result.brief_markdown
+    assert not {"gtm_implications", "recommendation_generation"}.intersection(
+        call["task"] for call in model.calls
+    )

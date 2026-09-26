@@ -41,6 +41,7 @@ def render_brief_markdown(
         sections.actions(selected, lookup),
         sections.watchouts(selected, lookup),
         sections.emerging(selected, lookup),
+        sections.recent_items(selected, ledger),
         sections.coverage(selected),
         sections.sources(selected, lookup),
     ]

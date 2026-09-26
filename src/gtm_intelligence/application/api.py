@@ -47,7 +47,7 @@ def run_gtm_intelligence(
     entities: Sequence[str] = (),
     target: str = "",
     baseline: bool = False,
-    discovery_only: bool = False,
+    decision_support: bool = False,
     source_preferences: Sequence[str] = (),
     decision_context: str = "",
     # --- runtime injection (host-neutral) --------------------------------
@@ -76,6 +76,11 @@ def run_gtm_intelligence(
         )
     if mode and mode not in MODES:
         raise ValueError(f"mode must be one of {MODES!r}; got {mode!r}")
+    if baseline:
+        raise ValueError(
+            "prior-window retrieval is not wired in the public runtime; "
+            "baseline comparisons are not yet available"
+        )
 
     # 1) Normalize + parse.
     request = SkillRequest(
@@ -125,7 +130,7 @@ def run_gtm_intelligence(
         sources=source_list,
         ctx=ctx,
         target_entity=target or parsed.target,
-        include_recommendations=not discovery_only,
+        include_recommendations=decision_support,
     )
 
     # 4) Package.
