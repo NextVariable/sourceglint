@@ -2,7 +2,7 @@
 
 Detects semantic duplicates via:
 1. structural overlap (same insight_id → same type + sorted signals + sorted evidence)
-2. signal overlap (>50% signal_id overlap + same type → potential duplicate)
+2. signal overlap plus identical evidence and statement → duplicate
 
 Not string similarity only (§22). For MVP, structural + signal overlap
 is the primary mechanism. Model semantic dedup is optional (the task
@@ -62,9 +62,12 @@ def deduplicate_insights(
 
     Two-pass dedup:
       1. Structural: same insight_id → exact duplicate, first kept.
-      2. Signal overlap: >threshold Jaccard on signal_ids AND same type →
-         potential semantic duplicate; keep higher confidence (first
-         breaks ties).
+      2. Signal overlap: >threshold Jaccard on signal_ids AND same type,
+         identical evidence IDs, and identical normalized statement →
+         duplicate; keep higher confidence (first breaks ties).
+
+    A shared signal alone cannot establish duplicate meaning: separate
+    evidence items may support distinct FACTs within one signal.
 
     Does NOT use string similarity (§22: "不要只用字符串相似度").
     Does NOT merge different types (FACT ≠ INFERENCE even with same signals).
@@ -101,7 +104,15 @@ def deduplicate_insights(
                 candidate.get("signal_ids") or [],
                 survivor.get("signal_ids") or [],
             )
-            if overlap > signal_overlap_threshold:
+            same_evidence = set(candidate.get("evidence_ids") or []) == set(
+                survivor.get("evidence_ids") or []
+            )
+            same_statement = " ".join(
+                str(candidate.get("statement") or "").casefold().split()
+            ) == " ".join(
+                str(survivor.get("statement") or "").casefold().split()
+            )
+            if overlap > signal_overlap_threshold and same_evidence and same_statement:
                 # Keep higher confidence; first breaks ties
                 cand_conf = float(candidate.get("confidence") or 0.0)
                 surv_conf = float(survivor.get("confidence") or 0.0)

@@ -1,0 +1,12 @@
+- name: host_web_search
+  enabled: true
+  type: web
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 60
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 900

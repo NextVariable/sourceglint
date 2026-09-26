@@ -66,17 +66,32 @@ class TestDeduplicateInsights:
         assert len(result.kept) == 1
         assert len(result.removed) == 1
 
-    def test_high_signal_overlap_flagged(self):
-        """>50% signal overlap → potential duplicate, first kept."""
+    def test_same_signal_distinct_evidence_is_not_duplicate(self):
+        """One cluster may contain separately supportable user complaints."""
         insights = [
-            _insight("ins_1", signal_ids=("sig_a", "sig_b"), evidence_ids=("ev_1",)),
-            _insight("ins_2", signal_ids=("sig_a", "sig_b"), evidence_ids=("ev_2",)),
+            _insight("ins_1", signal_ids=("sig_a",), evidence_ids=("ev_1",),
+                     statement="One user rechecks the summary."),
+            _insight("ins_2", signal_ids=("sig_a",), evidence_ids=("ev_2",),
+                     statement="Another user wants clearer takeaways."),
         ]
         result = deduplicate_insights(insights)
-        # Same signal_ids but different evidence → different insight_ids
-        # But 100% signal overlap → potential duplicate
-        assert len(result.kept) <= 2
-        assert len(result.kept) >= 1
+        assert len(result.kept) == 2
+        assert result.removed == ()
+
+    def test_same_signal_and_evidence_distinct_statement_is_not_duplicate(self):
+        insights = [
+            _insight("ins_1", statement="Summary is readable."),
+            _insight("ins_2", statement="Summary needs checking."),
+        ]
+        assert len(deduplicate_insights(insights).kept) == 2
+
+    def test_same_claim_with_different_ids_keeps_higher_confidence(self):
+        insights = [
+            _insight("ins_1", statement="Same fact", confidence=0.7),
+            _insight("ins_2", statement="same  FACT", confidence=0.9),
+        ]
+        result = deduplicate_insights(insights)
+        assert [item["insight_id"] for item in result.kept] == ["ins_2"]
 
     def test_different_types_not_deduped(self):
         """FACT and INFERENCE with same signals are different insights."""
