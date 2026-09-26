@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "gtm-intelligence"
 version = "0.2.0"
-description = "Recent Market Intelligence for Global Growth & GTM Decisions"
+description = "Evidence-linked recent information and demand discovery with optional GTM decision support"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

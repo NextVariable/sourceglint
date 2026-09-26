@@ -160,6 +160,7 @@ def orchestrate(
     sources: Sequence[Mapping[str, Any]],
     ctx: OrchestrationContext,
     target_entity: str = "",
+    include_recommendations: bool = True,
 ) -> ApplicationResult:
     """Run the canonical full pipeline for one parsed request.
 
@@ -209,7 +210,10 @@ def orchestrate(
 
     # No-evidence guard (§19, §20): report cleanly, do not fabricate.
     if evidence_count == 0:
-        brief = _render_empty_brief(parsed, research_result, ctx.ledger, ctx.as_of)
+        brief = _render_empty_brief(
+            parsed, research_result, ctx.ledger, ctx.as_of,
+            discovery_only=not include_recommendations,
+        )
         return ApplicationResult(
             status="NO_EVIDENCE",
             brief=brief,
@@ -237,7 +241,10 @@ def orchestrate(
         )
     except IntelligencePipelineError as exc:
         warnings.append(f"signals: {exc}")
-        brief = _render_without_signals(parsed, research_result, ctx.ledger, ctx.as_of)
+        brief = _render_without_signals(
+            parsed, research_result, ctx.ledger, ctx.as_of,
+            discovery_only=not include_recommendations,
+        )
         return ApplicationResult(
             status="PARTIAL",
             brief=brief,
@@ -257,7 +264,10 @@ def orchestrate(
     stage["signals"] = STAGE_DEGRADED if not signals else STAGE_OK
 
     if not signals:
-        brief = _render_without_signals(parsed, research_result, ctx.ledger, ctx.as_of)
+        brief = _render_without_signals(
+            parsed, research_result, ctx.ledger, ctx.as_of,
+            discovery_only=not include_recommendations,
+        )
         return ApplicationResult(
             status="PARTIAL",
             brief=brief,
@@ -291,7 +301,8 @@ def orchestrate(
     # ---- Phase 6B: recommendations ----------------------------------------
     if not insights:
         brief = _render_insights_only(
-            parsed, research_result, ctx.ledger, ctx.as_of, signals, ()
+            parsed, research_result, ctx.ledger, ctx.as_of, signals, (),
+            discovery_only=not include_recommendations,
         )
         return ApplicationResult(
             status="PARTIAL",
@@ -306,6 +317,33 @@ def orchestrate(
                 "recommendations": STAGE_SKIPPED,
                 "brief": STAGE_OK,
             },
+        )
+
+    if not include_recommendations:
+        insight_diags = {
+            d.insight_id: d.to_dict()
+            for d in insight_result.diagnostics
+            if hasattr(d, "to_dict")
+        }
+        brief = _compose_brief(
+            parsed, research_result, ctx.ledger, ctx.as_of,
+            signals, insights, (), insight_diags, {}, (),
+            discovery_only=True,
+        )
+        stage["recommendations"] = STAGE_SKIPPED
+        stage["brief"] = STAGE_OK
+        return ApplicationResult(
+            status="PARTIAL" if research_result.coverage.failed_sources else "SUCCESS",
+            brief=brief,
+            evidence_count=evidence_count,
+            signal_count=len(signals),
+            insight_count=len(insights),
+            recommendation_count=0,
+            coverage=research_result.coverage,
+            warnings=tuple(warnings),
+            stage_statuses=stage,
+            signals=tuple(signals),
+            insights=tuple(insights),
         )
 
     rec_result, rec_warnings = _run_recommendations(
@@ -377,6 +415,7 @@ def _brief_input(
     insight_diagnostics: Mapping[str, Any] | None = None,
     recommendation_diagnostics: Mapping[str, Any] | None = None,
     conflicts: Sequence[Any] = (),
+    discovery_only: bool = False,
 ) -> BriefInput:
     return BriefInput(
         context=BriefContext(
@@ -390,6 +429,7 @@ def _brief_input(
             else as_of.isoformat(),
             entities=tuple(parsed.entities),
             decision_context=parsed.decision_context,
+            discovery_only=discovery_only,
         ),
         ledger=ledger,
         signals=tuple(signals),
@@ -413,6 +453,7 @@ def _compose_brief(
     insight_diagnostics: Mapping[str, Any],
     recommendation_diagnostics: Mapping[str, Any],
     conflicts: Sequence[Any],
+    discovery_only: bool = False,
 ) -> Any:
     brief_input = _brief_input(
         parsed,
@@ -425,26 +466,31 @@ def _compose_brief(
         insight_diagnostics=insight_diagnostics,
         recommendation_diagnostics=recommendation_diagnostics,
         conflicts=conflicts,
+        discovery_only=discovery_only,
     )
     return run_brief_pipeline(brief_input)
 
 
 def _render_empty_brief(
-    parsed: Any, research_result: ResearchPipelineResult, ledger: Any, as_of: datetime
+    parsed: Any, research_result: ResearchPipelineResult, ledger: Any, as_of: datetime,
+    *, discovery_only: bool = False,
 ) -> Any:
     return run_brief_pipeline(
         _brief_input(
-            parsed, coverage=research_result.coverage, ledger=ledger, as_of=as_of
+            parsed, coverage=research_result.coverage, ledger=ledger, as_of=as_of,
+            discovery_only=discovery_only,
         )
     )
 
 
 def _render_without_signals(
-    parsed: Any, research_result: ResearchPipelineResult, ledger: Any, as_of: datetime
+    parsed: Any, research_result: ResearchPipelineResult, ledger: Any, as_of: datetime,
+    *, discovery_only: bool = False,
 ) -> Any:
     return run_brief_pipeline(
         _brief_input(
-            parsed, coverage=research_result.coverage, ledger=ledger, as_of=as_of
+            parsed, coverage=research_result.coverage, ledger=ledger, as_of=as_of,
+            discovery_only=discovery_only,
         )
     )
 
@@ -456,6 +502,7 @@ def _render_insights_only(
     as_of: datetime,
     signals: Sequence[Mapping[str, Any]],
     insights: Sequence[Mapping[str, Any]],
+    *, discovery_only: bool = False,
 ) -> Any:
     return run_brief_pipeline(
         _brief_input(
@@ -465,5 +512,6 @@ def _render_insights_only(
             as_of=as_of,
             signals=signals,
             insights=insights,
+            discovery_only=discovery_only,
         )
     )

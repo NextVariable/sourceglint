@@ -600,7 +600,7 @@ def select_brief(brief_input: BriefInput) -> SelectedBrief:
 
         missing.append("insights")
         coverage_lines.append(NO_INSIGHTS_NOTE)
-    if not brief_input.recommendations:
+    if not brief_input.recommendations and not brief_input.context.discovery_only:
         from .policy import NO_RECOMMENDATIONS_NOTE
 
         missing.append("recommendations")

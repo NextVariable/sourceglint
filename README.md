@@ -1,10 +1,12 @@
 # gtm-intelligence
 
-Recent market intelligence for GTM decisions. The engine retrieves evidence, identifies signals, separates facts from inferences, proposes actions, and renders a cited Markdown brief.
+Recent, evidence-linked intelligence for product managers, GTM teams, and technology workers. It helps people find new developments, emerging needs, tools, and real user feedback across fragmented sources. Product and GTM decision support is a deeper use case, not a requirement for every research question. See [the product positioning decision](docs/adr/0002-discovery-first-positioning.md).
 
 ## Current state
 
 The deterministic engine and host-neutral Python API are available. A host must inject a model implementing `IntelligenceModel.complete_structured` for semantic stages. The package does not ship a model provider or API credentials. The CLI accepts a trusted local model factory through `--model`; without one it exits with an actionable error.
+
+The Skill uses `--discovery-only` for information-seeking questions. That path still retrieves and evaluates evidence, but skips recommendation generation and renders a Recent Intelligence Brief. The default path retains the existing GTM decision brief for explicit judgment or action questions. This routing has an offline integration test; realistic discovery-quality and source-coverage acceptance remain open.
 
 The default source registry is `config/sources.yaml`. Hacker News and GitHub have standalone adapters; Reddit needs its documented OAuth credentials. Host Web Search and Official Web need host-provided search/fetch capabilities. Source coverage and failures appear in the result rather than being silently treated as evidence.
 
@@ -21,6 +23,7 @@ The public API is `gtm_intelligence.application.api.run_gtm_intelligence`. It re
 ```sh
 .venv/bin/python -m gtm_intelligence \
   'Recent changes in AI meeting assistants' \
+  --discovery-only \
   --model path/to/trusted_model_factory.py \
   --as-of 2026-09-26T00:00:00Z
 ```

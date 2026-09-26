@@ -48,6 +48,7 @@ class BriefContext:
     as_of: str = ""
     entities: tuple[str, ...] = ()
     decision_context: str = ""
+    discovery_only: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -61,6 +62,7 @@ class BriefContext:
             "as_of": self.as_of,
             "entities": list(self.entities),
             "decision_context": self.decision_context,
+            "discovery_only": self.discovery_only,
         }
 
 

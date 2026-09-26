@@ -47,6 +47,7 @@ def run_gtm_intelligence(
     entities: Sequence[str] = (),
     target: str = "",
     baseline: bool = False,
+    discovery_only: bool = False,
     source_preferences: Sequence[str] = (),
     decision_context: str = "",
     # --- runtime injection (host-neutral) --------------------------------
@@ -124,6 +125,7 @@ def run_gtm_intelligence(
         sources=source_list,
         ctx=ctx,
         target_entity=target or parsed.target,
+        include_recommendations=not discovery_only,
     )
 
     # 4) Package.

@@ -78,6 +78,18 @@ def test_api_reports_no_evidence_without_inventing_a_finding():
     assert result.stage_statuses["signals"] == "skipped"
 
 
+def test_discovery_only_no_evidence_uses_research_title():
+    result = run_gtm_intelligence(
+        "What new AI tools are people discussing?", discovery_only=True,
+        model=FakeIntelligenceModel(), sources=[SOURCE],
+        adapter_factory=lambda name, plan: FakeSourceAdapter(name=name),
+        as_of=AS_OF,
+    )
+    assert result.status is Status.NO_EVIDENCE
+    assert result.brief_markdown.startswith("# Recent Intelligence Brief")
+    assert result.stage_statuses["recommendations"] == "skipped"
+
+
 def test_api_keeps_evidence_when_no_signal_is_supported():
     adapter = FakeSourceAdapter(
         name="hacker_news",
@@ -122,4 +134,28 @@ def test_public_api_runs_evidence_through_to_a_cited_brief():
     assert result.diagnostics["recommendation_count"] == 1
     assert "A new AI product was discussed by users." in result.brief_markdown
     assert "Interview users about the AI product." in result.brief_markdown
+    assert "https://news.ycombinator.com/item?id=123" in result.brief_markdown
+
+
+def test_discovery_only_preserves_findings_without_unrequested_action():
+    adapter = FakeSourceAdapter(name="hacker_news", results=[{
+        "source": "hacker_news", "source_type": "post", "source_native_id": "123",
+        "url": "https://news.ycombinator.com/item?id=123",
+        "title": "AI product discussion",
+        "text": "A new AI product was discussed by users.",
+        "published_at": "2026-09-08T12:00:00Z",
+    }])
+    result = run_gtm_intelligence(
+        "What new AI products are people discussing?",
+        discovery_only=True, model=OneFactModel(), sources=[SOURCE],
+        adapter_factory=lambda name, plan: adapter, as_of=AS_OF,
+    )
+    assert result.diagnostics["evidence_count"] == 1
+    assert result.diagnostics["insight_count"] == 1
+    assert result.diagnostics["recommendation_count"] == 0
+    assert result.stage_statuses["recommendations"] == "skipped"
+    assert result.brief_markdown.startswith("# Recent Intelligence Brief")
+    assert "A new AI product was discussed by users." in result.brief_markdown
+    assert "Interview users about the AI product." not in result.brief_markdown
+    assert "No recommendation met the support threshold" not in result.brief_markdown
     assert "https://news.ycombinator.com/item?id=123" in result.brief_markdown

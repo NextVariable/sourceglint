@@ -45,8 +45,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="gtm-intelligence",
         description=(
-            "Recent market / competitor / VOC intelligence brief for global "
-            "growth and GTM decisions (deterministic core engine)."
+            "Evidence-linked recent information and demand discovery, with "
+            "optional product and GTM decision support."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -62,6 +62,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--target", default="", help="Primary entity of interest.")
     p.add_argument("--baseline", action="store_true",
                    help="Include prior-window baseline evidence.")
+    p.add_argument("--discovery-only", action="store_true",
+                   help="Research recent findings without generating recommendations.")
     p.add_argument("--model", default=None, metavar="FILE|MOD:ATTR", help=_MODEL_HELP)
     p.add_argument("--host-sources-stdio", action="store_true",
                    help="Ask the host agent to handle host_web_search and official_web via JSON lines.")
@@ -160,6 +162,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             entities=tuple(args.entities),
             target=args.target,
             baseline=args.baseline,
+            discovery_only=args.discovery_only,
             model=model,
             adapter_factory=adapter_factory,
             sources=sources,
