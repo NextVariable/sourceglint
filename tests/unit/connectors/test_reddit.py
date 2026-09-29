@@ -106,20 +106,40 @@ def _request(**overrides) -> dict:
 # ---- auth-missing path is enforced BEFORE network ----------------------
 
 
-def test_no_token_raises_auth_missing_before_any_http_call():
-    cap = _ScriptedHttpClient([])
-    adapter = RedditAdapter(http_client=cap, client_id=None, client_secret=None)
-    with pytest.raises(AdapterAuthMissing):
-        adapter.retrieve(plan=_plan(), request=_request())
-    # No HTTP calls should have been issued.
-    assert cap.calls == []
+def test_no_token_uses_public_rss_route():
+    atom = '''<feed xmlns="http://www.w3.org/2005/Atom"><entry>
+      <title>AI meeting assistant feedback</title>
+      <link href="https://www.reddit.com/r/SaaS/comments/abc123/example/" />
+      <updated>2026-09-05T10:00:00+00:00</updated>
+      <author><name>/u/tester</name></author><category term="SaaS" />
+      <content type="html">&lt;p&gt;Useful feedback&lt;/p&gt;</content>
+    </entry></feed>'''
+    cap = _ScriptedHttpClient([("form", atom, 200)])
+    adapter = RedditAdapter(
+        http_client=cap, client_id=None, client_secret=None,
+        allow_keyless_rss=True,
+    )
+    out = adapter.retrieve(plan=_plan(), request=_request())
+    assert out[0].source_native_id == "t3_abc123"
+    assert out[0].raw_metadata["route"] == "public_rss"
+    assert out[0].engagement == {}
+    assert "search.rss" in cap.calls[0]["url"]
 
 
-def test_empty_string_token_also_missing():
+def test_empty_string_credentials_also_use_rss():
+    cap = _ScriptedHttpClient([("form", '<feed xmlns="http://www.w3.org/2005/Atom"/>', 200)])
+    adapter = RedditAdapter(
+        http_client=cap, client_id="", client_secret="",
+        allow_keyless_rss=True,
+    )
+    assert adapter.retrieve(plan=_plan(), request=_request()) == []
+    assert len(cap.calls) == 1
+
+
+def test_keyless_rss_must_be_enabled_by_host():
     cap = _ScriptedHttpClient([])
-    adapter = RedditAdapter(http_client=cap, client_id="", client_secret="")
     with pytest.raises(AdapterAuthMissing):
-        adapter.retrieve(plan=_plan(), request=_request())
+        RedditAdapter(http_client=cap).retrieve(plan=_plan(), request=_request())
     assert cap.calls == []
 
 

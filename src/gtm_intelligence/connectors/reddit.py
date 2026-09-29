@@ -39,7 +39,10 @@ from __future__ import annotations
 
 import base64
 import json
+import html
+import re
 import time
+from xml.etree import ElementTree
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable, Mapping
@@ -67,6 +70,7 @@ SOURCE_TYPE = "post"
 # Official endpoints.
 REDDIT_ACCESS_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
 REDDIT_SEARCH_URL = "https://oauth.reddit.com/search"
+REDDIT_RSS_SEARCH_URL = "https://www.reddit.com/search.rss"
 
 
 # PRD §16 default for Reddit search.
@@ -130,6 +134,7 @@ class RedditAdapter:
     client_secret: str | None = None
     max_per_query: int = DEFAULT_MAX_PER_QUERY
     source_name: str = SOURCE_NAME
+    allow_keyless_rss: bool = False
     token_ttl_default: int = 3600
     # Injectable clock (Phase 4 determinism). When None the token cache
     # is best-effort: refreshing only when missing — host integrations
@@ -154,16 +159,6 @@ class RedditAdapter:
     ) -> list[RawSourceResult]:
         client_id = (self.client_id or "").strip()
         client_secret = (self.client_secret or "").strip()
-        if not client_id or not client_secret:
-            # Per PRD §9: explicit auth-missing; never attempt HTTP.
-            raise AdapterAuthMissing(
-                source=self.source_name,
-                reason=(
-                    "reddit requires REDDIT_CLIENT_ID and "
-                    "REDDIT_CLIENT_SECRET (PRD §9 legal OAuth path)"
-                ),
-            )
-
         query = str(request.get("query") or "")
         if not query:
             raise AdapterInvalidResponse(
@@ -179,6 +174,21 @@ class RedditAdapter:
         except (TypeError, ValueError):
             limit_n = self.max_per_query
         limit = max(1, min(limit_n, self.max_per_query))
+
+        # Reddit's keyless JSON search is no longer dependable.  Its public
+        # Atom/RSS search feed remains a compliant discovery route and is the
+        # default when OAuth app credentials are not configured.  RSS does not
+        # expose engagement, so those fields stay unknown rather than invented.
+        if not client_id or not client_secret:
+            if self.allow_keyless_rss:
+                return self._retrieve_rss(query, language, market, limit)
+            raise AdapterAuthMissing(
+                source=self.source_name,
+                reason=(
+                    "reddit OAuth credentials are missing and the public RSS "
+                    "fallback was not enabled by the host"
+                ),
+            )
 
         # Acquire (or refresh) the bearer token.
         token = self._ensure_token(client_id, client_secret)
@@ -328,6 +338,93 @@ class RedditAdapter:
             )
         return out
 
+    def _retrieve_rss(
+        self,
+        query: str,
+        language: str,
+        market: str,
+        limit: int,
+    ) -> list[RawSourceResult]:
+        from urllib.parse import urlencode
+
+        url = f"{REDDIT_RSS_SEARCH_URL}?{urlencode({'q': query, 'sort': 'new', 't': 'month'})}"
+        try:
+            response = self.http_client.request(
+                url,
+                headers={"Accept": "application/atom+xml"},
+            )
+        except HttpTransientError as exc:
+            if exc.status == 429:
+                raise AdapterRateLimited(self.source_name, "reddit RSS 429")
+            raise AdapterUnavailable(
+                self.source_name, f"reddit RSS transient {exc.status}"
+            )
+        except HttpTimeoutError as exc:
+            raise AdapterTimeout(self.source_name, str(exc))
+        except HttpPermanentError as exc:
+            raise AdapterInvalidResponse(
+                self.source_name, f"reddit RSS returned {exc.status}"
+            )
+        except Exception as exc:
+            raise AdapterUnavailable(
+                self.source_name, f"reddit RSS {type(exc).__name__}: {exc}"
+            )
+
+        try:
+            root = ElementTree.fromstring(response.body)
+        except ElementTree.ParseError as exc:
+            raise AdapterInvalidResponse(
+                self.source_name, "reddit RSS body was not Atom XML"
+            ) from exc
+        atom = {"a": "http://www.w3.org/2005/Atom"}
+        output: list[RawSourceResult] = []
+        for entry in root.findall("a:entry", atom):
+            link = entry.find("a:link", atom)
+            permalink = str(link.get("href") if link is not None else "").strip()
+            title = str(entry.findtext("a:title", default="", namespaces=atom)).strip()
+            published_at = str(
+                entry.findtext("a:updated", default="", namespaces=atom)
+                or entry.findtext("a:published", default="", namespaces=atom)
+            ).strip()
+            author = str(
+                entry.findtext("a:author/a:name", default="", namespaces=atom)
+            ).strip().removeprefix("/u/").removeprefix("u/")
+            if not permalink or "/comments/" not in permalink or not title or not published_at:
+                continue
+            after_comments = permalink.split("/comments/", 1)[1]
+            post_id = after_comments.split("/", 1)[0]
+            if not post_id:
+                continue
+            content = str(entry.findtext("a:content", default="", namespaces=atom))
+            text = re.sub(r"<[^>]+>", " ", html.unescape(content))
+            text = re.sub(r"\s+", " ", text).strip()
+            category = entry.find("a:category", atom)
+            subreddit = str(category.get("term") if category is not None else "").strip()
+            output.append(
+                RawSourceResult(
+                    source=self.source_name,
+                    source_type=SOURCE_TYPE,
+                    source_native_id=f"t3_{post_id}",
+                    url=permalink.replace("http://", "https://"),
+                    title=title,
+                    text=(text[:500] if text else title),
+                    author=author,
+                    published_at=published_at,
+                    language=language or "en",
+                    market=market or "global",
+                    query=query,
+                    query_language=language,
+                    raw_metadata={
+                        "subreddit": subreddit,
+                        "route": "public_rss",
+                        "engagement_available": False,
+                    },
+                )
+            )
+            if len(output) >= limit:
+                break
+        return output
+
     # ----- token management ------------------------------------------
 
     def _ensure_token(self, client_id: str, client_secret: str) -> _Token:
@@ -417,6 +514,7 @@ __all__ = [
     "SOURCE_TYPE",
     "REDDIT_ACCESS_TOKEN_URL",
     "REDDIT_SEARCH_URL",
+    "REDDIT_RSS_SEARCH_URL",
     "DEFAULT_MAX_PER_QUERY",
     "RedditAdapter",
 ]

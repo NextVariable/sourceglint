@@ -39,9 +39,9 @@ scraper:
   path: no browser cookies and no media download.
 - Reddit: its keyless path combines RSS, public listing fragments, comment-page
   parsing and an archive service, then uses a paid API only when the free lanes
-  fail. Those endpoints are more brittle and less official than OAuth, so this
-  project keeps OAuth primary and records the keyless design as a future,
-  separately tested fallback rather than silently adopting it.
+  fail. This project now implements and live-tests the smaller public RSS lane.
+  It keeps OAuth as an optional richer route and explicitly does not claim RSS
+  engagement or full-comment coverage.
 - X: its alternatives include X's authenticated `xurl` CLI, an authenticated
   browser-cookie client, xAI search and third-party APIs. This project records
   the official CLI route but does not import browser cookies by default.

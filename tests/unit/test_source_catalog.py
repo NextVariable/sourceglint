@@ -34,7 +34,7 @@ def test_host_search_router_is_bounded_diverse_and_skips_direct_connectors():
         not ("direct_connector" in target.routes and target.availability == "ready")
         for target in targets
     )
-    assert "reddit" in {target.name for target in targets}
+    assert "reddit" not in {target.name for target in targets}
 
 
 def test_japan_routing_prefers_local_sources_without_querying_everything():

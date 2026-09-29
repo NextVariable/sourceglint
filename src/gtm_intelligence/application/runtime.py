@@ -65,6 +65,15 @@ def default_adapter_factory(
     from ..connectors.reddit import RedditAdapter
     from ..connectors.bluesky import BlueskyAdapter
     from ..connectors.youtube import YouTubeAdapter
+    from ..connectors.open_sources import (
+        ArxivAdapter,
+        DevToAdapter,
+        HuggingFaceAdapter,
+        PackageRegistriesAdapter,
+        QiitaAdapter,
+        SemanticScholarAdapter,
+        StackOverflowAdapter,
+    )
 
     if name == "bluesky":
         return BlueskyAdapter(
@@ -82,6 +91,22 @@ def default_adapter_factory(
         return RedditAdapter(
             client_id=_env("REDDIT_CLIENT_ID", "REDDIT_CLIENT_ID") or None,
             client_secret=_env("REDDIT_CLIENT_SECRET") or None,
+            allow_keyless_rss=True,
+        )
+    public_adapters = {
+        "arxiv": ArxivAdapter,
+        "devto": DevToAdapter,
+        "hugging_face": HuggingFaceAdapter,
+        "package_registries": PackageRegistriesAdapter,
+        "qiita": QiitaAdapter,
+        "stack_overflow": StackOverflowAdapter,
+    }
+    adapter_type = public_adapters.get(name)
+    if adapter_type is not None:
+        return adapter_type()
+    if name == "semantic_scholar":
+        return SemanticScholarAdapter(
+            api_key=_env("SEMANTIC_SCHOLAR_API_KEY") or None,
         )
     # official_web and host_web_search need a host search/fetch capability
     # or an official-fetch connector — not present standalone in this repo.

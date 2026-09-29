@@ -142,6 +142,21 @@ def test_project_host_search_can_serve_japan_and_japanese():
     }
     assert "host_web_search" in names
     assert "official_web" in names
+    assert "qiita" in names
+
+
+def test_project_registry_enables_credential_free_topic_connectors():
+    reg = load_registry()
+    enabled = {entry.name for entry in reg.entries if entry.enabled}
+    assert {
+        "arxiv",
+        "devto",
+        "hugging_face",
+        "package_registries",
+        "qiita",
+        "semantic_scholar",
+        "stack_overflow",
+    } <= enabled
 
 
 def test_registry_disabled_sources_remain_in_registry():

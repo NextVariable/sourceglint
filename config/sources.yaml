@@ -41,17 +41,13 @@
   enabled: true
   type: community
   cost: free
-  # Phase 4 §9: Reddit's official OAuth2 client_credentials flow
-  # requires REDDIT_CLIENT_ID + REDDIT_CLIENT_SECRET. The adapter is
-  # contract-complete and raises AdapterAuthMissing BEFORE any HTTP
-  # call when either credential is absent — letting the orchestrator
-  # record AUTH_MISSING and gracefully degrade.
-  auth_required: true
-  credentials:
-    - REDDIT_CLIENT_ID
-    - REDDIT_CLIENT_SECRET
+  # Default runtime discovery uses Reddit's public Atom/RSS search feed.
+  # OAuth credentials may still be supplied for the richer official route,
+  # but RSS intentionally does not claim engagement or full comment depth.
+  auth_required: false
+  credentials: []
   priority: 80
-  capabilities: [search, comments]
+  capabilities: [search]
   rate_limit: { rpm: 60 }
   markets: [global, us, gb, jp, de, fr, kr, cn]
   languages: [en, ja, zh, de, fr, ko]
@@ -115,6 +111,97 @@
   markets: [global]
   languages: [en]
   cache_ttl: 3600
+
+- name: stack_overflow
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 70
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 1800
+
+- name: devto
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 64
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 1800
+
+- name: hugging_face
+  enabled: true
+  type: official
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 86
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 1800
+
+- name: package_registries
+  enabled: true
+  type: official
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 66
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 1800
+
+- name: arxiv
+  enabled: true
+  type: official
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 88
+  capabilities: [search]
+  rate_limit: { rpm: 3 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 3600
+
+- name: semantic_scholar
+  enabled: true
+  type: official
+  cost: free
+  auth_required: true
+  credentials: [SEMANTIC_SCHOLAR_API_KEY]
+  priority: 76
+  capabilities: [search]
+  rate_limit: { rpm: 10 }
+  markets: [global]
+  languages: [en]
+  cache_ttl: 3600
+
+- name: qiita
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 72
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [jp]
+  languages: [ja]
+  cache_ttl: 1800
 
 # --- Declared, disabled — registry contract only, no connector code ---
 

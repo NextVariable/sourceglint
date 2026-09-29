@@ -1,8 +1,7 @@
 """Live GitHub adapter test (skipped by default).
 
-Set `RUN_LIVE_TESTS=1` AND `GITHUB_TOKEN=<your token>` to enable. Live
-calls against the real api.github.com confirm fixture parity has not
-drifted.
+Set `RUN_LIVE_TESTS=1` to enable. The smoke test intentionally exercises
+GitHub's anonymous REST route so a missing token cannot create a false skip.
 
 We deliberately issue ONE small search query — no fan-out, no
 destructive deletes.

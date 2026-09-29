@@ -1,0 +1,21 @@
+{
+  "verified_at": "2026-09-29",
+  "command": "RUN_LIVE_TESTS=1 .venv/bin/python -m pytest tests/live -q -ra",
+  "passed": [
+    "arxiv",
+    "devto",
+    "github",
+    "hacker_news",
+    "hugging_face",
+    "package_registries",
+    "qiita",
+    "reddit",
+    "stack_overflow",
+    "youtube"
+  ],
+  "skipped": {
+    "bluesky": ["BSKY_HANDLE", "BSKY_APP_PASSWORD"],
+    "semantic_scholar": ["SEMANTIC_SCHOLAR_API_KEY"]
+  },
+  "note": "This is a dated verification snapshot, not a permanent availability guarantee. Re-run the live suite after connector or upstream changes."
+}

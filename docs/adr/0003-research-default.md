@@ -10,7 +10,7 @@ The first discovery-first change still required `--discovery-only`, so a bare to
 
 ## Decision
 
-The public API and CLI default to recent information research without GTM implication or recommendation generation. An explicit `decision_support` API option or `--decision-support` CLI flag adds those stages. Keep one Skill and the current evidence, signal, FACT, and INFERENCE pipeline. If retrieval succeeds but no signal is validated, the discovery brief still lists a bounded set of dated source items without promoting them to a trend. The Skill entrypoint states the actual available sources and must not imply direct X, YouTube, or TikTok coverage.
+The public API and CLI default to recent information research without GTM implication or recommendation generation. An explicit `decision_support` API option or `--decision-support` CLI flag adds those stages. Keep one Skill and the current evidence, signal, FACT, and INFERENCE pipeline. If retrieval succeeds but no signal is validated, the discovery brief still lists a bounded set of dated source items without promoting them to a trend. The Skill entrypoint states the actual available sources and must not imply direct X or TikTok coverage. YouTube direct metadata coverage was added later and is reported with its local-tool boundary.
 
 ## Why
 

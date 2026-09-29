@@ -122,7 +122,7 @@ def select_host_search_targets(
         if "host_web_search" not in target.routes:
             continue
         # No-auth direct connectors are already queried by the runtime.
-        # Credential-gated direct connectors (currently Reddit) retain their
+        # Credential-gated direct connectors retain their
         # public-web fallback so a missing secret does not erase the source.
         if "direct_connector" in target.routes and target.availability == "ready":
             continue
