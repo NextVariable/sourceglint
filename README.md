@@ -62,6 +62,13 @@ The model file must define `build_model()` and return an `IntelligenceModel` imp
 
 ## Verification
 
+`bash scripts/verify_first_install.sh` exports the committed Git tree into a
+temporary directory, creates a separate virtual environment, installs it with
+platform credentials removed, validates the first-run profile, and runs offline
+tests. It needs network access to download dependencies and retains its printed
+temporary directory for inspection. It checks installation, not live report
+quality; run it after committing changes you want included in the export.
+
 `scripts/verify_full_suite.sh` runs the offline regression suite. Live connector tests are opt-in with `RUN_LIVE_TESTS=1`; they require network access and, for some sources, credentials. A live test must issue a real upstream request; credential checks and object-construction placeholders are not accepted as passes. The public API integration tests use fixed evidence and a scripted model, so passing them verifies wiring and traceability, not the quality of a real model's research judgments. See `docs/phase7-evaluation.md` for the remaining product evaluation.
 
 `SKILL.md` provides a host-driven entry point using the JSON-lines bridge in `host_stdio.py`. Its source and model requests are handled by the running agent with its own tools and reasoning. Codex discovered the installed Skill on 2026-09-26. Manual official-page and voice-of-customer bridge runs reached cited briefs, but the broader real-world GTM quality review remains open; pipeline `SUCCESS` does not establish research quality or market representativeness. See `docs/phase7-evaluation.md` for the run findings and remaining acceptance work.

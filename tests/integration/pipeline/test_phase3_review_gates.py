@@ -430,6 +430,15 @@ def test_gate_f_cache_writes_no_secret_in_key():
 
 def test_gate_f_no_dotenv_tracked():
     """`git ls-files` should NOT list any .env file."""
+    if not (ROOT / ".git").exists():
+        # GitHub source archives have no index. Inspect shipped files directly
+        # rather than failing because the user chose Download ZIP over clone.
+        bundled_env = [
+            path.relative_to(ROOT) for path in ROOT.rglob("*")
+            if path.is_file() and (path.name == ".env" or path.name.endswith(".env"))
+        ]
+        assert not bundled_env, f"Environment files bundled in archive: {bundled_env}"
+        return
     import subprocess
     out = subprocess.run(
         ["git", "ls-files", ".env", "*.env"],
