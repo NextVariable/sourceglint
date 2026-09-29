@@ -40,6 +40,8 @@ LIVE_DEPS = {
     "test_live_reddit": set(),
     "test_live_open_sources": set(),
     "test_live_semantic_scholar": {"SEMANTIC_SCHOLAR_API_KEY"},
+    "test_live_x": {"X_BEARER_TOKEN"},
+    "test_live_product_hunt": {"PRODUCT_HUNT_TOKEN"},
 }
 
 

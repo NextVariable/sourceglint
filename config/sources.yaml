@@ -203,16 +203,29 @@
   languages: [ja]
   cache_ttl: 1800
 
-# --- Declared, disabled — registry contract only, no connector code ---
+- name: x
+  enabled: true
+  type: community
+  cost: paid
+  auth_required: true
+  credentials: [X_BEARER_TOKEN]
+  priority: 95
+  capabilities: [search]
+  rate_limit: { rpm: 10 }
+  markets: [global, us, gb, jp, de, fr, kr, cn]
+  languages: [en, ja, zh, de, fr, ko]
+  cache_ttl: 900
+
+# --- Credentialed built-in connector ---
 
 - name: product_hunt
-  enabled: false
+  enabled: true
   type: marketplace
   cost: free
   auth_required: true
   credentials: [PRODUCT_HUNT_TOKEN]
   priority: 40
-  capabilities: [search, comments]
+  capabilities: [search]
   markets: [global]
   languages: [en]
   cache_ttl: 3600

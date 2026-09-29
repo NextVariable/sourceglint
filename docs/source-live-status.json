@@ -15,7 +15,9 @@
   ],
   "skipped": {
     "bluesky": ["BSKY_HANDLE", "BSKY_APP_PASSWORD"],
-    "semantic_scholar": ["SEMANTIC_SCHOLAR_API_KEY"]
+    "product_hunt": ["PRODUCT_HUNT_TOKEN"],
+    "semantic_scholar": ["SEMANTIC_SCHOLAR_API_KEY"],
+    "x": ["X_BEARER_TOKEN"]
   },
   "note": "This is a dated verification snapshot, not a permanent availability guarantee. Re-run the live suite after connector or upstream changes."
 }

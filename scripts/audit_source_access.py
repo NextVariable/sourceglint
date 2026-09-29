@@ -17,7 +17,7 @@ from gtm_intelligence.source_catalog import load_source_catalog
 BUILT_IN_CONNECTORS = {
     "arxiv", "bluesky", "devto", "github", "hacker_news", "hugging_face",
     "package_registries", "qiita", "reddit", "semantic_scholar",
-    "stack_overflow", "youtube",
+    "product_hunt", "stack_overflow", "x", "youtube",
 }
 LOCAL_TOOL_REQUIREMENTS = {"youtube": "yt-dlp"}
 

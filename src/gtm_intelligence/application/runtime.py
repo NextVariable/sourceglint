@@ -74,6 +74,7 @@ def default_adapter_factory(
         SemanticScholarAdapter,
         StackOverflowAdapter,
     )
+    from ..connectors.authorized_sources import ProductHuntAdapter, XAdapter
 
     if name == "bluesky":
         return BlueskyAdapter(
@@ -108,6 +109,10 @@ def default_adapter_factory(
         return SemanticScholarAdapter(
             api_key=_env("SEMANTIC_SCHOLAR_API_KEY") or None,
         )
+    if name == "x":
+        return XAdapter(bearer_token=_env("X_BEARER_TOKEN") or None)
+    if name == "product_hunt":
+        return ProductHuntAdapter(token=_env("PRODUCT_HUNT_TOKEN") or None)
     # official_web and host_web_search need a host search/fetch capability
     # or an official-fetch connector — not present standalone in this repo.
     return None
