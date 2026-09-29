@@ -34,6 +34,7 @@ _TIER_MAP: Mapping[str, int] = {
     "github": 1,
     "reddit": 2,
     "hacker_news": 2,
+    "bluesky": 2,
     # T3 marketplace is reserved for Phase 4.
     "host_web_search": 4,
     # Web search from host capability counts as T4 secondary.

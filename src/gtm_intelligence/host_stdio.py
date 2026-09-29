@@ -85,10 +85,29 @@ class StdioHostSource:
     def retrieve(
         self, plan: Mapping[str, object], request: Mapping[str, object]
     ) -> list[RawSourceResult]:
-        self.output_stream.write(json.dumps({
+        message: dict[str, Any] = {
             "type": "source_request", "source": self.name,
             "plan": dict(plan), "request": dict(request),
-        }, ensure_ascii=False) + "\n")
+        }
+        if self.name == "host_web_search":
+            try:
+                from .source_catalog import (
+                    load_source_catalog,
+                    select_host_search_targets,
+                )
+
+                targets = select_host_search_targets(
+                    load_source_catalog(),
+                    mode=str(plan.get("mode") or "general"),
+                    market=str(plan.get("market") or "global"),
+                    language=str(request.get("query_language") or "en"),
+                )
+                message["targets"] = [t.to_host_request() for t in targets]
+            except Exception as exc:
+                # Catalog enrichment must not make the original host bridge
+                # unusable. The final report will still show actual coverage.
+                message["target_warning"] = f"source catalog unavailable: {type(exc).__name__}"
+        self.output_stream.write(json.dumps(message, ensure_ascii=False) + "\n")
         self.output_stream.flush()
         line = self.input_stream.readline()
         if not line:

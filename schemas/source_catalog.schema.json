@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.gtm-intelligence.dev/source_catalog.schema.json",
+  "title": "Research Source Catalog",
+  "description": "Broad discovery catalog. This describes where evidence may exist and how it may be reached; it does not claim that every source has a built-in connector.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "name", "family", "routes", "availability", "modes",
+      "markets", "languages", "domains", "evidence_roles", "priority"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "family": {
+        "type": "string",
+        "enum": [
+          "web", "official", "social", "community", "video",
+          "developer", "research", "review", "launch", "crowdfunding",
+          "ads", "commerce", "professional", "local", "news"
+        ]
+      },
+      "routes": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": [
+            "direct_connector", "official_api", "mcp",
+            "host_web_search", "authenticated_browser", "user_export"
+          ]
+        }
+      },
+      "availability": {
+        "type": "string",
+        "enum": [
+          "ready", "credential_required", "approval_required",
+          "user_authorized", "owner_only", "search_fallback", "unavailable"
+        ]
+      },
+      "credentials": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        }
+      },
+      "modes": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": [
+            "general", "trend", "competitor", "market", "voc",
+            "launch", "channel"
+          ]
+        }
+      },
+      "markets": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/market_code"
+        }
+      },
+      "languages": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/language_code"
+        }
+      },
+      "domains": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9.-]+$"
+        }
+      },
+      "evidence_roles": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": [
+            "discovery", "official_change", "community_discussion",
+            "user_feedback", "engagement", "launch", "developer_activity",
+            "academic_research", "market_demand", "channel", "ads",
+            "commerce", "funding", "jobs", "news"
+          ]
+        }
+      },
+      "priority": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "docs_url": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^https?://"
+      },
+      "notes": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

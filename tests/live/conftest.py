@@ -34,6 +34,7 @@ LIVE_FLAG = "RUN_LIVE_TESTS"
 # this map to SKIP rather than FAIL when credentials are missing.
 LIVE_DEPS = {
     "test_live_hacker_news": set(),
+    "test_live_bluesky": set(),
     "test_live_github": {"GITHUB_TOKEN"},
     "test_live_reddit": {"REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET"},
 }

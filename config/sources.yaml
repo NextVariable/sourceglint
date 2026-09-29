@@ -1,13 +1,14 @@
-# gtm-intelligence source registry — single source of truth (v0.2 §8.2, §15 MVP).
+# gtm-intelligence runtime source registry — connector source of truth.
 # Schema: schemas/source_registry.schema.json
 #
 # SECURITY: `credentials` lists only the NAMES of required credentials.
 # Real secrets live in host credential storage — never commit them here.
 #
-# MVP scope (Frozen Decision D11): 5 source classes.
+# Runtime adapter registry. Broad discovery coverage lives separately in
+# source_catalog.yaml so catalog breadth cannot be mistaken for connector code.
 #   host_web_search  — reuse host web search capability (T4 background)
 #   official_web     — first-party pages (T1): product/pricing/changelog/blog
-#   reddit           — community voice (T2), keyless free path first
+#   reddit           — community voice (T2), official OAuth path
 #   hacker_news      — community voice (T2), Algolia API free
 #   github           — first-party signals (T1): repo search/activity
 
@@ -20,8 +21,8 @@
   priority: 60
   capabilities: [search]
   rate_limit: { rpm: 30 }
-  markets: [global]
-  languages: [en]
+  markets: [global, us, gb, jp, de, fr, kr, cn]
+  languages: [en, ja, zh, de, fr, ko]
   cache_ttl: 900
 
 - name: official_web
@@ -32,8 +33,8 @@
   credentials: []
   priority: 90
   capabilities: [fetch]
-  markets: [global]
-  languages: [en]
+  markets: [global, us, gb, jp, de, fr, kr, cn]
+  languages: [en, ja, zh, de, fr, ko]
   cache_ttl: 3600
 
 - name: reddit
@@ -52,8 +53,8 @@
   priority: 80
   capabilities: [search, comments]
   rate_limit: { rpm: 60 }
-  markets: [global]
-  languages: [en]
+  markets: [global, us, gb, jp, de, fr, kr, cn]
+  languages: [en, ja, zh, de, fr, ko]
   cache_ttl: 900
 
 - name: hacker_news
@@ -65,7 +66,7 @@
   priority: 70
   capabilities: [search, stories, comments]
   rate_limit: { rpm: 60 }
-  markets: [global]
+  markets: [global, us, gb, jp, de, fr, kr, cn]
   languages: [en]
   cache_ttl: 1800
 
@@ -81,9 +82,25 @@
   # a future adapter may re-add it, config must never out-claim code.
   capabilities: [search]
   rate_limit: { rpm: 60 }
-  markets: [global]
-  languages: [en]
+  markets: [global, us, gb, jp, de, fr, kr, cn]
+  languages: [en, ja, zh, de, fr, ko]
   cache_ttl: 3600
+
+- name: bluesky
+  # Adapter is implemented and covered offline, but the 2026-09-29 live
+  # check from the current host returned HTTP 403. Keep public-web fallback
+  # active through source_catalog.yaml; do not claim this direct path yet.
+  enabled: false
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 75
+  capabilities: [search]
+  rate_limit: { rpm: 30 }
+  markets: [global, us, gb, jp, de, fr, kr, cn]
+  languages: [en, ja, zh, de, fr, ko]
+  cache_ttl: 900
 
 # --- Phase 2+ sources (declared, disabled — registry contract only, no code) ---
 
@@ -91,8 +108,8 @@
   enabled: false
   type: community
   cost: free
-  auth_required: false
-  credentials: []
+  auth_required: true
+  credentials: [YOUTUBE_API_KEY]
   priority: 50
   capabilities: [search, comments]
   rate_limit: { rpm: 10 }
@@ -104,10 +121,10 @@
   enabled: false
   type: marketplace
   cost: free
-  auth_required: false
-  credentials: []
+  auth_required: true
+  credentials: [PRODUCT_HUNT_TOKEN]
   priority: 40
-  capabilities: [search, reviews]
+  capabilities: [search, comments]
   markets: [global]
   languages: [en]
   cache_ttl: 3600

@@ -63,7 +63,10 @@ def default_adapter_factory(
     from ..connectors.github import GitHubAdapter
     from ..connectors.hacker_news import HackerNewsAdapter
     from ..connectors.reddit import RedditAdapter
+    from ..connectors.bluesky import BlueskyAdapter
 
+    if name == "bluesky":
+        return BlueskyAdapter()
     if name == "hacker_news":
         return HackerNewsAdapter()
     if name == "github":

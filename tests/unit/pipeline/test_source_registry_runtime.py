@@ -131,6 +131,19 @@ def test_load_registry_from_project_config():
     assert "github" in names
 
 
+def test_project_host_search_can_serve_japan_and_japanese():
+    """A market-specific request must not lose the broad host-search path."""
+    reg = load_registry()
+    names = {
+        entry.name
+        for entry in eligible_sources_for(
+            reg, plan_market="jp", query_language="ja"
+        )
+    }
+    assert "host_web_search" in names
+    assert "official_web" in names
+
+
 def test_registry_disabled_sources_remain_in_registry():
     """Disabled sources stay in the registry; eligibility filtering removes them."""
     reg = load_registry(yaml_text=_yaml_str())

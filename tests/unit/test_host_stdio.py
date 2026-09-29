@@ -61,3 +61,18 @@ def test_host_source_round_trip():
     assert results[0].source == "official_web"
     assert results[0].raw_metadata["official"] is True
     assert json.loads(outgoing.getvalue())["type"] == "source_request"
+
+
+def test_host_web_search_request_contains_bounded_platform_targets():
+    incoming = io.StringIO(json.dumps({
+        "type": "source_response", "source": "host_web_search", "results": [],
+    }) + "\n")
+    outgoing = io.StringIO()
+    StdioHostSource("host_web_search", incoming, outgoing).retrieve(
+        {"topic": "AI video", "mode": "trend", "market": "global"},
+        {"query": "AI video emerging", "query_language": "en"},
+    )
+    request = json.loads(outgoing.getvalue())
+    assert 1 <= len(request["targets"]) <= 10
+    assert all("domains" in target for target in request["targets"])
+    assert all("availability" in target for target in request["targets"])
