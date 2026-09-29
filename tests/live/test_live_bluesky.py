@@ -1,4 +1,4 @@
-"""Opt-in smoke test for Bluesky's documented public AppView endpoint."""
+"""Opt-in smoke test for Bluesky's authenticated AppView endpoint."""
 
 
 def test_bluesky_public_search_live_returns_well_formed_results():

@@ -9,6 +9,7 @@ test exercises a recorded Request + response.
 """
 from __future__ import annotations
 
+import json
 import socket
 from typing import Any
 from urllib import error as urllib_error
@@ -105,6 +106,28 @@ def test_user_agent_caller_override_is_ignored(monkeypatch):
         headers={"User-Agent": "sneaky/1.0"},
     )
     assert seen["user-agent"] == DEFAULT_USER_AGENT  # never overwritten
+
+
+def test_post_json_request_is_encoded_without_exposing_payload(monkeypatch):
+    seen: dict[str, object] = {}
+
+    def factory(url, req):
+        seen["method"] = req.get_method()
+        seen["body"] = json.loads(req.data.decode("utf-8"))
+        seen["content_type"] = req.get_header("Content-type")
+        return _FakeHTTPResponse(200, b'{}', {})
+
+    _patched_urlopen(monkeypatch, factory)
+    StdlibHttpClient().request(
+        "https://example.com/session",
+        method="POST",
+        json_data={"identifier": "user.example", "password": "secret"},
+    )
+    assert seen == {
+        "method": "POST",
+        "body": {"identifier": "user.example", "password": "secret"},
+        "content_type": "application/json",
+    }
 
 
 # ---- PRD §11 retry on transient ---------------------------------------

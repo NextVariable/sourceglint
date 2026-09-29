@@ -1,17 +1,20 @@
-"""Bluesky public post-search adapter.
+"""Bluesky post search through the authenticated public AppView.
 
-Most ``app.bsky.*`` GET endpoints are public through the Bluesky AppView.
-This adapter uses only the documented ``app.bsky.feed.searchPosts`` endpoint;
-it does not log in, scrape HTML, or access private account data.
+The formerly useful ``public.api.bsky.app`` search mirror is now commonly
+blocked.  Bluesky's canonical route is a session created at ``bsky.social``
+followed by ``app.bsky.feed.searchPosts`` on ``api.bsky.app``.  Only an app
+password should be supplied; the connector never stores it or emits it.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 from typing import Any, Mapping
 from urllib.parse import quote_plus
 
 from ..pipeline.adapters import (
     AdapterInvalidResponse,
+    AdapterAuthMissing,
     AdapterRateLimited,
     AdapterTimeout,
     AdapterUnavailable,
@@ -29,8 +32,9 @@ from ._http import (
 SOURCE_NAME = "bluesky"
 SOURCE_TYPE = "post"
 BLUESKY_SEARCH_URL = (
-    "https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts"
+    "https://api.bsky.app/xrpc/app.bsky.feed.searchPosts"
 )
+BLUESKY_SESSION_URL = "https://bsky.social/xrpc/com.atproto.server.createSession"
 DEFAULT_MAX_PER_QUERY = 20
 
 
@@ -49,12 +53,22 @@ def _post_url(handle: str, uri: str) -> str:
 @dataclass(frozen=True)
 class BlueskyAdapter:
     http_client: HttpClient | None = None
+    handle: str | None = None
+    app_password: str | None = None
     max_per_query: int = DEFAULT_MAX_PER_QUERY
     source_name: str = SOURCE_NAME
 
     def __post_init__(self) -> None:
         if self.http_client is None:
             object.__setattr__(self, "http_client", StdlibHttpClient())
+        if self.handle is None:
+            object.__setattr__(self, "handle", os.environ.get("BSKY_HANDLE") or None)
+        if self.app_password is None:
+            object.__setattr__(
+                self,
+                "app_password",
+                os.environ.get("BSKY_APP_PASSWORD") or None,
+            )
 
     @property
     def name(self) -> str:
@@ -77,6 +91,49 @@ class BlueskyAdapter:
         except (TypeError, ValueError):
             requested_limit = self.max_per_query
         limit = max(1, min(requested_limit, self.max_per_query, 100))
+        if not self.handle or not self.app_password:
+            raise AdapterAuthMissing(
+                self.source_name,
+                "BSKY_HANDLE and BSKY_APP_PASSWORD are required",
+            )
+
+        try:
+            session_response = self.http_client.request(
+                BLUESKY_SESSION_URL,
+                method="POST",
+                json_data={
+                    "identifier": self.handle,
+                    "password": self.app_password,
+                },
+            )
+        except HttpTransientError as exc:
+            if exc.status == 429:
+                raise AdapterRateLimited(self.source_name, "bluesky auth 429")
+            raise AdapterUnavailable(
+                self.source_name, f"bluesky auth transient {exc.status}"
+            )
+        except HttpTimeoutError as exc:
+            raise AdapterTimeout(self.source_name, str(exc))
+        except HttpPermanentError as exc:
+            raise AdapterInvalidResponse(
+                self.source_name, f"bluesky authentication returned {exc.status}"
+            )
+        try:
+            session_payload = session_response.json()
+        except Exception as exc:
+            raise AdapterInvalidResponse(
+                self.source_name, f"bluesky authentication body not JSON: {exc}"
+            )
+        access_token = (
+            session_payload.get("accessJwt")
+            if isinstance(session_payload, Mapping)
+            else None
+        )
+        if not isinstance(access_token, str) or not access_token:
+            raise AdapterInvalidResponse(
+                self.source_name, "bluesky authentication missing accessJwt"
+            )
+
         url = (
             f"{BLUESKY_SEARCH_URL}?q={quote_plus(query)}"
             f"&limit={limit}&sort=latest"
@@ -85,7 +142,10 @@ class BlueskyAdapter:
             url += f"&lang={quote_plus(language)}"
 
         try:
-            response = self.http_client.request(url)
+            response = self.http_client.request(
+                url,
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
         except HttpTransientError as exc:
             if exc.status == 429:
                 raise AdapterRateLimited(self.source_name, "bluesky 429")
@@ -168,6 +228,7 @@ class BlueskyAdapter:
 
 
 __all__ = [
+    "BLUESKY_SESSION_URL",
     "BLUESKY_SEARCH_URL",
     "BlueskyAdapter",
     "DEFAULT_MAX_PER_QUERY",

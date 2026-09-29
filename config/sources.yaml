@@ -87,14 +87,13 @@
   cache_ttl: 3600
 
 - name: bluesky
-  # Adapter is implemented and covered offline, but the 2026-09-29 live
-  # check from the current host returned HTTP 403. Keep public-web fallback
-  # active through source_catalog.yaml; do not claim this direct path yet.
-  enabled: false
+  # Uses a Bluesky app password, never the main account password. Public-web
+  # fallback stays available because network-level blocking can still occur.
+  enabled: true
   type: community
   cost: free
-  auth_required: false
-  credentials: []
+  auth_required: true
+  credentials: [BSKY_HANDLE, BSKY_APP_PASSWORD]
   priority: 75
   capabilities: [search]
   rate_limit: { rpm: 30 }
@@ -102,20 +101,22 @@
   languages: [en, ja, zh, de, fr, ko]
   cache_ttl: 900
 
-# --- Phase 2+ sources (declared, disabled — registry contract only, no code) ---
-
 - name: youtube
-  enabled: false
+  # Keyless metadata search through a locally installed yt-dlp executable.
+  # No browser cookies are read and no video/audio is downloaded.
+  enabled: true
   type: community
   cost: free
-  auth_required: true
-  credentials: [YOUTUBE_API_KEY]
-  priority: 50
-  capabilities: [search, comments]
+  auth_required: false
+  credentials: []
+  priority: 78
+  capabilities: [search]
   rate_limit: { rpm: 10 }
   markets: [global]
   languages: [en]
   cache_ttl: 3600
+
+# --- Declared, disabled — registry contract only, no connector code ---
 
 - name: product_hunt
   enabled: false

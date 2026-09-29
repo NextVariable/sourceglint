@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 from collections import Counter
 from pathlib import Path
 
@@ -13,7 +14,8 @@ import yaml
 from gtm_intelligence.source_catalog import load_source_catalog
 
 
-BUILT_IN_CONNECTORS = {"bluesky", "github", "hacker_news", "reddit"}
+BUILT_IN_CONNECTORS = {"bluesky", "github", "hacker_news", "reddit", "youtube"}
+LOCAL_TOOL_REQUIREMENTS = {"youtube": "yt-dlp"}
 
 
 def build_report() -> dict[str, object]:
@@ -31,12 +33,17 @@ def build_report() -> dict[str, object]:
     for source in catalog:
         missing = [name for name in source.credentials if not os.environ.get(name)]
         if source.name in BUILT_IN_CONNECTORS:
+            local_tool = LOCAL_TOOL_REQUIREMENTS.get(source.name)
             direct.append({
                 "source": source.name,
                 "connector_implemented": True,
                 "runtime_enabled": runtime_enabled.get(source.name, False),
                 "credentials_configured": not missing,
                 "missing_credentials": missing,
+                "local_tool": local_tool,
+                "local_tool_available": (
+                    bool(shutil.which(local_tool)) if local_tool else None
+                ),
                 "live_verified": None,
             })
         elif source.credentials:
@@ -71,6 +78,8 @@ def main() -> int:
         print(f"host-search candidates: {report['host_search_candidates']}")
         for item in report["built_in_connectors"]:
             state = "configured" if item["credentials_configured"] else "missing credentials"
+            if item["local_tool"] and not item["local_tool_available"]:
+                state = f"missing local tool {item['local_tool']}"
             print(f"built-in {item['source']}: {state}")
         print(report["important_boundary"])
     return 0

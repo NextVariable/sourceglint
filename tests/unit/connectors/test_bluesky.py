@@ -12,6 +12,7 @@ from gtm_intelligence.connectors._http import (
 )
 from gtm_intelligence.connectors.bluesky import BlueskyAdapter
 from gtm_intelligence.pipeline.adapters import (
+    AdapterAuthMissing,
     AdapterInvalidResponse,
     AdapterRateLimited,
     AdapterTimeout,
@@ -26,13 +27,17 @@ class _Http:
         self.error = error
         self.calls = []
 
-    def request(self, url, *, headers=None, timeout=15.0):
-        self.calls.append(url)
+    def request(self, url, *, headers=None, timeout=15.0, method="GET", json_data=None):
+        self.calls.append({"url": url, "headers": headers, "method": method, "json_data": json_data})
         if self.error:
             raise self.error
+        if method == "POST":
+            payload = {"accessJwt": "test-token"}
+        else:
+            payload = self.payload
         return HttpResponse(
             status=200,
-            body=json.dumps(self.payload).encode("utf-8"),
+            body=json.dumps(payload).encode("utf-8"),
             url=url,
         )
 
@@ -53,23 +58,39 @@ def test_public_search_maps_post_and_engagement():
             "repostCount": 4,
         }]
     })
-    out = BlueskyAdapter(http_client=http).retrieve({}, _request())
+    out = BlueskyAdapter(
+        http_client=http, handle="maker.example", app_password="app-password"
+    ).retrieve({}, _request())
     assert len(out) == 1
     assert out[0].source == "bluesky"
     assert out[0].url == "https://bsky.app/profile/maker.example/post/xyz"
     assert out[0].engagement == {"likes": 12, "comments": 3, "upvotes": 4}
-    params = parse_qs(urlparse(http.calls[0]).query)
+    assert http.calls[0]["method"] == "POST"
+    assert http.calls[0]["json_data"]["identifier"] == "maker.example"
+    assert http.calls[1]["headers"] == {"Authorization": "Bearer test-token"}
+    params = parse_qs(urlparse(http.calls[1]["url"]).query)
     assert params["q"] == ["AI video"]
     assert params["lang"] == ["en"]
 
 
 def test_missing_posts_is_invalid():
     with pytest.raises(AdapterInvalidResponse):
-        BlueskyAdapter(http_client=_Http({"feed": []})).retrieve({}, _request())
+        BlueskyAdapter(
+            http_client=_Http({"feed": []}), handle="maker.example", app_password="pw"
+        ).retrieve({}, _request())
 
 
 def test_rate_limit_and_timeout_are_classified():
     with pytest.raises(AdapterRateLimited):
-        BlueskyAdapter(http_client=_Http(error=HttpTransientError(429, "x"))).retrieve({}, _request())
+        BlueskyAdapter(http_client=_Http(error=HttpTransientError(429, "x")), handle="h", app_password="p").retrieve({}, _request())
     with pytest.raises(AdapterTimeout):
-        BlueskyAdapter(http_client=_Http(error=HttpTimeoutError("x", 1))).retrieve({}, _request())
+        BlueskyAdapter(http_client=_Http(error=HttpTimeoutError("x", 1)), handle="h", app_password="p").retrieve({}, _request())
+
+
+def test_missing_app_password_fails_before_network():
+    http = _Http({"posts": []})
+    with pytest.raises(AdapterAuthMissing):
+        BlueskyAdapter(http_client=http, handle="maker.example", app_password="").retrieve(
+            {}, _request()
+        )
+    assert http.calls == []

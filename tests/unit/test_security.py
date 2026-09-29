@@ -96,17 +96,23 @@ def test_no_destructive_git_or_fs_calls_in_lib():
     bad = []
     needles = ["shutil.rmtree", "os.remove(", "os.unlink(", "rmtree(",
                "os.system(", "subprocess.run"]
+    safe_command_boundary = ROOT / "src/gtm_intelligence/connectors/_command.py"
     for py in (ROOT / "src").rglob("*.py"):
         text = py.read_text(encoding="utf-8")
         for n, line in enumerate(text.splitlines(), start=1):
             for kw in needles:
                 if kw in line:
+                    if kw == "subprocess.run" and py == safe_command_boundary:
+                        continue
                     bad.append((py, n, kw, line.strip()))
                     break
     assert not bad, "destructive op in deterministic core:\n" + "\n".join(
         f"{p.relative_to(ROOT)}:{ln} {kw} -> {line!r}"
         for p, ln, kw, line in bad
     )
+    boundary = safe_command_boundary.read_text(encoding="utf-8")
+    assert boundary.count("subprocess.run") == 1
+    assert "shell=False" in boundary
 
 
 def test_ledger_does_not_record_secrets(tmp_path):

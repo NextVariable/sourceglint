@@ -64,9 +64,15 @@ def default_adapter_factory(
     from ..connectors.hacker_news import HackerNewsAdapter
     from ..connectors.reddit import RedditAdapter
     from ..connectors.bluesky import BlueskyAdapter
+    from ..connectors.youtube import YouTubeAdapter
 
     if name == "bluesky":
-        return BlueskyAdapter()
+        return BlueskyAdapter(
+            handle=_env("BSKY_HANDLE") or None,
+            app_password=_env("BSKY_APP_PASSWORD") or None,
+        )
+    if name == "youtube":
+        return YouTubeAdapter()
     if name == "hacker_news":
         return HackerNewsAdapter()
     if name == "github":

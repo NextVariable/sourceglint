@@ -31,8 +31,9 @@
         "items": {
           "type": "string",
           "enum": [
-            "direct_connector", "official_api", "mcp",
-            "host_web_search", "authenticated_browser", "user_export"
+            "direct_connector", "official_api", "mcp", "local_cli",
+            "third_party_api", "host_web_search", "authenticated_browser",
+            "user_export"
           ]
         }
       },

@@ -132,6 +132,8 @@ class HttpClient(Protocol):
         *,
         headers: Mapping[str, str] | None = None,
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
+        method: str = "GET",
+        json_data: Mapping[str, object] | None = None,
     ) -> HttpResponse:
         ...
 
@@ -156,15 +158,21 @@ class StdlibHttpClient:
         *,
         headers: Mapping[str, str] | None = None,
         timeout: float | None = None,
+        method: str = "GET",
+        json_data: Mapping[str, object] | None = None,
     ) -> HttpResponse:
-        """Issue GET with bounded retry. Backs off only on transient errors."""
+        """Issue a bounded HTTP request; retry only transient failures."""
         bound_timeout = float(timeout if timeout is not None else self.default_timeout)
         last_exc: Exception | None = None
 
         for attempt in range(1, max(1, self.max_attempts) + 1):
             try:
                 return self._request_once(
-                    url, headers=headers, timeout=bound_timeout
+                    url,
+                    headers=headers,
+                    timeout=bound_timeout,
+                    method=method,
+                    json_data=json_data,
                 )
             except HttpTransientError as exc:
                 last_exc = exc
@@ -210,6 +218,8 @@ class StdlibHttpClient:
         *,
         headers: Mapping[str, str] | None,
         timeout: float,
+        method: str,
+        json_data: Mapping[str, object] | None,
     ) -> HttpResponse:
         # Build headers with User-Agent always first.
         merged: dict[str, str] = {"User-Agent": self.user_agent}
@@ -218,13 +228,22 @@ class StdlibHttpClient:
                 if k.lower() == "user-agent":
                     continue  # never let caller override UA (PRD §12)
                 merged[k] = v
+        body: bytes | None = None
+        if json_data is not None:
+            body = json.dumps(dict(json_data), separators=(",", ":")).encode("utf-8")
+            merged.setdefault("Content-Type", "application/json")
 
         # Enforce timeout at the socket layer — guarantees we cannot hang
         # past the configured budget even if the server is unresponsive.
         previous_timeout = socket.getdefaulttimeout()
         socket.setdefaulttimeout(timeout)
         try:
-            req = urllib.request.Request(url=url, headers=merged, method="GET")
+            req = urllib.request.Request(
+                url=url,
+                headers=merged,
+                data=body,
+                method=method.upper(),
+            )
             try:
                 with urllib.request.urlopen(req) as resp:
                     status = int(getattr(resp, "status", 200) or 200)
