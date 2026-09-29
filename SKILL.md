@@ -7,12 +7,23 @@ description: Research what has appeared and what people are discussing across av
 
 The default job is simple: given a topic, find what appeared or changed recently, combine duplicate coverage of the same event, surface new tools, workflows, needs, complaints, and repeated discussion, and retain dates and links to original material. This is a research result someone can read or give to an AI for further work. Product and GTM decisions are optional follow-ups, not the default output. The host supplies search and reasoning through the JSON-lines bridge; no separate model account is needed. The engine owns evidence IDs, validation, scoring, ordering, and rendering. The broad coverage catalog is `config/source_catalog.yaml`; it describes discovery opportunities and honest access routes, while `config/sources.yaml` contains the smaller set the runtime can actually attempt.
 
-Run from this folder with an installed project environment:
+First invocation: locate this Skill's folder and check for Python 3.10+,
+an installed environment, and an available host search/fetch tool. If the
+environment is absent, run `python3 -m venv .venv`, then
+`.venv/bin/python -m pip install -e .`. On Windows use
+`.venv\\Scripts\\python.exe`. Platform credentials are optional enhancements;
+do not block the first research request on missing keys. If host search is
+unavailable, explain the missing capability and use the direct-source profile
+only when its dependencies are available. Never claim retrieval occurred when
+no retrieval tool ran.
+
+Run from this folder. This first-run profile uses the host's search and
+reasoning, whose costs and availability depend on the host:
 
 ```sh
 .venv/bin/python -m sourceglint "USER QUERY" \
   --model sourceglint.host_stdio:build_model \
-  --host-sources-stdio --json
+  --host-sources-stdio --registry config/sources-host.yaml --json
 ```
 
 The command above is the default: it renders a Recent Intelligence Brief without recommendations. Add `--decision-support` only when the user explicitly asks what the findings mean for a product, positioning, growth, or a next action. Pass the user's query as data using safe shell quoting. Add `--as-of` for a reproducible run. Use `--mode`, `--market`, or `--language` only when the user provided them or automatic parsing would materially misread the request. Start the command in an interactive terminal session and keep that session open until the final JSON result appears.

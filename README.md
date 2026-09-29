@@ -2,6 +2,35 @@
 
 Given a topic, this Skill researches what appeared and what people discussed recently across available sources. It combines duplicate coverage, surfaces tools, workflows, user needs and feedback, and keeps dates and original links. Product managers, creators, GTM teams, and technology workers can use the research for different purposes. Product/GTM recommendations are optional. See [the positioning decision](docs/adr/0002-discovery-first-positioning.md) and [the default-output decision](docs/adr/0003-research-default.md).
 
+## First research after installing the Skill
+
+Keep the complete repository folder when installing the Skill; copying only
+`SKILL.md` omits required code, schemas and configuration. Python 3.10+ is
+required. From that folder:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -e .
+```
+
+Ask the host agent to use Sourceglint to research a topic. The Skill's default
+entry now uses `config/sources-host.yaml`: the agent handles public web search
+and reasoning through its existing tools, without platform-specific API keys.
+The host must support search, terminal interaction and the JSON-lines bridge;
+host charges and usage limits still apply. This command is agent-operated,
+not a standalone unattended search client.
+
+For additional direct connectors, use `--registry config/sources.yaml` instead.
+Run `.venv/bin/python scripts/audit_source_access.py` to inspect optional
+credential and tool requirements. Each installer supplies their own credentials
+through their host's secret storage or process environment. No maintainer
+account is provided. Browser sessions and paid providers require user opt-in.
+Search fallback can find indexed public pages but does not establish full
+platform coverage, private access, complete comments or engagement metrics.
+
+The host-only profile is a supported first-run path, not a completed fresh-user
+quality certification; the remaining live acceptance gates are recorded below.
+
 ## Current state
 
 The deterministic engine and host-neutral Python API are available. A host must inject a model implementing `IntelligenceModel.complete_structured` for semantic stages. The package does not ship a model provider or API credentials. The CLI accepts a trusted local model factory through `--model`; without one it exits with an actionable error.
