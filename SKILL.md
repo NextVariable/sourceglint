@@ -1,17 +1,17 @@
 ---
-name: gtm-intelligence
+name: sourceglint
 description: Research what has appeared and what people are discussing across available sources in the last 30 days. Use for a topic's new tools, workflows, user needs, complaints, repeated discussions, or emerging signals; add product or GTM advice only when asked.
 ---
 
-# Recent Topic Intelligence
+# Sourceglint
 
 The default job is simple: given a topic, find what appeared or changed recently, combine duplicate coverage of the same event, surface new tools, workflows, needs, complaints, and repeated discussion, and retain dates and links to original material. This is a research result someone can read or give to an AI for further work. Product and GTM decisions are optional follow-ups, not the default output. The host supplies search and reasoning through the JSON-lines bridge; no separate model account is needed. The engine owns evidence IDs, validation, scoring, ordering, and rendering. The broad coverage catalog is `config/source_catalog.yaml`; it describes discovery opportunities and honest access routes, while `config/sources.yaml` contains the smaller set the runtime can actually attempt.
 
 Run from this folder with an installed project environment:
 
 ```sh
-.venv/bin/python -m gtm_intelligence "USER QUERY" \
-  --model gtm_intelligence.host_stdio:build_model \
+.venv/bin/python -m sourceglint "USER QUERY" \
+  --model sourceglint.host_stdio:build_model \
   --host-sources-stdio --json
 ```
 

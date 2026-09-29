@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from gtm_intelligence.application.runtime import default_adapter_factory
-from gtm_intelligence.connectors.authorized_sources import ProductHuntAdapter, XAdapter
+from sourceglint.application.runtime import default_adapter_factory
+from sourceglint.connectors.authorized_sources import ProductHuntAdapter, XAdapter
 
 
 def test_default_runtime_wires_x_token_from_environment(monkeypatch):

@@ -9,15 +9,15 @@ import json
 
 import pytest
 
-from gtm_intelligence.insights.pipeline import run_insight_pipeline
-from gtm_intelligence.insights.ids import derive_insight_id
-from gtm_intelligence.insights.model import (
+from sourceglint.insights.pipeline import run_insight_pipeline
+from sourceglint.insights.ids import derive_insight_id
+from sourceglint.insights.model import (
     FakeFactScript,
     FakeGTMImplicationScript,
     FakeInferenceScript,
     FakeInsightModel,
 )
-from gtm_intelligence.intelligence.dtos import ResearchContext
+from sourceglint.intelligence.dtos import ResearchContext
 
 
 def _ev(eid, *, snippet="", title="", window="current", market="jp", language="ja"):
@@ -152,7 +152,7 @@ class TestRunInsightPipeline:
         assert any("no signals" in w for w in result.warnings)
 
     def test_model_failure(self):
-        from gtm_intelligence.intelligence.model import ModelStatus
+        from sourceglint.intelligence.model import ModelStatus
         signals, evidence, _ = _full_setup()
         model = FakeInsightModel(status=ModelStatus.UNAVAILABLE)
         result = run_insight_pipeline(signals, evidence, model)

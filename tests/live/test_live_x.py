@@ -3,7 +3,7 @@
 import os
 from datetime import datetime, timezone
 
-from gtm_intelligence.connectors.authorized_sources import XAdapter
+from sourceglint.connectors.authorized_sources import XAdapter
 
 
 def test_x_live_with_bearer_token():

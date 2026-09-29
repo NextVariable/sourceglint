@@ -3,7 +3,7 @@
 import os
 from datetime import datetime, timezone
 
-from gtm_intelligence.connectors.authorized_sources import ProductHuntAdapter
+from sourceglint.connectors.authorized_sources import ProductHuntAdapter
 
 
 def test_product_hunt_live_with_token():

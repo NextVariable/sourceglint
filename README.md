@@ -1,4 +1,4 @@
-# gtm-intelligence
+# sourceglint
 
 Given a topic, this Skill researches what appeared and what people discussed recently across available sources. It combines duplicate coverage, surfaces tools, workflows, user needs and feedback, and keeps dates and original links. Product managers, creators, GTM teams, and technology workers can use the research for different purposes. Product/GTM recommendations are optional. See [the positioning decision](docs/adr/0002-discovery-first-positioning.md) and [the default-output decision](docs/adr/0003-research-default.md).
 
@@ -17,13 +17,13 @@ The public runtime does not yet retrieve a prior comparison window. A baseline r
 ```sh
 python -m venv .venv
 .venv/bin/python -m pip install -e '.[dev]'
-.venv/bin/python -m gtm_intelligence --help
+.venv/bin/python -m sourceglint --help
 ```
 
-The public API is `gtm_intelligence.application.api.run_gtm_intelligence`. It requires `query`, an injected `model`, and an explicit `as_of` timestamp; callers can inject a source registry and adapter factory. The CLI supplies the current UTC timestamp unless `--as-of` is provided. For a reproducible run, set `--as-of` explicitly.
+The public API is `sourceglint.application.api.run_sourceglint`. It requires `query`, an injected `model`, and an explicit `as_of` timestamp; callers can inject a source registry and adapter factory. The CLI supplies the current UTC timestamp unless `--as-of` is provided. For a reproducible run, set `--as-of` explicitly.
 
 ```sh
-.venv/bin/python -m gtm_intelligence \
+.venv/bin/python -m sourceglint \
   'Recent changes in AI meeting assistants' \
   --model path/to/trusted_model_factory.py \
   --as-of 2026-09-26T00:00:00Z

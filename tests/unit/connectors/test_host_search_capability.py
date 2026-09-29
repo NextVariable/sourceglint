@@ -26,8 +26,8 @@ import re
 
 import pytest
 
-from gtm_intelligence.connectors import host_search as HOST_SEARCH_MODULE
-from gtm_intelligence.connectors.host_search import (
+from sourceglint.connectors import host_search as HOST_SEARCH_MODULE
+from sourceglint.connectors.host_search import (
     DEFAULT_MAX_PER_QUERY,
     HostWebSearchAdapter,
     SearchCapabilityTimeout,
@@ -35,7 +35,7 @@ from gtm_intelligence.connectors.host_search import (
     SOURCE_TYPE,
     WebSearchHit,
 )
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.pipeline.adapters import (
     AdapterInvalidResponse,
     AdapterTimeout,
     AdapterUnavailable,

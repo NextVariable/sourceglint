@@ -5,13 +5,13 @@ from datetime import datetime, timezone
 
 import pytest
 
-from gtm_intelligence.intelligence import pipeline
-from gtm_intelligence.intelligence.cache import SemanticCache
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence import pipeline
+from sourceglint.intelligence.cache import SemanticCache
+from sourceglint.intelligence.model import (
     FakeClusterScript,
     FakeIntelligenceModel,
 )
-from gtm_intelligence.intelligence.signals import validate_signal_contract
+from sourceglint.intelligence.signals import validate_signal_contract
 
 NOW = datetime(2026, 9, 7, 12, 0, tzinfo=timezone.utc)
 
@@ -266,7 +266,7 @@ def test_cache_skips_repeated_model_calls_on_second_run():
 
 
 def test_clustering_failure_raises():
-    from gtm_intelligence.intelligence.model import (
+    from sourceglint.intelligence.model import (
         FailingIntelligenceModel,
         IntelligencePipelineError,
     )

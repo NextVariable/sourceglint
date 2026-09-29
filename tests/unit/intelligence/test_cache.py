@@ -3,11 +3,11 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.intelligence.cache import (
+from sourceglint.intelligence.cache import (
     SemanticCache,
     build_cache_key,
 )
-from gtm_intelligence.intelligence.model import ModelResponse, ModelStatus
+from sourceglint.intelligence.model import ModelResponse, ModelStatus
 
 CTX_A = {"mode": "competitive", "entities": ["Acme"], "market": "US"}
 CTX_B = {"mode": "competitive", "entities": ["Beta"], "market": "US"}

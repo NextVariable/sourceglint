@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.interface.request import (
+from sourceglint.interface.request import (
     MODES,
     ParsedRequest,
     SkillRequest,

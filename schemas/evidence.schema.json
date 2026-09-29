@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.gtm-intelligence.dev/evidence.schema.json",
+  "$id": "https://schemas.sourceglint.dev/evidence.schema.json",
   "title": "Evidence",
   "description": "One normalized raw evidence item in the Evidence Ledger (v0.2 §9). The ledger is the single source of truth: every later FACT/INFERENCE/RECOMMENDATION must trace back to an evidence_id that exists here. Null is not an accepted value for optional strings — use field absence to express unknown.",
   "type": "object",
   "additionalProperties": false,
   "required": ["evidence_id", "source", "source_type", "url", "retrieved_at"],
   "properties": {
-    "evidence_id": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" },
+    "evidence_id": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/evidence_id" },
     "source": {
       "type": "string",
       "minLength": 1,
@@ -35,44 +35,44 @@
       "maxLength": 280,
       "description": "Verbatim quote, hard cap 280 chars (v0.2 §9). Absent when  no quotable text exists."
     },
-    "url": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/url" },
+    "url": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/url" },
     "published_at": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/iso_timestamp",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/iso_timestamp",
       "description": "When the source was published. Absent = unknown."
     },
     "retrieved_at": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/iso_timestamp",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/iso_timestamp",
       "description": "When we fetched it (always present)."
     },
     "market": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/market_code",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/market_code",
       "description": "Absent defaults to 'global' at normalization."
     },
     "locale": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/locale_code"
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/locale_code"
     },
     "language": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/language_code",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/language_code",
       "description": "Language of the evidence text."
     },
     "query_language": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/language_code",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/language_code",
       "description": "Language of the query that surfaced this evidence. Allows  cross-language matching (en query → ja evidence)."
     },
     "engagement": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "upvotes": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/non_negative_int" },
-        "comments": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/non_negative_int" },
-        "likes": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/non_negative_int" },
-        "views": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/non_negative_int" },
-        "points": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/non_negative_int" }
+        "upvotes": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/non_negative_int" },
+        "comments": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/non_negative_int" },
+        "likes": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/non_negative_int" },
+        "views": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/non_negative_int" },
+        "points": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/non_negative_int" }
       },
       "description": "Engagement counters as non-negative ints. Empty object =  zero engagement. Raw counts only — never weighted here."
     },
     "evidence_quality": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/confidence",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/confidence",
       "description": "0-1 quality set by code: tier map initial (T1=1.0/T3=0.8/ T2=0.6/T4=0.3) adjusted by cross-source verification (v0.2 §9)."
     },
     "query": {

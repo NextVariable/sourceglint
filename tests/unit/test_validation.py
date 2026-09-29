@@ -1,9 +1,9 @@
 """Phase 2 Referential Integrity Validator tests (TDD)."""
 import pytest
 
-from gtm_intelligence.errors import ReferentialIntegrityError
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.validation import (
+from sourceglint.errors import ReferentialIntegrityError
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.validation import (
     IntegrityIssue,
     ValidationResult,
     validate_insight,

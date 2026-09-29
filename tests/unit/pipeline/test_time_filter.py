@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.pipeline.time_filter import (
+from sourceglint.pipeline.time_filter import (
     TimeFilter,
     TimeWindowError,
     apply_time_filter,

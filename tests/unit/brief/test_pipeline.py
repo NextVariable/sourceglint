@@ -1,8 +1,8 @@
 """Phase 6C §19–§20, §24, §33 — pipeline triage / degradation / diagnostics."""
 from __future__ import annotations
 
-from gtm_intelligence.brief.dtos import BriefContext, BriefInput
-from gtm_intelligence.brief.pipeline import run_brief_pipeline
+from sourceglint.brief.dtos import BriefContext, BriefInput
+from sourceglint.brief.pipeline import run_brief_pipeline
 
 from ._support_brief import (
     context,
@@ -109,7 +109,7 @@ class TestDiagnostics:
             context=ctx, ledger=ledger, insights=insights, recommendations=recs,
             recommendation_diagnostics=rec_diags,
         ))
-        assert out.markdown.startswith("# GTM Intelligence Brief")
+        assert out.markdown.startswith("# Sourceglint Brief")
         assert "## Executive Summary" in out.markdown
         assert "## What We Know" in out.markdown
         assert "## Recommended Actions" in out.markdown

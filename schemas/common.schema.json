@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.gtm-intelligence.dev/common.schema.json",
-  "title": "gtm-intelligence common definitions",
-  "description": "Shared definitions reused across gtm-intelligence contracts. Single source of truth for ID formats, confidence scale, timestamp format, market/locale/language codes, and the GTM dimension enum. Change Control: any edit here is a contract change and requires an ADR.",
+  "$id": "https://schemas.sourceglint.dev/common.schema.json",
+  "title": "sourceglint common definitions",
+  "description": "Shared definitions reused across sourceglint contracts. Single source of truth for ID formats, confidence scale, timestamp format, market/locale/language codes, and the GTM dimension enum. Change Control: any edit here is a contract change and requires an ADR.",
   "$defs": {
     "evidence_id": {
       "type": "string",

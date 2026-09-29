@@ -22,23 +22,23 @@ from typing import Mapping
 
 import pytest
 
-from gtm_intelligence.errors import ConfigValidationError
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.errors import ConfigValidationError
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.pipeline.adapters import (
     AdapterAuthMissing,
     AdapterRateLimited,
     AdapterUnavailable,
     FakeSourceAdapter,
     RawSourceResult,
 )
-from gtm_intelligence.pipeline.coverage import CoverageReport
-from gtm_intelligence.pipeline.degradation import (
+from sourceglint.pipeline.coverage import CoverageReport
+from sourceglint.pipeline.degradation import (
     AllSourcesFailedError,
     InvalidResearchPlanError,
     SourceStatus,
     SourceStatusReport,
 )
-from gtm_intelligence.pipeline.orchestrator import (
+from sourceglint.pipeline.orchestrator import (
     PipelineConfig,
     ResearchPipeline,
     ResearchPipelineResult,
@@ -409,7 +409,7 @@ def test_orchestrator_with_baseline_window():
 def test_orchestrator_cache_hit_skips_adapter():
     """Cache hit is wired through the orchestrator — adapter not called for
     cached queries."""
-    from gtm_intelligence.pipeline.cache import RetrievalCache, cache_key_for
+    from sourceglint.pipeline.cache import RetrievalCache, cache_key_for
 
     # Pre-populate cache for the FIRST query the orchestrator will issue.
     cache_root = Path("/tmp/_gtm_orch_cache_test")

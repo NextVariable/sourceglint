@@ -19,8 +19,8 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.errors import ConfigValidationError
-from gtm_intelligence.pipeline.source_registry import load_registry
+from sourceglint.errors import ConfigValidationError
+from sourceglint.pipeline.source_registry import load_registry
 
 
 def _src(credentials):

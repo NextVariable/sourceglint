@@ -2,7 +2,7 @@
 
 
 def test_reddit_search_live_returns_well_formed_results():
-    from gtm_intelligence.connectors.reddit import RedditAdapter
+    from sourceglint.connectors.reddit import RedditAdapter
 
     adapter = RedditAdapter(max_per_query=3, allow_keyless_rss=True)
     plan = {

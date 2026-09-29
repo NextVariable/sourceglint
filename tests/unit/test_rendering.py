@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.rendering import render_markdown
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.rendering import render_markdown
 
 
 def _seed_ledger():

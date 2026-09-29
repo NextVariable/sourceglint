@@ -22,7 +22,7 @@ from typing import Any, Mapping
 from .gtm_implications import GTM_DIMENSIONS
 from .ids import is_valid_insight_id
 
-#: Repo root: src/gtm_intelligence/insights/validation.py → parents[3]
+#: Repo root: src/sourceglint/insights/validation.py → parents[3]
 _SCHEMAS_DIR = Path(__file__).resolve().parents[3] / "schemas"
 
 #: insight.schema.json — the ONLY keys an insight dict may carry.

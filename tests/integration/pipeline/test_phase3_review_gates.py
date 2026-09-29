@@ -18,16 +18,16 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.normalization import validate_evidence_payload
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.normalization import validate_evidence_payload
+from sourceglint.pipeline.adapters import (
     AdapterAuthMissing,
     AdapterUnavailable,
     FakeSourceAdapter,
     FixtureSourceAdapter,
 )
-from gtm_intelligence.pipeline.degradation import AllSourcesFailedError, SourceStatus
-from gtm_intelligence.pipeline.orchestrator import PipelineConfig, ResearchPipeline
+from sourceglint.pipeline.degradation import AllSourcesFailedError, SourceStatus
+from sourceglint.pipeline.orchestrator import PipelineConfig, ResearchPipeline
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -43,8 +43,8 @@ def test_gate_a_full_regression_includes_phase_1_2_3():
     """The 'normal' pytest invocation must run all phases' tests. This single
     invocation is the gate — pytest exit code is the verdict."""
     # Imported here so this test fails when sub-modules break.
-    from gtm_intelligence import ids, ledger, normalization, scoring
-    from gtm_intelligence.pipeline import (
+    from sourceglint import ids, ledger, normalization, scoring
+    from sourceglint.pipeline import (
         adapters, cache, coverage, deduplication, degradation,
         orchestrator, query_expansion, retrieval_plan, source_registry,
         time_filter,
@@ -72,7 +72,7 @@ def test_gate_a_full_regression_includes_phase_1_2_3():
 
 def test_gate_b_every_normalized_evidence_schema_valid():
     """Spot-check normalization produces schema-valid Evidence."""
-    from gtm_intelligence.pipeline.adapters import RawSourceResult
+    from sourceglint.pipeline.adapters import RawSourceResult
     for raw_dict in [
         {
             "source": "reddit",
@@ -94,7 +94,7 @@ def test_gate_b_every_normalized_evidence_schema_valid():
         },
     ]:
         r = RawSourceResult(**raw_dict)
-        from gtm_intelligence.normalization import normalize_raw
+        from sourceglint.normalization import normalize_raw
         ev = normalize_raw(r, as_of="2026-09-06T10:00:00Z")
         validate_evidence_payload(ev)
 
@@ -416,7 +416,7 @@ def test_gate_f_gitignore_excludes_cache_and_runs():
 
 
 def test_gate_f_cache_writes_no_secret_in_key():
-    from gtm_intelligence.pipeline.cache import cache_key_for
+    from sourceglint.pipeline.cache import cache_key_for
     k = cache_key_for(
         source="reddit",
         query="github_pat=ghp_supersecret_token_value_xyz_123",

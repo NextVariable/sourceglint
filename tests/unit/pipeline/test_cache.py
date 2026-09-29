@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.pipeline.cache import (
+from sourceglint.pipeline.cache import (
     CacheMiss,
     RetrievalCache,
     cache_key_for,

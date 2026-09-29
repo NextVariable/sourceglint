@@ -4,8 +4,8 @@ import textwrap
 
 import pytest
 
-from gtm_intelligence.errors import ScoringConfigError
-from gtm_intelligence.scoring import (
+from sourceglint.errors import ScoringConfigError
+from sourceglint.scoring import (
     DEFAULT_FACTORS,
     ScoreBreakdown,
     ScoringConfig,

@@ -13,7 +13,7 @@ WHY/TRADE-OFF if introducing a new dependency. We stick with stdlib:
     closure — strict upper bound, no surprise long polls.
   * test injection: clients that need to be replaceable (HN, GitHub, …)
     accept any object that quacks like HttpClient. We never reach into
-    a third-party HTTP package inside gtm_intelligence's core code.
+    a third-party HTTP package inside sourceglint's core code.
 
 Trade-offs accepted:
   * No async / connection pooling — fine for our sequential, low-rate
@@ -27,7 +27,7 @@ Compliance with PRD:
   * §11 Retry policy — only on transient failures (429 / 5xx / timeout),
     bounded by `max_attempts` (default 3).
   * §12 User-Agent — every connector advertises
-    gtm-intelligence/<version> (+ optional contact URL via env if set).
+    sourceglint/<version> (+ optional contact URL via env if set).
   * §13 Rate limit — connect adapters map 429 → AdapterRateLimited.
   * §14 Auth — never log or include secrets in error reprs.
   * §29 Security — token never stored, never echoed, never enters
@@ -45,7 +45,7 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable, Mapping, Protocol, runtime_checkable
 
 
-DEFAULT_USER_AGENT = "gtm-intelligence/0.2.0"
+DEFAULT_USER_AGENT = "sourceglint/0.2.0"
 DEFAULT_TIMEOUT_SECONDS = 15.0
 DEFAULT_MAX_ATTEMPTS = 3  # 1 initial + 2 retries (PRD §11: 2-3 attempts)
 DEFAULT_BACKOFF_SECONDS = 0.5  # bounded; tests inject a 0 to skip sleeps

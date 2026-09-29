@@ -19,10 +19,10 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.pipeline.adapters import FakeSourceAdapter
-from gtm_intelligence.pipeline.cache import RetrievalCache
-from gtm_intelligence.pipeline.orchestrator import PipelineConfig, ResearchPipeline
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.pipeline.adapters import FakeSourceAdapter
+from sourceglint.pipeline.cache import RetrievalCache
+from sourceglint.pipeline.orchestrator import PipelineConfig, ResearchPipeline
 
 
 def _src(name: str, cache_ttl: int, **overrides) -> dict:
@@ -220,7 +220,7 @@ def test_orchestrator_holds_no_hardcoded_ttl_default():
     orch = (
         Path(__file__).resolve().parents[3]
         / "src"
-        / "gtm_intelligence"
+        / "sourceglint"
         / "pipeline"
         / "orchestrator.py"
     )

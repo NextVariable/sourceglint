@@ -1,4 +1,4 @@
-"""gtm-intelligence research pipeline (Phase 3).
+"""sourceglint research pipeline (Phase 3).
 
 This subpackage is the deterministic Research Pipeline orchestration layer.
 It MUST NOT call LLMs and MUST NOT touch the Evidence schema or Scoring

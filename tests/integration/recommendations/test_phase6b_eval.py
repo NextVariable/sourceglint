@@ -44,17 +44,17 @@ from _support_recs6b import (
     scenario_insights,
 )
 
-from gtm_intelligence.insights.validation import (
+from sourceglint.insights.validation import (
     validate_insight_against_frozen_schema,
     validate_insight_schema,
 )
-from gtm_intelligence.recommendations.model import (
+from sourceglint.recommendations.model import (
     CONFLICT_SEGMENT,
     FakeConflictScript,
     FakeRecommendationModel,
     FakeRecommendationScript,
 )
-from gtm_intelligence.recommendations.pipeline import run_recommendation_pipeline
+from sourceglint.recommendations.pipeline import run_recommendation_pipeline
 
 #: All scenarios — order mirrors the golden file.
 SCENARIOS: tuple[str, ...] = (

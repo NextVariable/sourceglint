@@ -1,4 +1,4 @@
-# GTM Intelligence Brief
+# Sourceglint Brief
 **Research:** Interpreter-focused meeting assistants in Japan
 **Mode:** market · **Market:** jp · **Languages:** ja, en
 **Window:** Last 30 days · **As of:** 2026-09-09

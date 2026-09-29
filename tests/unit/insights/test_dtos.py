@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.dtos import (
+from sourceglint.insights.dtos import (
     FACT,
     INFERENCE,
     FactDraft,

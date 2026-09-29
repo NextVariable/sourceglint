@@ -18,7 +18,7 @@ from typing import Iterable
 
 import pytest
 
-from gtm_intelligence.pipeline.retrieval_plan import (
+from sourceglint.pipeline.retrieval_plan import (
     RetrievalPlan,
     RetrievalPlanner,
     build_retrieval_plans,

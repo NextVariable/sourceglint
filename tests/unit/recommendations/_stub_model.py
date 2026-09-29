@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from gtm_intelligence.insights.model import ModelResponse, ModelStatus
+from sourceglint.insights.model import ModelResponse, ModelStatus
 
 
 class StubModel:

@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.intelligence.dtos import PreparedEvidence
-from gtm_intelligence.intelligence.preparation import (
+from sourceglint.intelligence.dtos import PreparedEvidence
+from sourceglint.intelligence.preparation import (
     MAX_SNIPPET_CHARS,
     MAX_TITLE_CHARS,
     prepare_evidence,

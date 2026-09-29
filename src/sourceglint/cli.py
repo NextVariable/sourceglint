@@ -1,6 +1,6 @@
 """Phase 7 §22–§24, §53–§55 — minimal host-neutral CLI.
 
-    gtm-intelligence "recent Japan AI meeting assistant market changes" \\
+    sourceglint "recent Japan AI meeting assistant market changes" \\
         [--mode market] [--market jp] [--window 30] [--language en] \\
         [--model FILE_OR_MODULE] [--registry sources.yaml] \\
         [--as-of 2026-09-09T00:00:00Z] [--output brief.md] [--json] [--debug]
@@ -13,7 +13,7 @@ Contract:
   * exit 2  -> pipeline failed / no usable result (or argparse usage error)
 
 Security (§50): the CLI never uses eval/exec/shell; the query is always
-passed as data to the canonical ``run_gtm_intelligence`` Python API.
+passed as data to the canonical ``run_sourceglint`` Python API.
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
-from .application.api import run_gtm_intelligence
+from .application.api import run_sourceglint
 from .application.runtime import default_adapter_factory
 from .host_stdio import StdioHostSource
 from .interface.request import MODES
@@ -43,7 +43,7 @@ _MODEL_HELP = (
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="gtm-intelligence",
+        prog="sourceglint",
         description=(
             "Evidence-linked recent information and demand discovery, with "
             "optional product and GTM decision support."
@@ -153,7 +153,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if name in ("host_web_search", "official_web"):
                     return StdioHostSource(name)
                 return default_adapter_factory(name, plan)
-        result = run_gtm_intelligence(
+        result = run_sourceglint(
             args.query,
             mode=args.mode,
             market=args.market,

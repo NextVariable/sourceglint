@@ -32,9 +32,9 @@ def test_b_evidence_schema_validates_real_payloads():
 
     sys.path.insert(0, str(ROOT / "tests" / "integration" / "pipeline"))
     from test_golden_research_jp import _pipeline
-    from gtm_intelligence.ledger import EvidenceLedger
-    from gtm_intelligence.normalization import normalize_raw, validate_evidence_payload
-    from gtm_intelligence.pipeline.adapters import RawSourceResult
+    from sourceglint.ledger import EvidenceLedger
+    from sourceglint.normalization import normalize_raw, validate_evidence_payload
+    from sourceglint.pipeline.adapters import RawSourceResult
 
     pipeline, plan, sources, _ = _pipeline()
     ledger = EvidenceLedger(":memory:")
@@ -127,7 +127,7 @@ def test_b_source_registry_schema_still_valid():
 def test_c_golden_research_x20_deterministic():
     sys.path.insert(0, str(ROOT / "tests" / "integration" / "pipeline"))
     from test_golden_research_jp import _pipeline
-    from gtm_intelligence.ledger import EvidenceLedger
+    from sourceglint.ledger import EvidenceLedger
 
     pipeline, plan, sources, _ = _pipeline()
     snapshots = []
@@ -153,7 +153,7 @@ def test_d_one_source_degrades_others_continue():
     """One source fails, others finish successfully."""
     sys.path.insert(0, str(ROOT / "tests" / "integration" / "pipeline"))
     from test_golden_research_jp import _pipeline
-    from gtm_intelligence.ledger import EvidenceLedger
+    from sourceglint.ledger import EvidenceLedger
 
     pipeline, plan, sources, _ = _pipeline()
     ledger = EvidenceLedger(":memory:")
@@ -169,7 +169,7 @@ def test_d_coverage_reports_failures():
     """CoverageReport.failed_sources is non-empty after any source fails."""
     sys.path.insert(0, str(ROOT / "tests" / "integration" / "pipeline"))
     from test_golden_research_jp import _pipeline
-    from gtm_intelligence.ledger import EvidenceLedger
+    from sourceglint.ledger import EvidenceLedger
 
     pipeline, plan, sources, _ = _pipeline()
     ledger = EvidenceLedger(":memory:")
@@ -186,7 +186,7 @@ def test_e_no_network_imports_in_src():
     Phase 4 contract clarification: Phase 4 introduces REAL source
     connectors (HN, GitHub, Reddit) and explicitly chose stdlib `urllib`
     over `requests`/`httpx` for new-dependency avoidance. The single
-    stdlib HTTP client lives at `src/gtm_intelligence/connectors/_http.py`
+    stdlib HTTP client lives at `src/sourceglint/connectors/_http.py`
     and is the ONLY src/ file that may speak directly to urllib. All
     other Phase 4 connectors (host_search, official_web, hacker_news,
     github, reddit) must consume THIS client and never import urllib on
@@ -198,7 +198,7 @@ def test_e_no_network_imports_in_src():
     src_dir = ROOT / "src"
     forbidden = ("requests", "httpx", "aiohttp", "urllib3")
     # Phase 4: explicit allowlist for the stdlib HTTP client module.
-    http_client_module = src_dir / "gtm_intelligence" / "connectors" / "_http.py"
+    http_client_module = src_dir / "sourceglint" / "connectors" / "_http.py"
     violations = []
     for path in src_dir.rglob("*.py"):
         is_http_client = path.resolve() == http_client_module.resolve()
@@ -279,8 +279,8 @@ def test_f_env_files_gitignored():
 def test_f_credential_name_contract_rejects_real_secret_shapes():
     """Hard validation: real secret-looking strings are NOT valid credential
     names per the new pattern (closeout §1 regression)."""
-    from gtm_intelligence.pipeline.source_registry import load_registry
-    from gtm_intelligence.errors import ConfigValidationError
+    from sourceglint.pipeline.source_registry import load_registry
+    from sourceglint.errors import ConfigValidationError
 
     for bad in (
         "github_token=abc123",

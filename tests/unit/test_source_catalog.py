@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from gtm_intelligence.source_catalog import (
+from sourceglint.source_catalog import (
     load_source_catalog,
     select_host_search_targets,
 )

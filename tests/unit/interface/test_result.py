@@ -1,7 +1,7 @@
 """Phase 7 §20–§21, §56 — SkillResult / Status tests."""
 from __future__ import annotations
 
-from gtm_intelligence.interface.result import SkillResult, Status
+from sourceglint.interface.result import SkillResult, Status
 
 
 class TestStatusTaxonomy:
@@ -21,14 +21,14 @@ class TestSkillResult:
     def test_to_dict_never_dumps_internal_objects(self):
         r = SkillResult(
             status=Status.SUCCESS,
-            brief_markdown="# GTM Intelligence Brief",
+            brief_markdown="# Sourceglint Brief",
             warnings=("a", "b"),
             stage_statuses={"research": "ok", "signal": "degraded"},
             diagnostics={"debug": True},
         )
         d = r.to_dict()
         assert d["status"] == "SUCCESS"
-        assert d["brief_markdown"].startswith("# GTM")
+        assert d["brief_markdown"].startswith("# Sourceglint")
         assert d["warnings"] == ["a", "b"]
         assert d["stage_statuses"]["research"] == "ok"
         # diagnostics serialized as dict (host-debug only)

@@ -17,25 +17,25 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.dtos import (
+from sourceglint.insights.dtos import (
     FACT,
     INFERENCE,
     FactDraft,
     InferenceDraft,
     PreparedSignal,
 )
-from gtm_intelligence.insights.inferences import (
+from sourceglint.insights.inferences import (
     synthesize_inferences,
     validate_inference,
     InferenceSynthesisResult,
 )
-from gtm_intelligence.insights.model import (
+from sourceglint.insights.model import (
     FakeInferenceScript,
     FakeInsightModel,
     TASK_INFERENCE_SYNTHESIS,
 )
-from gtm_intelligence.intelligence.dtos import ResearchContext
-from gtm_intelligence.intelligence.cache import SemanticCache
+from sourceglint.intelligence.dtos import ResearchContext
+from sourceglint.intelligence.cache import SemanticCache
 
 
 def _ps(sid="sig_a", evidence_ids=("ev_1", "ev_2"), **kw):
@@ -228,7 +228,7 @@ class TestSynthesizeInferences:
         assert result.rejected == ()
 
     def test_model_failure(self):
-        from gtm_intelligence.intelligence.model import ModelStatus
+        from sourceglint.intelligence.model import ModelStatus
         facts = [_fact()]
         signals = [_ps()]
         model = FakeInsightModel(status=ModelStatus.UNAVAILABLE)

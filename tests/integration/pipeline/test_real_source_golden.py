@@ -37,24 +37,24 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.connectors._http import (
+from sourceglint.connectors._http import (
     HttpResponse,
     HttpTransientError,
 )
-from gtm_intelligence.connectors.github import GitHubAdapter
-from gtm_intelligence.connectors.hacker_news import HackerNewsAdapter
-from gtm_intelligence.connectors.official_web import (
+from sourceglint.connectors.github import GitHubAdapter
+from sourceglint.connectors.hacker_news import HackerNewsAdapter
+from sourceglint.connectors.official_web import (
     OfficialDomainClassifier,
     load_official_rules,
 )
-from gtm_intelligence.connectors.reddit import RedditAdapter
-from gtm_intelligence.pipeline.adapters import FakeSourceAdapter, RawSourceResult
-from gtm_intelligence.pipeline.orchestrator import (
+from sourceglint.connectors.reddit import RedditAdapter
+from sourceglint.pipeline.adapters import FakeSourceAdapter, RawSourceResult
+from sourceglint.pipeline.orchestrator import (
     PipelineConfig,
     ResearchPipeline,
 )
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.pipeline.cache import RetrievalCache
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.pipeline.cache import RetrievalCache
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -136,7 +136,7 @@ class _CaptureHttp:
 
     @property
     def user_agent(self):
-        return "gtm-intelligence/test"
+        return "sourceglint/test"
 
     def request(self, url, *, headers=None, timeout=15.0):
         self.calls.append({"url": url, "headers": dict(headers or {})})

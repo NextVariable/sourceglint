@@ -1,7 +1,7 @@
 """Phase 6B §33 — No Unsupported Specificity guard."""
 from __future__ import annotations
 
-from gtm_intelligence.recommendations.specificity import check_specificity
+from sourceglint.recommendations.specificity import check_specificity
 
 from ._support_recs import evidence, evidence_by_id, insight_by_id
 

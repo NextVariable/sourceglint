@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from gtm_intelligence.insights.ids import derive_insight_id
+from sourceglint.insights.ids import derive_insight_id
 
 
 def insight_fact(

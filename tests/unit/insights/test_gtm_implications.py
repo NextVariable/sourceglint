@@ -12,25 +12,25 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.dtos import (
+from sourceglint.insights.dtos import (
     FACT,
     INFERENCE,
     FactDraft,
     GTMImplicationDraft,
     InferenceDraft,
 )
-from gtm_intelligence.insights.gtm_implications import (
+from sourceglint.insights.gtm_implications import (
     derive_gtm_implications,
     validate_gtm_implications,
     GTMImplicationResult,
 )
-from gtm_intelligence.insights.model import (
+from sourceglint.insights.model import (
     FakeGTMImplicationScript,
     FakeInsightModel,
     TASK_GTM_IMPLICATIONS,
 )
-from gtm_intelligence.intelligence.dtos import ResearchContext
-from gtm_intelligence.intelligence.cache import SemanticCache
+from sourceglint.intelligence.dtos import ResearchContext
+from sourceglint.intelligence.cache import SemanticCache
 
 
 def _fact(ins_id="ins_fact_1"):
@@ -145,7 +145,7 @@ class TestDeriveGtmImplications:
         assert result.rejected == ()
 
     def test_model_failure(self):
-        from gtm_intelligence.intelligence.model import ModelStatus
+        from sourceglint.intelligence.model import ModelStatus
         fact, ins_id, _ = _fact()
         model = FakeInsightModel(status=ModelStatus.UNAVAILABLE)
         ctx = ResearchContext()

@@ -21,16 +21,16 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.errors import ConfigValidationError
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.normalization import validate_evidence_payload
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.errors import ConfigValidationError
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.normalization import validate_evidence_payload
+from sourceglint.pipeline.adapters import (
     AdapterUnavailable,
     FakeSourceAdapter,
     FixtureSourceAdapter,
 )
-from gtm_intelligence.pipeline.degradation import SourceStatus
-from gtm_intelligence.pipeline.orchestrator import (
+from sourceglint.pipeline.degradation import SourceStatus
+from sourceglint.pipeline.orchestrator import (
     PipelineConfig,
     ResearchPipeline,
 )

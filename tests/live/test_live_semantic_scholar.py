@@ -2,7 +2,7 @@
 
 import os
 
-from gtm_intelligence.connectors.open_sources import SemanticScholarAdapter
+from sourceglint.connectors.open_sources import SemanticScholarAdapter
 
 
 def test_semantic_scholar_live_with_api_key():

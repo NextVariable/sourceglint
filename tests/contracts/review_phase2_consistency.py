@@ -34,12 +34,12 @@ def check(name: str, ok: bool, detail: str = "") -> bool:
 
 # ----------------------------- Imports -----------------------------------
 
-ids_mod = importlib.import_module("gtm_intelligence.ids")
-ledger_mod = importlib.import_module("gtm_intelligence.ledger")
-scoring_mod = importlib.import_module("gtm_intelligence.scoring")
-validation_mod = importlib.import_module("gtm_intelligence.validation")
-citations_mod = importlib.import_module("gtm_intelligence.citations")
-rendering_mod = importlib.import_module("gtm_intelligence.rendering")
+ids_mod = importlib.import_module("sourceglint.ids")
+ledger_mod = importlib.import_module("sourceglint.ledger")
+scoring_mod = importlib.import_module("sourceglint.scoring")
+validation_mod = importlib.import_module("sourceglint.validation")
+citations_mod = importlib.import_module("sourceglint.citations")
+rendering_mod = importlib.import_module("sourceglint.rendering")
 
 # ----------------------------- 1. ID format ------------------------------
 

@@ -18,24 +18,24 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.dtos import (
+from sourceglint.insights.dtos import (
     FACT,
     FactDraft,
     InferenceDraft,
     PreparedSignal,
 )
-from gtm_intelligence.insights.facts import (
+from sourceglint.insights.facts import (
     synthesize_facts,
     validate_fact,
     FactSynthesisResult,
 )
-from gtm_intelligence.insights.model import (
+from sourceglint.insights.model import (
     FakeFactScript,
     FakeInsightModel,
     TASK_FACT_SYNTHESIS,
 )
-from gtm_intelligence.intelligence.dtos import ResearchContext
-from gtm_intelligence.intelligence.cache import SemanticCache
+from sourceglint.intelligence.dtos import ResearchContext
+from sourceglint.intelligence.cache import SemanticCache
 
 
 def _ps(sid="sig_a", evidence_ids=("ev_1", "ev_2"), **kw):
@@ -264,7 +264,7 @@ class TestSynthesizeFacts:
         assert result.rejected == ()
 
     def test_model_failure_returns_empty_with_warning(self):
-        from gtm_intelligence.intelligence.model import ModelStatus
+        from sourceglint.intelligence.model import ModelStatus
         signals = [_ps()]
         model = FakeInsightModel(status=ModelStatus.UNAVAILABLE)
         ev = {"ev_1": {}}

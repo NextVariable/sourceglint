@@ -97,19 +97,19 @@ def test_gate_b_every_kept_evidence_is_schema_valid(tmp_path):
     """
 
     import jsonschema
-    from gtm_intelligence.connectors.official_web import (
+    from sourceglint.connectors.official_web import (
         OfficialDomainClassifier,
         load_official_rules,
     )
-    from gtm_intelligence.connectors.github import GitHubAdapter
-    from gtm_intelligence.connectors.hacker_news import HackerNewsAdapter
-    from gtm_intelligence.connectors.reddit import RedditAdapter
-    from gtm_intelligence.pipeline.adapters import FakeSourceAdapter, RawSourceResult
-    from gtm_intelligence.pipeline.orchestrator import (
+    from sourceglint.connectors.github import GitHubAdapter
+    from sourceglint.connectors.hacker_news import HackerNewsAdapter
+    from sourceglint.connectors.reddit import RedditAdapter
+    from sourceglint.pipeline.adapters import FakeSourceAdapter, RawSourceResult
+    from sourceglint.pipeline.orchestrator import (
         PipelineConfig, ResearchPipeline,
     )
-    from gtm_intelligence.ledger import EvidenceLedger
-    from gtm_intelligence.connectors._http import HttpResponse
+    from sourceglint.ledger import EvidenceLedger
+    from sourceglint.connectors._http import HttpResponse
     from referencing import Registry, Resource
 
     schema = json.loads(
@@ -271,10 +271,10 @@ def test_gate_d_no_real_socket_in_src():
     """`src/` must NOT open real sockets during normal CI. We scan
     src/ for active `socket.socket(...)` or `urllib.request.urlopen`
     calls in non-allowlisted modules. The allowlist:
-      * `src/gtm_intelligence/connectors/_http.py` (the only HTTP client)
+      * `src/sourceglint/connectors/_http.py` (the only HTTP client)
     """
 
-    allowlist = {ROOT / "src" / "gtm_intelligence" / "connectors" / "_http.py"}
+    allowlist = {ROOT / "src" / "sourceglint" / "connectors" / "_http.py"}
     for py in SRC.rglob("*.py"):
         if py.resolve() in {p.resolve() for p in allowlist}:
             continue
@@ -328,18 +328,18 @@ def test_gate_f_one_source_rate_limited_pipeline_continues(tmp_path):
     coverage report's `attempted_sources == successful_sources ∪
     failed_sources` invariant holds.
     """
-    from gtm_intelligence.connectors.github import GitHubAdapter
-    from gtm_intelligence.connectors.hacker_news import HackerNewsAdapter
-    from gtm_intelligence.connectors.reddit import RedditAdapter
-    from gtm_intelligence.connectors._http import HttpResponse, HttpTransientError
-    from gtm_intelligence.connectors.official_web import (
+    from sourceglint.connectors.github import GitHubAdapter
+    from sourceglint.connectors.hacker_news import HackerNewsAdapter
+    from sourceglint.connectors.reddit import RedditAdapter
+    from sourceglint.connectors._http import HttpResponse, HttpTransientError
+    from sourceglint.connectors.official_web import (
         OfficialDomainClassifier, load_official_rules,
     )
-    from gtm_intelligence.pipeline.adapters import FakeSourceAdapter, RawSourceResult
-    from gtm_intelligence.pipeline.orchestrator import (
+    from sourceglint.pipeline.adapters import FakeSourceAdapter, RawSourceResult
+    from sourceglint.pipeline.orchestrator import (
         PipelineConfig, ResearchPipeline,
     )
-    from gtm_intelligence.ledger import EvidenceLedger
+    from sourceglint.ledger import EvidenceLedger
 
     classifier = OfficialDomainClassifier(load_official_rules(path=str(ROOT / "config" / "official_domains.yaml")))
 
@@ -461,16 +461,16 @@ def test_gate_g_no_real_secret_strings_in_src():
 
 def test_gate_g_token_keys_not_in_evidence_dump(tmp_path):
     """No adapter writes an Authorization/Bearer/token value into Evidence."""
-    from gtm_intelligence.connectors.github import GitHubAdapter
-    from gtm_intelligence.connectors._http import HttpResponse
-    from gtm_intelligence.pipeline.adapters import FakeSourceAdapter, RawSourceResult
-    from gtm_intelligence.pipeline.orchestrator import (
+    from sourceglint.connectors.github import GitHubAdapter
+    from sourceglint.connectors._http import HttpResponse
+    from sourceglint.pipeline.adapters import FakeSourceAdapter, RawSourceResult
+    from sourceglint.pipeline.orchestrator import (
         PipelineConfig, ResearchPipeline,
     )
-    from gtm_intelligence.connectors.official_web import (
+    from sourceglint.connectors.official_web import (
         OfficialDomainClassifier, load_official_rules,
     )
-    from gtm_intelligence.ledger import EvidenceLedger
+    from sourceglint.ledger import EvidenceLedger
 
     classifier = OfficialDomainClassifier(load_official_rules(path=str(ROOT / "config" / "official_domains.yaml")))
     seed = RawSourceResult(
@@ -546,8 +546,8 @@ def test_gate_h_real_source_golden_20_runs_identical(tmp_path):
     byte-identical coverage + ledger dumps. PRD §25 + Closeout §5.
     """
     golden = _load_golden_helpers()
-    from gtm_intelligence.pipeline.orchestrator import PipelineConfig, ResearchPipeline
-    from gtm_intelligence.ledger import EvidenceLedger
+    from sourceglint.pipeline.orchestrator import PipelineConfig, ResearchPipeline
+    from sourceglint.ledger import EvidenceLedger
 
     classifier = golden._classifier()
     first_dump = None

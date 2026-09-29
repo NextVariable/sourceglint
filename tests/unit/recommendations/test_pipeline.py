@@ -1,13 +1,13 @@
 """Phase 6B §6, §30, §31 — full pipeline: FACT/INFERENCE → Recommendation Set."""
 from __future__ import annotations
 
-from gtm_intelligence.recommendations.model import (
+from sourceglint.recommendations.model import (
     CONFLICT_SEGMENT,
     FakeConflictScript,
     FakeRecommendationModel,
     FakeRecommendationScript,
 )
-from gtm_intelligence.recommendations.pipeline import run_recommendation_pipeline
+from sourceglint.recommendations.pipeline import run_recommendation_pipeline
 
 from ._support_recs import evidence, evidence_by_id
 

@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.intelligence.dtos import PreparedEvidence, ResearchContext
-from gtm_intelligence.intelligence.ids import derive_cluster_id
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence.dtos import PreparedEvidence, ResearchContext
+from sourceglint.intelligence.ids import derive_cluster_id
+from sourceglint.intelligence.model import (
     CLUSTERING_RESPONSE_SCHEMA,
     FakeClusterScript,
     FakeIntelligenceModel,
@@ -15,11 +15,11 @@ from gtm_intelligence.intelligence.model import (
     ModelStatus,
     TASK_CLUSTERING,
 )
-from gtm_intelligence.intelligence.preparation import model_payloads
+from sourceglint.intelligence.preparation import model_payloads
 
 # clustering module is under test; import at call time to keep collection
 # green while the module does not exist yet.
-from gtm_intelligence.intelligence import clustering  # noqa: E402
+from sourceglint.intelligence import clustering  # noqa: E402
 
 
 def _evidence(eid: str, *, source: str = "src-a", text: str = "text") -> PreparedEvidence:
@@ -360,7 +360,7 @@ def test_empty_prepared_input_is_a_programming_error():
 
 
 def test_validate_clusters_is_pure_and_order_independent():
-    from gtm_intelligence.intelligence.dtos import ClusterDraft
+    from sourceglint.intelligence.dtos import ClusterDraft
 
     known = {"ev-1", "ev-2", "ev-3"}
     drafts = [

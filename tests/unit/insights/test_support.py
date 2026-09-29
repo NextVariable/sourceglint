@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.support import (
+from sourceglint.insights.support import (
     compute_support_strength,
     distinct_source_count,
 )

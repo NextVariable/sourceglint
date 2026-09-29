@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.intelligence import weak_signal
-from gtm_intelligence.intelligence.dtos import WINDOW_BASELINE, WeakSignalAssessment
-from gtm_intelligence.intelligence.ids import derive_cluster_id
-from gtm_intelligence.intelligence.dtos import SignalFeatures
+from sourceglint.intelligence import weak_signal
+from sourceglint.intelligence.dtos import WINDOW_BASELINE, WeakSignalAssessment
+from sourceglint.intelligence.ids import derive_cluster_id
+from sourceglint.intelligence.dtos import SignalFeatures
 
 
 def _feats(

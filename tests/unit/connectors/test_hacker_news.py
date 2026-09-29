@@ -22,20 +22,20 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from gtm_intelligence.connectors._http import (
+from sourceglint.connectors._http import (
     HttpClient,
     HttpResponse,
     HttpTimeoutError,
     HttpTransientError,
 )
-from gtm_intelligence.connectors.hacker_news import (
+from sourceglint.connectors.hacker_news import (
     DEFAULT_MAX_PER_QUERY,
     HN_ITEM_BASE,
     HN_SEARCH_URL,
     HackerNewsAdapter,
     SOURCE_NAME,
 )
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.pipeline.adapters import (
     AdapterAuthMissing,
     AdapterInvalidResponse,
     AdapterRateLimited,
@@ -63,7 +63,7 @@ class _ScriptedHttpClient:
 
     @property
     def user_agent(self) -> str:
-        return "gtm-intelligence/test"
+        return "sourceglint/test"
 
     def request(
         self,

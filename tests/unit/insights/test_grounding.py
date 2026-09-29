@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.grounding import check_fact_grounding
+from sourceglint.insights.grounding import check_fact_grounding
 
 # evidence pool: one signal (sig_a) owns ev_1 + ev_2 with real text.
 

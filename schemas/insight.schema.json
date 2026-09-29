@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.gtm-intelligence.dev/insight.schema.json",
+  "$id": "https://schemas.sourceglint.dev/insight.schema.json",
   "title": "Insight",
   "description": "Output of the reasoning layer. Structural isolation of FACT | INFERENCE | RECOMMENDATION (PRD §3, v0.2 §12): FACT is supported directly by evidence and must NOT carry action; INFERENCE is derived from one or more facts/signals; RECOMMENDATION is an action proposal with priority and MUST carry action. GTM dimensions are expressed as a gtm_implications map whose keys are limited to the frozen dimension enum (v0.2 §12.1).",
   "type": "object",
   "additionalProperties": false,
   "required": ["insight_id", "type", "statement", "confidence"],
   "properties": {
-    "insight_id": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/insight_id" },
+    "insight_id": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/insight_id" },
     "type": {
       "type": "string",
       "enum": ["FACT", "INFERENCE", "RECOMMENDATION"]
@@ -19,18 +19,18 @@
     },
     "signal_ids": {
       "type": "array",
-      "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/signal_id" },
+      "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/signal_id" },
       "uniqueItems": true,
       "description": "Signals this insight builds on (INFERENCE/RECOMMENDATION)."
     },
     "evidence_ids": {
       "type": "array",
-      "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" },
+      "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/evidence_id" },
       "uniqueItems": true,
       "description": "Direct evidence backing this insight. Existence in ledger = Phase 2 validator."
     },
     "confidence": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/confidence"
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/confidence"
     },
     "gtm_implications": {
       "type": "object",
@@ -38,7 +38,7 @@
         "type": ["string", "null"]
       },
       "propertyNames": {
-        "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/gtm_dimension"
+        "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/gtm_dimension"
       },
       "description": "GTM impact per dimension. Value = implication text, or null = dimension assessed, no implication (v0.2 §12.1). Empty object = no implications."
     },

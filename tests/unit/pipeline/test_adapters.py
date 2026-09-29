@@ -18,7 +18,7 @@ from dataclasses import dataclass
 
 import pytest
 
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.pipeline.adapters import (
     AdapterError,
     AdapterUnavailable,
     AdapterAuthMissing,

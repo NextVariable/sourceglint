@@ -2,7 +2,7 @@
 
 import pytest
 
-from gtm_intelligence.connectors.open_sources import (
+from sourceglint.connectors.open_sources import (
     ArxivAdapter,
     DevToAdapter,
     HuggingFaceAdapter,

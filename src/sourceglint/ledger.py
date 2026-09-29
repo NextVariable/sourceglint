@@ -3,7 +3,7 @@
 Design notes:
   * Storage is JSONL: one evidence JSON object per line. Append-only on disk.
   * In-memory index keyed by evidence_id for O(1) lookup.
-  * Identity is determined by `gtm_intelligence.ids.derive_evidence_id`. The
+  * Identity is determined by `sourceglint.ids.derive_evidence_id`. The
     ledger does not reimplement canonicalization.
   * Duplicate policy: same canonical evidence => idempotent re-add (no
     duplicate entry, enrichment ignored). If a caller pins an evidence_id and

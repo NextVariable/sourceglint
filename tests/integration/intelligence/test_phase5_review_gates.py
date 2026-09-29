@@ -41,11 +41,11 @@ from pathlib import Path
 import yaml
 
 from _support import load_jsonl, load_schema, validate
-from gtm_intelligence.intelligence import cache as cache_mod
-from gtm_intelligence.intelligence import pipeline as pipeline_mod
-from gtm_intelligence.intelligence import signals as signals_mod
-from gtm_intelligence.intelligence.contradiction import ContradictionAssessment
-from gtm_intelligence.intelligence.dtos import (
+from sourceglint.intelligence import cache as cache_mod
+from sourceglint.intelligence import pipeline as pipeline_mod
+from sourceglint.intelligence import signals as signals_mod
+from sourceglint.intelligence.contradiction import ContradictionAssessment
+from sourceglint.intelligence.dtos import (
     CONTRADICTION_FACTUAL,
     WINDOW_BASELINE,
     WINDOW_CURRENT,
@@ -53,11 +53,11 @@ from gtm_intelligence.intelligence.dtos import (
     SignalFeatures,
     ValidatedCluster,
 )
-from gtm_intelligence.intelligence.factors import FactorSet
-from gtm_intelligence.intelligence.features import derive_features
-from gtm_intelligence.intelligence.guardrails import screen_texts
-from gtm_intelligence.intelligence.ids import derive_cluster_id, derive_signal_id
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence.factors import FactorSet
+from sourceglint.intelligence.features import derive_features
+from sourceglint.intelligence.guardrails import screen_texts
+from sourceglint.intelligence.ids import derive_cluster_id, derive_signal_id
+from sourceglint.intelligence.model import (
     CONTRADICTION_RESPONSE_SCHEMA,
     FakeClusterScript,
     FakeIntelligenceModel,
@@ -244,7 +244,7 @@ def test_gate_h_cache_only_stores_success():
 def test_gate_i_result_carries_no_insight_or_recommendation():
     import dataclasses
 
-    from gtm_intelligence.intelligence.dtos import IntelligencePipelineResult
+    from sourceglint.intelligence.dtos import IntelligencePipelineResult
 
     allowed = {"signals", "clusters", "diagnostics", "warnings", "model_status"}
     assert set(dataclasses.asdict(IntelligencePipelineResult())) == allowed
@@ -262,7 +262,7 @@ def test_gate_j_config_never_out_claims_code():
     registry = yaml.safe_load((ROOT / "config/sources.yaml").read_text(encoding="utf-8"))
     github = next(s for s in registry if s["name"] == "github")
     assert github["capabilities"] == ["search"]
-    adapter_text = (ROOT / "src/gtm_intelligence/connectors/github.py").read_text(
+    adapter_text = (ROOT / "src/sourceglint/connectors/github.py").read_text(
         encoding="utf-8"
     )
     assert "MVP scope" in adapter_text

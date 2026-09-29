@@ -18,11 +18,11 @@ import jsonschema
 import pytest
 from referencing import Registry, Resource
 
-from gtm_intelligence.normalization import normalize_raw, validate_evidence_payload
-from gtm_intelligence.pipeline.adapters import FakeSourceAdapter, RawSourceResult
-from gtm_intelligence.pipeline.adapters import SourceAdapter
-from gtm_intelligence.pipeline.orchestrator import PipelineConfig, ResearchPipeline
-from gtm_intelligence.ledger import EvidenceLedger
+from sourceglint.normalization import normalize_raw, validate_evidence_payload
+from sourceglint.pipeline.adapters import FakeSourceAdapter, RawSourceResult
+from sourceglint.pipeline.adapters import SourceAdapter
+from sourceglint.pipeline.orchestrator import PipelineConfig, ResearchPipeline
+from sourceglint.ledger import EvidenceLedger
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -243,12 +243,12 @@ def test_pipeline_output_every_evidence_passes_schema(tmp_path):
         "github": FIX_DIR / "golden_github.jsonl",
         "host_web_search": FIX_DIR / "golden_host_web_search.jsonl",
     }
-    from gtm_intelligence.pipeline.adapters import (
+    from sourceglint.pipeline.adapters import (
         AdapterUnavailable,
         FakeSourceAdapter,
         FixtureSourceAdapter,
     )
-    from gtm_intelligence.pipeline.degradation import SourceStatus
+    from sourceglint.pipeline.degradation import SourceStatus
 
     plan = {
         "topic": "AI Meeting Assistant",

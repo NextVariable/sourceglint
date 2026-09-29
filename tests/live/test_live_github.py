@@ -9,8 +9,8 @@ destructive deletes.
 
 
 def test_github_search_live_returns_well_formed_results():
-    from gtm_intelligence.connectors._http import StdlibHttpClient
-    from gtm_intelligence.connectors.github import GitHubAdapter
+    from sourceglint.connectors._http import StdlibHttpClient
+    from sourceglint.connectors.github import GitHubAdapter
     from urllib.parse import quote_plus
 
     http = StdlibHttpClient(default_timeout=15.0)

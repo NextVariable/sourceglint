@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.validation import (
+from sourceglint.insights.validation import (
     INSIGHT_SCHEMA_KEYS,
     validate_insight_against_frozen_schema,
     validate_insight_schema,

@@ -5,8 +5,8 @@ from typing import Mapping
 
 import pytest
 
-from gtm_intelligence.connectors._http import HttpResponse, HttpTransientError
-from gtm_intelligence.connectors.open_sources import (
+from sourceglint.connectors._http import HttpResponse, HttpTransientError
+from sourceglint.connectors.open_sources import (
     ArxivAdapter,
     DevToAdapter,
     HuggingFaceAdapter,
@@ -15,7 +15,7 @@ from gtm_intelligence.connectors.open_sources import (
     SemanticScholarAdapter,
     StackOverflowAdapter,
 )
-from gtm_intelligence.pipeline.adapters import AdapterInvalidResponse, AdapterRateLimited
+from sourceglint.pipeline.adapters import AdapterInvalidResponse, AdapterRateLimited
 
 
 class StubHttp:
@@ -159,7 +159,7 @@ def test_public_adapter_maps_429_to_rate_limited():
 
 
 def test_semantic_scholar_requires_key_before_network():
-    from gtm_intelligence.pipeline.adapters import AdapterAuthMissing
+    from sourceglint.pipeline.adapters import AdapterAuthMissing
     http = StubHttp({"data": []})
     with pytest.raises(AdapterAuthMissing):
         SemanticScholarAdapter(http_client=http).retrieve(PLAN, REQUEST)

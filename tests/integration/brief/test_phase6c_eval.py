@@ -35,9 +35,9 @@ from _support_brief6c import (
     scenario_meta,
 )
 
-from gtm_intelligence.brief.dtos import BriefInput
-from gtm_intelligence.brief.pipeline import run_brief_pipeline
-from gtm_intelligence.brief.policy import SECTION_HEADINGS
+from sourceglint.brief.dtos import BriefInput
+from sourceglint.brief.pipeline import run_brief_pipeline
+from sourceglint.brief.policy import SECTION_HEADINGS
 
 SCENARIOS = tuple(manifest()["scenarios"].keys())
 
@@ -248,7 +248,7 @@ def test_rendered_statements_are_subset_of_validated_inputs():
         "Research:", "Mode:", "Market:", "Languages:", "Window:", "As of:",
         "Entities:", "Decision context:",
     }
-    from gtm_intelligence.brief.policy import WATCHOUT_KIND_LABELS
+    from sourceglint.brief.policy import WATCHOUT_KIND_LABELS
 
     known |= set(WATCHOUT_KIND_LABELS.values())
 
@@ -311,7 +311,7 @@ _FORBIDDEN_NAMES = {
     ["sections.py", "renderer.py", "selection.py", "pipeline.py", "dtos.py"],
 )
 def test_offline_no_model_or_network_imports(module):
-    src_dir = pathlib.Path(__file__).resolve().parents[3] / "src" / "gtm_intelligence" / "brief"
+    src_dir = pathlib.Path(__file__).resolve().parents[3] / "src" / "sourceglint" / "brief"
     tree = ast.parse((src_dir / module).read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):

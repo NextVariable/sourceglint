@@ -28,8 +28,8 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.pipeline.adapters import RawSourceResult
-from gtm_intelligence.normalization import normalize_raw
+from sourceglint.pipeline.adapters import RawSourceResult
+from sourceglint.normalization import normalize_raw
 
 
 AS_OF = "2026-09-06T00:00:00Z"

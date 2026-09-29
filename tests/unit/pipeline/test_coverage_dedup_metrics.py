@@ -21,7 +21,7 @@ The legacy `deduplicated_count` is kept as a back-compat alias.
 """
 from __future__ import annotations
 
-from gtm_intelligence.pipeline.coverage import (
+from sourceglint.pipeline.coverage import (
     CoverageReport,
     build_coverage_report,
 )

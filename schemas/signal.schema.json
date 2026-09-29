@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.gtm-intelligence.dev/signal.schema.json",
+  "$id": "https://schemas.sourceglint.dev/signal.schema.json",
   "title": "Signal Cluster",
   "description": "A market signal formed AFTER dedup + semantic clustering (v0.2 §7, steps 6-10). signal_type is a single classification: single_source | cross_source | repeated | emerging | contradictory. A contradictory signal MUST carry counter_evidence_ids (semantic rule enforced by schema).",
   "type": "object",
   "additionalProperties": false,
   "required": ["signal_id", "topic", "evidence_ids", "signal_type"],
   "properties": {
-    "signal_id": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/signal_id" },
+    "signal_id": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/signal_id" },
     "topic": {
       "type": "string",
       "minLength": 1,
@@ -15,14 +15,14 @@
     },
     "evidence_ids": {
       "type": "array",
-      "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" },
+      "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/evidence_id" },
       "minItems": 1,
       "uniqueItems": true,
       "description": "ALL ledger evidence IDs in this cluster. Existence in the  ledger is a Phase 2 validator concern, not schema."
     },
     "representative_evidence_ids": {
       "type": "array",
-      "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" },
+      "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/evidence_id" },
       "uniqueItems": true,
       "description": "Subset shown to the LLM as representative quotes. Subset  semantics = Phase 2 validator."
     },
@@ -37,7 +37,7 @@
       "description": "Number of items in cluster after dedup (never raw repost count)."
     },
     "recency": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/confidence",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/confidence",
       "description": "Time-freshness factor 0-1 (computed)."
     },
     "signal_type": {
@@ -46,26 +46,26 @@
       "description": "Single classification of the cluster's evidence posture."
     },
     "novelty": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/confidence",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/confidence",
       "description": "Novelty factor 0-1: new in current window vs baseline.  1.0 = absent from baseline (v0.2 §10.1)."
     },
     "score": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/confidence",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/confidence",
       "description": "GTM Signal Score, computed by code from scoring.yaml."
     },
     "confidence": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/confidence",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/confidence",
       "description": "Confidence in the cluster's interpretation 0-1."
     },
     "supporting_evidence_ids": {
       "type": "array",
-      "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" },
+      "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/evidence_id" },
       "uniqueItems": true,
       "description": "Evidence that supports the signal's main claim."
     },
     "counter_evidence_ids": {
       "type": "array",
-      "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/evidence_id" },
+      "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/evidence_id" },
       "uniqueItems": true,
       "description": "Evidence that contradicts the signal's main claim. MUST be  non-empty when signal_type=contradictory. Absent = no  counter-evidence found."
     }

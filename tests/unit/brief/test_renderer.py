@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.brief.dtos import (
+from sourceglint.brief.dtos import (
     BriefContext,
     BriefInput,
     SelectedBrief,
@@ -13,11 +13,11 @@ from gtm_intelligence.brief.dtos import (
     SelectedRecommendation,
     SelectedWatchout,
 )
-from gtm_intelligence.brief.renderer import (
+from sourceglint.brief.renderer import (
     render_brief_markdown,
     render_no_evidence_markdown,
 )
-from gtm_intelligence.brief.sections import (
+from sourceglint.brief.sections import (
     actions,
     coverage,
     emerging,
@@ -29,7 +29,7 @@ from gtm_intelligence.brief.sections import (
     sources,
     watchouts,
 )
-from gtm_intelligence.brief.selection import select_brief
+from sourceglint.brief.selection import select_brief
 
 from ._support_brief import (
     context,
@@ -48,7 +48,7 @@ def _eids(ledger) -> tuple:
 
 
 def _lookup(ledger):
-    from gtm_intelligence.rendering import _evidence_lookup
+    from sourceglint.rendering import _evidence_lookup
 
     return _evidence_lookup(ledger)
 
@@ -56,7 +56,7 @@ def _lookup(ledger):
 class TestResearchContext:
     def test_full_context_header(self):
         md = research_context(context())
-        assert md.startswith("# GTM Intelligence Brief")
+        assert md.startswith("# Sourceglint Brief")
         assert "**Research:** AI meeting assistants in Japan" in md
         assert "**Market:** jp" in md
         assert "**Languages:** en, ja" in md
@@ -65,7 +65,7 @@ class TestResearchContext:
 
     def test_empty_context_only_title(self):
         md = research_context(BriefContext())
-        assert md.strip() == "# GTM Intelligence Brief"
+        assert md.strip() == "# Sourceglint Brief"
 
 
 class TestSectionRender:
@@ -306,5 +306,5 @@ class TestNoEvidence:
 
     def test_render_no_evidence_function(self):
         md = render_no_evidence_markdown(BriefContext(query="anything"))
-        assert md.startswith("# GTM Intelligence Brief")
+        assert md.startswith("# Sourceglint Brief")
         assert "No usable evidence" in md

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.gtm-intelligence.dev/source_registry.schema.json",
+  "$id": "https://schemas.sourceglint.dev/source_registry.schema.json",
   "title": "Source Registry",
   "description": "Schema for config/sources.yaml — the single source of truth for data sources (v0.2 §8.2, PRD §20). Top level is an array of source entries. SECURITY CONTRACT: the credentials field declares only the NAMES of required credentials (e.g. 'github_token'). Real secrets must never appear here — they live in host credential storage. additionalProperties=false makes accidental secret leakage into an entry schema-invalid.",
   "type": "array",
@@ -69,12 +69,12 @@
       },
       "markets": {
         "type": "array",
-        "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/market_code" },
+        "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/market_code" },
         "uniqueItems": true
       },
       "languages": {
         "type": "array",
-        "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/language_code" },
+        "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/language_code" },
         "uniqueItems": true
       },
       "cache_ttl": {

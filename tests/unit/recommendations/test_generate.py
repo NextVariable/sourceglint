@@ -1,13 +1,13 @@
 """Phase 6B §10–§11, §18–§19, §32 — candidate generation + code validation."""
 from __future__ import annotations
 
-from gtm_intelligence.insights.ids import derive_insight_id
-from gtm_intelligence.recommendations.generate import (
+from sourceglint.insights.ids import derive_insight_id
+from sourceglint.recommendations.generate import (
     CandidateGenerationResult,
     detect_action_bundling,
     generate_candidate_recommendations,
 )
-from gtm_intelligence.recommendations.model import (
+from sourceglint.recommendations.model import (
     FakeRecommendationModel,
     FakeRecommendationScript,
 )
@@ -117,7 +117,7 @@ class TestGenerationHappyPath:
         assert result.rejected == ()
 
     def test_no_insights(self):
-        from gtm_intelligence.recommendations.generate import (
+        from sourceglint.recommendations.generate import (
             generate_candidate_recommendations,
         )
 

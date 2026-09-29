@@ -1,9 +1,9 @@
 """Phase 2 Citation Integrity tests (TDD)."""
 import pytest
 
-from gtm_intelligence.citations import check_citations
-from gtm_intelligence.errors import CitationIntegrityError
-from gtm_intelligence.ledger import EvidenceLedger
+from sourceglint.citations import check_citations
+from sourceglint.errors import CitationIntegrityError
+from sourceglint.ledger import EvidenceLedger
 
 
 def _seed(ledger):

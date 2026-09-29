@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.dedup import (
+from sourceglint.insights.dedup import (
     deduplicate_insights,
     _signal_overlap,
     DedupResult,

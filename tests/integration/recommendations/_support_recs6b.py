@@ -5,7 +5,7 @@ import json
 import pathlib
 from typing import Any
 
-from gtm_intelligence.intelligence.dtos import ResearchContext
+from sourceglint.intelligence.dtos import ResearchContext
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 FIXTURE_DIR = ROOT / "tests" / "fixtures"

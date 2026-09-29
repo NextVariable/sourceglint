@@ -30,17 +30,17 @@ import pytest
 
 from _support_insights import load_json, load_jsonl
 
-from gtm_intelligence.insights.facts import _detect_phase6a_leakage
-from gtm_intelligence.insights.gtm_implications import GTM_DIMENSIONS
-from gtm_intelligence.insights.ids import derive_insight_id
-from gtm_intelligence.insights.model import (
+from sourceglint.insights.facts import _detect_phase6a_leakage
+from sourceglint.insights.gtm_implications import GTM_DIMENSIONS
+from sourceglint.insights.ids import derive_insight_id
+from sourceglint.insights.model import (
     FakeFactScript,
     FakeGTMImplicationScript,
     FakeInferenceScript,
     FakeInsightModel,
 )
-from gtm_intelligence.insights.pipeline import run_insight_pipeline
-from gtm_intelligence.insights.validation import (
+from sourceglint.insights.pipeline import run_insight_pipeline
+from sourceglint.insights.validation import (
     validate_insight_against_frozen_schema,
     validate_insight_schema,
 )

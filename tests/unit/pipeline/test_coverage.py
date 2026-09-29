@@ -27,7 +27,7 @@ Contract:
 """
 from __future__ import annotations
 
-from gtm_intelligence.pipeline.coverage import (
+from sourceglint.pipeline.coverage import (
     CoverageReport,
     build_coverage_report,
 )
@@ -226,7 +226,7 @@ def test_build_coverage_report_no_gap_when_evidence_present():
 
 
 def test_build_coverage_report_failed_sources_listed():
-    from gtm_intelligence.pipeline.degradation import SourceStatus, SourceStatusReport
+    from sourceglint.pipeline.degradation import SourceStatus, SourceStatusReport
 
     statuses = {
         "reddit": SourceStatusReport("reddit", status=SourceStatus.SUCCESS, count=5),
@@ -247,7 +247,7 @@ def test_build_coverage_report_failed_sources_listed():
 
 
 def test_build_coverage_report_partial_counts_as_successful():
-    from gtm_intelligence.pipeline.degradation import SourceStatus, SourceStatusReport
+    from sourceglint.pipeline.degradation import SourceStatus, SourceStatusReport
 
     statuses = {
         "reddit": SourceStatusReport("reddit", status=SourceStatus.PARTIAL, count=3),
@@ -267,7 +267,7 @@ def test_build_coverage_report_partial_counts_as_successful():
 
 
 def test_build_coverage_report_auth_missing_listed_as_failed():
-    from gtm_intelligence.pipeline.degradation import SourceStatus, SourceStatusReport
+    from sourceglint.pipeline.degradation import SourceStatus, SourceStatusReport
 
     statuses = {
         "github": SourceStatusReport("github", status=SourceStatus.AUTH_MISSING, count=0),

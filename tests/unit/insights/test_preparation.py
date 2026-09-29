@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.preparation import prepare_signals
-from gtm_intelligence.insights.dtos import PreparedSignal
+from sourceglint.insights.preparation import prepare_signals
+from sourceglint.insights.dtos import PreparedSignal
 
 
 def _ev(eid, *, snippet="", title="", window="current", market="jp", language="ja"):

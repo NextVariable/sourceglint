@@ -1,6 +1,6 @@
 # ADR — Architecture Decision Records
 
-本目录记录 `gtm-intelligence` 的所有**架构级决策**。
+本目录记录 `sourceglint` 的所有**架构级决策**。
 
 ## 何时需要写 ADR
 
@@ -26,7 +26,7 @@
 
 ## 模板
 
-每个 ADR 包含六段（见 `0001-gtm-intelligence-core-architecture.md` 示范）：
+每个 ADR 包含六段（见 `0001-sourceglint-core-architecture.md` 示范）：
 
 1. **Status** — Proposed / Accepted / Superseded
 2. **Context** — 背景与约束
@@ -40,6 +40,6 @@
 
 | ADR | 主题 | 状态 |
 |-----|------|------|
-| [0001](0001-gtm-intelligence-core-architecture.md) | 核心架构基线（确定性引擎 + LLM JSON + 代码渲染） | Accepted |
+| [0001](0001-sourceglint-core-architecture.md) | 核心架构基线（确定性引擎 + LLM JSON + 代码渲染） | Accepted |
 | [0002](0002-discovery-first-positioning.md) | 近期信息与需求发现优先，决策支持按需深入 | Accepted |
 | [0003](0003-research-default.md) | 近期研究默认输出，建议需明确启用 | Accepted |

@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.citations import check_citations
-from gtm_intelligence.ledger import EvidenceLedger
-from gtm_intelligence.rendering import render_markdown
-from gtm_intelligence.scoring import ScoringConfig, compute_score
-from gtm_intelligence.validation import (
+from sourceglint.citations import check_citations
+from sourceglint.ledger import EvidenceLedger
+from sourceglint.rendering import render_markdown
+from sourceglint.scoring import ScoringConfig, compute_score
+from sourceglint.validation import (
     validate_insight,
     validate_output,
     validate_signal,
@@ -168,7 +168,7 @@ class TestGoldenRenderByteStable:
             assert self._render_full(pipeline, golden) == first
 
     def test_from_empty_ledger_reproduces_chain(self, golden):
-        from gtm_intelligence.ids import canonicalize_url  # local for clarity
+        from sourceglint.ids import canonicalize_url  # local for clarity
 
         def build_pipeline():
             ledger = EvidenceLedger(":memory:")

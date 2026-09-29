@@ -86,7 +86,7 @@ checks[11].append("No cross-object referential checks in any schema (existence =
 checks[11].append(f"signal.evidence_ids minItems (structural non-empty): {'minItems' in sig['properties']['evidence_ids']}")
 
 # 12. v0.2 conflict scan
-v02 = pathlib.Path("gtm-intelligence-design-review.md").read_text()
+v02 = pathlib.Path("sourceglint-design-review.md").read_text()
 checks[12].append(f"v0.2 has 加权几何平均: {'加权几何平均' in v02}")
 checks[12].append(f"v0.2 has Frozen Decisions chapter: {'## 19. Frozen Decisions' in v02}")
 checks[12].append(f"v0.2 has Change Control chapter: {'## 21. Change Control' in v02}")

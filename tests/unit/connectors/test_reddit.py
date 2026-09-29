@@ -38,20 +38,20 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from gtm_intelligence.connectors._http import (
+from sourceglint.connectors._http import (
     HttpPermanentError,
     HttpResponse,
     HttpTimeoutError,
     HttpTransientError,
 )
-from gtm_intelligence.connectors.reddit import (
+from sourceglint.connectors.reddit import (
     DEFAULT_MAX_PER_QUERY,
     REDDIT_ACCESS_TOKEN_URL,
     REDDIT_SEARCH_URL,
     RedditAdapter,
     SOURCE_NAME,
 )
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.pipeline.adapters import (
     AdapterAuthMissing,
     AdapterInvalidResponse,
     AdapterRateLimited,
@@ -71,7 +71,7 @@ class _ScriptedHttpClient:
 
     @property
     def user_agent(self):
-        return "gtm-intelligence/test"
+        return "sourceglint/test"
 
     def request(self, url, *, headers=None, timeout=15.0):
         self.calls.append({"url": url, "headers": dict(headers or {}), "timeout": timeout})

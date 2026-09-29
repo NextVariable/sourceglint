@@ -4,8 +4,8 @@ import textwrap
 
 import pytest
 
-from gtm_intelligence.ledger import EvidenceLedger, EvidenceRecord
-from gtm_intelligence.errors import (
+from sourceglint.ledger import EvidenceLedger, EvidenceRecord
+from sourceglint.errors import (
     EvidenceConflictError,
     EvidenceMalformedError,
     SchemaValidationError,

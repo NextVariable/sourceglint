@@ -21,7 +21,7 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.pipeline.source_registry import (
+from sourceglint.pipeline.source_registry import (
     REGISTRY_DIR,
     SourceRegistry,
     eligible_sources_for,

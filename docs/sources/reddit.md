@@ -100,7 +100,7 @@ These are deliberately NOT in the adapter, ever:
 ## How to enable
 
 ```python
-from gtm_intelligence.connectors.reddit import RedditAdapter
+from sourceglint.connectors.reddit import RedditAdapter
 
 adapter = RedditAdapter(
     client_id="…",       # from REDDIT_CLIENT_ID

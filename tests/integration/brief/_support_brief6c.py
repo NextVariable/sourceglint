@@ -5,8 +5,8 @@ import json
 import pathlib
 from typing import Any
 
-from gtm_intelligence.brief.dtos import BriefContext, BriefInput
-from gtm_intelligence.ledger import EvidenceLedger
+from sourceglint.brief.dtos import BriefContext, BriefInput
+from sourceglint.ledger import EvidenceLedger
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 FIXTURE_DIR = ROOT / "tests" / "fixtures" / "phase6c"

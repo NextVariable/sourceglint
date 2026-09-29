@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 
 import pytest
 
-from gtm_intelligence.intelligence import signals
-from gtm_intelligence.intelligence.contradiction import ContradictionAssessment
-from gtm_intelligence.intelligence.dtos import (
+from sourceglint.intelligence import signals
+from sourceglint.intelligence.contradiction import ContradictionAssessment
+from sourceglint.intelligence.dtos import (
     WINDOW_BASELINE,
     WINDOW_CURRENT,
     CONTRADICTION_FACTUAL,
@@ -15,14 +15,14 @@ from gtm_intelligence.intelligence.dtos import (
     ResearchContext,
     SignalFeatures,
 )
-from gtm_intelligence.intelligence.factors import derive_factors
-from gtm_intelligence.intelligence.features import derive_features
-from gtm_intelligence.intelligence.ids import derive_cluster_id, derive_signal_id
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence.factors import derive_factors
+from sourceglint.intelligence.features import derive_features
+from sourceglint.intelligence.ids import derive_cluster_id, derive_signal_id
+from sourceglint.intelligence.model import (
     FakeClusterScript,
     FakeIntelligenceModel,
 )
-from gtm_intelligence.intelligence.dtos import ValidatedCluster
+from sourceglint.intelligence.dtos import ValidatedCluster
 
 NOW = datetime(2026, 9, 7, 12, 0, tzinfo=timezone.utc)
 
@@ -223,7 +223,7 @@ def test_contradictory_signal_carries_counter_ids():
 
 
 def test_score_equals_frozen_geometric_mean():
-    from gtm_intelligence import scoring as sc
+    from sourceglint import scoring as sc
 
     a = _ev("ev-1")
     cluster = _cluster(("ev-1",))

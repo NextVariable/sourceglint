@@ -5,13 +5,13 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from gtm_intelligence.connectors._http import (
+from sourceglint.connectors._http import (
     HttpResponse,
     HttpTimeoutError,
     HttpTransientError,
 )
-from gtm_intelligence.connectors.bluesky import BlueskyAdapter
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.connectors.bluesky import BlueskyAdapter
+from sourceglint.pipeline.adapters import (
     AdapterAuthMissing,
     AdapterInvalidResponse,
     AdapterRateLimited,

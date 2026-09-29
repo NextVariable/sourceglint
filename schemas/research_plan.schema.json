@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.gtm-intelligence.dev/research_plan.schema.json",
+  "$id": "https://schemas.sourceglint.dev/research_plan.schema.json",
   "title": "Research Plan",
   "description": "Structured description of ONE research task, produced by the Research Planner BEFORE any search happens (PRD §4). Modes: general | trend | competitor | market | voc | launch | channel. Time window supports relative (days) and custom (start/end) forms.",
   "type": "object",
@@ -19,15 +19,15 @@
       "description": "Named entities (products/companies/people). Optional for  open market scans."
     },
     "market": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/market_code",
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/market_code",
       "description": "Target market. Absent = global."
     },
     "locale": {
-      "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/locale_code"
+      "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/locale_code"
     },
     "languages": {
       "type": "array",
-      "items": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/language_code" },
+      "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/language_code" },
       "uniqueItems": true,
       "minItems": 1,
       "description": "Languages to research in. Never assume English covers a  local market (PRD §5)."
@@ -51,8 +51,8 @@
           "additionalProperties": false,
           "required": ["start", "end"],
           "properties": {
-            "start": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/iso_timestamp" },
-            "end": { "$ref": "https://schemas.gtm-intelligence.dev/common.schema.json#/$defs/iso_timestamp" }
+            "start": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/iso_timestamp" },
+            "end": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/iso_timestamp" }
           },
           "description": "Custom window. start <= end is a VALIDATOR concern  (Phase 2), not a schema concern."
         }

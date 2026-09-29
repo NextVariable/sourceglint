@@ -1,4 +1,4 @@
-"""gtm-intelligence: deterministic core for GTM recent market intelligence.
+"""sourceglint: deterministic core for GTM recent market intelligence.
 
 Layer boundaries (per v0.2 Architecture Baseline):
   * This package: deterministic primitives only (Phase 2).
@@ -7,6 +7,6 @@ Layer boundaries (per v0.2 Architecture Baseline):
 """
 from importlib.metadata import version as _pkg_version
 
-__version__ = _pkg_version("gtm-intelligence")
+__version__ = _pkg_version("sourceglint")
 
 __all__ = ["__version__"]

@@ -1,6 +1,6 @@
 """Phase 7 §15–§16, §22 — canonical public entry point.
 
-``run_gtm_intelligence(...)`` is THE single public API. Hosts, the CLI
+``run_sourceglint(...)`` is THE single public API. Hosts, the CLI
 and the Skill runtime all call exactly this function (Gate F). It:
 
     natural-language query
@@ -27,7 +27,7 @@ from .runtime import default_adapter_factory, default_sources
 # Re-export the pipeline types callers need to construct offline runs.
 from ..pipeline.orchestrator import PipelineConfig, ResearchPipeline
 
-__all__ = ["run_gtm_intelligence"]
+__all__ = ["run_sourceglint"]
 
 
 def _to_iso(value: datetime | str) -> datetime:
@@ -36,7 +36,7 @@ def _to_iso(value: datetime | str) -> datetime:
     return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 
 
-def run_gtm_intelligence(
+def run_sourceglint(
     query: str,
     *,
     # --- optional request overrides (empty => parsed from the query) -----
@@ -59,7 +59,7 @@ def run_gtm_intelligence(
     as_of: datetime | str | None = None,
     ledger: Any = None,
 ) -> SkillResult:
-    """Run the canonical gtm-intelligence pipeline for one request.
+    """Run the canonical sourceglint pipeline for one request.
 
     ``query`` is required; ``model`` is required (host-injected union
     model implementing the Phase 5/6A/6B complete_structured contract).
@@ -70,7 +70,7 @@ def run_gtm_intelligence(
         raise ValueError("query is required and non-empty")
     if model is None:
         raise ValueError(
-            "run_gtm_intelligence requires a host-injected model "
+            "run_sourceglint requires a host-injected model "
             "(IntelligenceModel protocol). The core is host-neutral; no "
             "vendor client is bundled."
         )

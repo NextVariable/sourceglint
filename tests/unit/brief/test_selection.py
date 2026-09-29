@@ -1,8 +1,8 @@
 """Phase 6C §9–§10, §14, §26, §34 — deterministic selection & ranking."""
 from __future__ import annotations
 
-from gtm_intelligence.brief.dtos import BriefInput, BriefContext
-from gtm_intelligence.brief.selection import select_brief
+from sourceglint.brief.dtos import BriefInput, BriefContext
+from sourceglint.brief.selection import select_brief
 
 from ._support_brief import (
     context,

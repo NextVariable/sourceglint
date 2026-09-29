@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.recommendations.support import (
+from sourceglint.recommendations.support import (
     compute_support,
     recommendation_confidence_ceiling,
     resolve_support_chain,

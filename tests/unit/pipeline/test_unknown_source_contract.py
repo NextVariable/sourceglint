@@ -12,11 +12,11 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.normalization import (
+from sourceglint.normalization import (
     normalize_raw,
     validate_evidence_payload,
 )
-from gtm_intelligence.pipeline.adapters import RawSourceResult
+from sourceglint.pipeline.adapters import RawSourceResult
 
 
 # Tier map is hardcoded into normalizer for MVP (Phase 3).

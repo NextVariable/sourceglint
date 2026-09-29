@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.interface.parser import (
+from sourceglint.interface.parser import (
     detect_query_language,
     parse_query,
     parse_request,
@@ -16,7 +16,7 @@ from gtm_intelligence.interface.parser import (
     resolve_mode,
     resolve_window,
 )
-from gtm_intelligence.interface.request import SkillRequest
+from sourceglint.interface.request import SkillRequest
 
 
 class TestQueryLanguageDetection:

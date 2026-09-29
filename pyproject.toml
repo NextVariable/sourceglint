@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gtm-intelligence"
+name = "sourceglint"
 version = "0.2.0"
 description = "Evidence-linked recent information and demand discovery with optional GTM decision support"
 readme = "README.md"
@@ -24,7 +24,7 @@ dev = [
 ]
 
 [project.scripts]
-gtm-intelligence = "gtm_intelligence.cli:main"
+sourceglint = "sourceglint.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

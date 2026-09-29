@@ -16,8 +16,8 @@ def test_hacker_news_search_live_returns_well_formed_results():
 
     # Imported lazily so the module is not even loaded when this file
     # is collected under the offline default.
-    from gtm_intelligence.connectors._http import StdlibHttpClient
-    from gtm_intelligence.connectors.hacker_news import (
+    from sourceglint.connectors._http import StdlibHttpClient
+    from sourceglint.connectors.hacker_news import (
         HackerNewsAdapter,
         HN_SEARCH_URL,
     )

@@ -59,7 +59,7 @@ class SourceRegistry:
 
 
 def _schema_dir() -> Path:
-    # src/gtm_intelligence/pipeline/source_registry.py → repo root = parents[3]
+    # src/sourceglint/pipeline/source_registry.py → repo root = parents[3]
     return Path(__file__).resolve().parents[3] / "schemas"
 
 

@@ -17,7 +17,7 @@ from urllib import request as urllib_request
 
 import pytest
 
-from gtm_intelligence.connectors._http import (
+from sourceglint.connectors._http import (
     DEFAULT_USER_AGENT,
     HttpPermanentError,
     HttpResponse,

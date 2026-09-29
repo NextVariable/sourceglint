@@ -80,7 +80,7 @@ def _meta_line(*parts: str) -> str:
 def research_context(ctx: BriefContext) -> str:
     """Title + "what did we research" block (§27). The H1 title is always
     present; each context line appears only when its field has a value."""
-    lines = ["# Recent Intelligence Brief" if ctx.discovery_only else "# GTM Intelligence Brief"]
+    lines = ["# Recent Intelligence Brief" if ctx.discovery_only else "# Sourceglint Brief"]
     subject = (ctx.query or ctx.topic or "").strip()
     if subject:
         lines.append(f"**Research:** {_inline(subject)}")

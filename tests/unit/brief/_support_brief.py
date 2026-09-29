@@ -1,8 +1,8 @@
 """Phase 6C unit-test support — fixture builders (mirrors 6A/6B)."""
 from __future__ import annotations
 
-from gtm_intelligence.brief.dtos import BriefContext, BriefInput
-from gtm_intelligence.ledger import EvidenceLedger
+from sourceglint.brief.dtos import BriefContext, BriefInput
+from sourceglint.ledger import EvidenceLedger
 
 
 def make_ledger(*records: dict) -> EvidenceLedger:

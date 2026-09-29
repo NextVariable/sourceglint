@@ -11,7 +11,7 @@ Byte-stable composition of the section builders in fixed order:
 Empty sections are dropped (§25). Plain Python string ops, no Jinja2,
 no clock/locale/random, no model, no network (Gate K). Reuses the Phase 2
 formatting layer via `sections` (heading/citation helpers imported from
-`gtm_intelligence.rendering`).
+`sourceglint.rendering`).
 """
 from __future__ import annotations
 

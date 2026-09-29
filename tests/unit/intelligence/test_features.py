@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.intelligence import features
-from gtm_intelligence.intelligence.dtos import (
+from sourceglint.intelligence import features
+from sourceglint.intelligence.dtos import (
     WINDOW_BASELINE,
     WINDOW_CURRENT,
     PreparedEvidence,
@@ -48,7 +48,7 @@ def _ev(
 
 
 def _cluster(evidence_ids: tuple[str, ...], label: str = "L") -> ValidatedCluster:
-    from gtm_intelligence.intelligence.ids import derive_cluster_id
+    from sourceglint.intelligence.ids import derive_cluster_id
 
     return ValidatedCluster(
         cluster_id=derive_cluster_id(evidence_ids),

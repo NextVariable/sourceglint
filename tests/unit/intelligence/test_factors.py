@@ -5,24 +5,24 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from gtm_intelligence.intelligence import factors
-from gtm_intelligence.intelligence.dtos import (
+from sourceglint.intelligence import factors
+from sourceglint.intelligence.dtos import (
     WINDOW_BASELINE,
     WINDOW_CURRENT,
     PreparedEvidence,
     ResearchContext,
     SignalFeatures,
 )
-from gtm_intelligence.intelligence.features import derive_features
-from gtm_intelligence.intelligence.ids import derive_cluster_id
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence.features import derive_features
+from sourceglint.intelligence.ids import derive_cluster_id
+from sourceglint.intelligence.model import (
     FakeClusterScript,
     FakeIntelligenceModel,
     FailingIntelligenceModel,
     ModelResponse,
     ModelStatus,
 )
-from gtm_intelligence.intelligence.dtos import ValidatedCluster
+from sourceglint.intelligence.dtos import ValidatedCluster
 
 NOW = datetime(2026, 9, 7, 12, 0, tzinfo=timezone.utc)
 

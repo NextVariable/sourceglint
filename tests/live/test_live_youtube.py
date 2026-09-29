@@ -8,7 +8,7 @@ import pytest
 def test_youtube_ytdlp_live_returns_well_formed_results():
     if not shutil.which("yt-dlp"):
         pytest.skip("yt-dlp not installed")
-    from gtm_intelligence.connectors.youtube import YouTubeAdapter
+    from sourceglint.connectors.youtube import YouTubeAdapter
 
     results = YouTubeAdapter(max_per_query=1).retrieve(
         plan={"topic": "artificial intelligence"},

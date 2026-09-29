@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from gtm_intelligence.ids import canonicalize_url, derive_evidence_id, normalize_text
+from sourceglint.ids import canonicalize_url, derive_evidence_id, normalize_text
 
 
 PATTERN = re.compile(r"^ev_[0-9a-z]{32}$")

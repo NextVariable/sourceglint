@@ -5,9 +5,9 @@ import subprocess
 
 import pytest
 
-from gtm_intelligence.connectors._command import CommandResult
-from gtm_intelligence.connectors.youtube import YouTubeAdapter
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.connectors._command import CommandResult
+from sourceglint.connectors.youtube import YouTubeAdapter
+from sourceglint.pipeline.adapters import (
     AdapterInvalidResponse,
     AdapterRateLimited,
     AdapterTimeout,

@@ -11,7 +11,7 @@ from pathlib import Path
 
 import yaml
 
-from gtm_intelligence.source_catalog import load_source_catalog
+from sourceglint.source_catalog import load_source_catalog
 
 
 BUILT_IN_CONNECTORS = {

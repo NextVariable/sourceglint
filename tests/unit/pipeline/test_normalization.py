@@ -33,13 +33,13 @@ from typing import Any
 import jsonschema
 import pytest
 
-from gtm_intelligence.normalization import (
+from sourceglint.normalization import (
     EvidenceNormalizationError,
     Normalizer,
     normalize_raw,
     validate_evidence_payload,
 )
-from gtm_intelligence.pipeline.adapters import RawSourceResult
+from sourceglint.pipeline.adapters import RawSourceResult
 
 
 SOURCE_TIER_MAP = {

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 
 class GtmIntelligenceError(Exception):
-    """Base class for all gtm-intelligence deterministic-core errors."""
+    """Base class for all sourceglint deterministic-core errors."""
 
 
 class SchemaValidationError(GtmIntelligenceError):

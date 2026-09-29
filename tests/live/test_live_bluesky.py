@@ -2,7 +2,7 @@
 
 
 def test_bluesky_public_search_live_returns_well_formed_results():
-    from gtm_intelligence.connectors.bluesky import BlueskyAdapter
+    from sourceglint.connectors.bluesky import BlueskyAdapter
 
     results = BlueskyAdapter(max_per_query=3).retrieve(
         plan={"topic": "artificial intelligence"},

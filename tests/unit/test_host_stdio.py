@@ -1,8 +1,8 @@
 import io
 import json
 
-from gtm_intelligence.host_stdio import StdioHostModel, StdioHostSource
-from gtm_intelligence.intelligence.model import ModelStatus
+from sourceglint.host_stdio import StdioHostModel, StdioHostSource
+from sourceglint.intelligence.model import ModelStatus
 
 
 SCHEMA = {
@@ -69,7 +69,7 @@ def test_host_source_round_trip():
 
 def test_host_source_rejects_unknown_source_type():
     import pytest
-    from gtm_intelligence.pipeline.adapters import AdapterInvalidResponse
+    from sourceglint.pipeline.adapters import AdapterInvalidResponse
 
     incoming = io.StringIO(json.dumps({
         "type": "source_response", "source": "host_web_search",

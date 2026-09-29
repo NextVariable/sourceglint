@@ -1,18 +1,18 @@
 """Phase 6B §28 — structural + semantic dedup with deterministic winners."""
 from __future__ import annotations
 
-from gtm_intelligence.insights.model import ModelStatus
-from gtm_intelligence.recommendations.assess import (
+from sourceglint.insights.model import ModelStatus
+from sourceglint.recommendations.assess import (
     AssessedRecommendation,
     priority_bucket,
 )
-from gtm_intelligence.recommendations.dedup import deduplicate_recommendations
-from gtm_intelligence.recommendations.dtos import (
+from sourceglint.recommendations.dedup import deduplicate_recommendations
+from sourceglint.recommendations.dtos import (
     RecommendationAssessment,
     RecommendationDraft,
     RecommendationSupport,
 )
-from gtm_intelligence.recommendations.model import (
+from sourceglint.recommendations.model import (
     FakeRecommendationModel,
     FakeRecommendationScript,
 )

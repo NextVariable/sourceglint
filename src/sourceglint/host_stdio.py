@@ -70,7 +70,7 @@ class StdioHostModel:
 
 
 def build_model() -> StdioHostModel:
-    """Factory for ``--model gtm_intelligence.host_stdio:build_model``."""
+    """Factory for ``--model sourceglint.host_stdio:build_model``."""
     return StdioHostModel()
 
 

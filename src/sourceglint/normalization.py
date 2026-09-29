@@ -224,7 +224,7 @@ def normalize_raw(
 
 
 def _evidence_schema() -> dict:
-    # src/gtm_intelligence/normalization.py → repo root = parents[2]
+    # src/sourceglint/normalization.py → repo root = parents[2]
     path = Path(__file__).resolve().parents[2] / "schemas" / "evidence.schema.json"
     return json.loads(path.read_text(encoding="utf-8"))
 

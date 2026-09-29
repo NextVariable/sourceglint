@@ -1,4 +1,4 @@
-from gtm_intelligence.connectors._query import compact_search_query
+from sourceglint.connectors._query import compact_search_query
 
 
 def test_short_keyword_query_is_preserved():

@@ -26,8 +26,8 @@ from datetime import datetime, timezone
 import pytest
 
 from _support import load_json, load_jsonl, load_schema, validate
-from gtm_intelligence.intelligence import pipeline
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence import pipeline
+from sourceglint.intelligence.model import (
     FakeClusterScript,
     FakeIntelligenceModel,
 )

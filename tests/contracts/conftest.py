@@ -26,7 +26,7 @@ VALIDATOR_CLASS = jsonschema.validators.validator_for(
 FORMAT_CHECKER = jsonschema.FormatChecker()
 
 # All schemas reference shared definitions via stable $id namespaces
-# (e.g. https://schemas.gtm-intelligence.dev/common.schema.json).
+# (e.g. https://schemas.sourceglint.dev/common.schema.json).
 # Build a referencing registry over every schema in schemas/.
 def _build_registry():
     import referencing

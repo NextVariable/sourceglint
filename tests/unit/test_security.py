@@ -92,11 +92,11 @@ def test_no_real_pii_in_fixtures():
 
 def test_no_destructive_git_or_fs_calls_in_lib():
     """The deterministic core must never run destructive shell/git/filesystem ops."""
-    from gtm_intelligence import __init__  # noqa: F401  ensure imports work
+    from sourceglint import __init__  # noqa: F401  ensure imports work
     bad = []
     needles = ["shutil.rmtree", "os.remove(", "os.unlink(", "rmtree(",
                "os.system(", "subprocess.run"]
-    safe_command_boundary = ROOT / "src/gtm_intelligence/connectors/_command.py"
+    safe_command_boundary = ROOT / "src/sourceglint/connectors/_command.py"
     for py in (ROOT / "src").rglob("*.py"):
         text = py.read_text(encoding="utf-8")
         for n, line in enumerate(text.splitlines(), start=1):
@@ -122,7 +122,7 @@ def test_ledger_does_not_record_secrets(tmp_path):
     ones; this test pins the data flow doesn't accept arbitrary keys in a
     way that would smuggle a secret through.
     """
-    from gtm_intelligence.ledger import EvidenceLedger
+    from sourceglint.ledger import EvidenceLedger
     ledger = EvidenceLedger(tmp_path / "fresh.jsonl")
     ledger.add({
         "source": "reddit", "source_type": "discussion",

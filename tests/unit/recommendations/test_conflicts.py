@@ -1,18 +1,18 @@
 """Phase 6B §29–§30 — conflict detection + classification (never resolved)."""
 from __future__ import annotations
 
-from gtm_intelligence.insights.model import ModelStatus
-from gtm_intelligence.recommendations.assess import (
+from sourceglint.insights.model import ModelStatus
+from sourceglint.recommendations.assess import (
     AssessedRecommendation,
     priority_bucket,
 )
-from gtm_intelligence.recommendations.conflicts import detect_conflicts
-from gtm_intelligence.recommendations.dtos import (
+from sourceglint.recommendations.conflicts import detect_conflicts
+from sourceglint.recommendations.dtos import (
     RecommendationAssessment,
     RecommendationDraft,
     RecommendationSupport,
 )
-from gtm_intelligence.recommendations.model import (
+from sourceglint.recommendations.model import (
     CONFLICT_HORIZON,
     CONFLICT_KINDS,
     CONFLICT_SEGMENT,

@@ -3,23 +3,23 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.intelligence import contradiction
-from gtm_intelligence.intelligence.dtos import (
+from sourceglint.intelligence import contradiction
+from sourceglint.intelligence.dtos import (
     CONTRADICTION_CONTEXTUAL,
     CONTRADICTION_EXPERIENCE,
     CONTRADICTION_FACTUAL,
     CONTRADICTION_NONE,
     PreparedEvidence,
 )
-from gtm_intelligence.intelligence.ids import derive_cluster_id
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence.ids import derive_cluster_id
+from sourceglint.intelligence.model import (
     FakeClusterScript,
     FakeIntelligenceModel,
     FailingIntelligenceModel,
     ModelResponse,
     ModelStatus,
 )
-from gtm_intelligence.intelligence.dtos import ValidatedCluster
+from sourceglint.intelligence.dtos import ValidatedCluster
 
 
 def _ev(eid: str) -> PreparedEvidence:

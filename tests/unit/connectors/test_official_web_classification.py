@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.connectors.official_web import (
+from sourceglint.connectors.official_web import (
     OfficialClassification,
     OfficialDomainClassifier,
     OfficialRule,

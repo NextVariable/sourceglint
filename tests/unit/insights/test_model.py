@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence.model import (
     FakeIntelligenceModel,
     ModelStatus,
 )
-from gtm_intelligence.insights.model import (
+from sourceglint.insights.model import (
     FACT_SYNTHESIS_RESPONSE_SCHEMA,
     INFERENCE_SYNTHESIS_RESPONSE_SCHEMA,
     GTM_IMPLICATIONS_RESPONSE_SCHEMA,
@@ -117,7 +117,7 @@ class TestFakeInsightModel:
 
     def test_backward_compatible_with_phase5_clustering(self):
         """Phase 5 tasks still work through the parent (PRD §7)."""
-        from gtm_intelligence.intelligence.model import FakeClusterScript
+        from sourceglint.intelligence.model import FakeClusterScript
         phase5_scripts = [FakeClusterScript(
             label="test",
             claim="test claim",

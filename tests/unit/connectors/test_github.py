@@ -26,19 +26,19 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from gtm_intelligence.connectors._http import (
+from sourceglint.connectors._http import (
     HttpClient,
     HttpResponse,
     HttpTimeoutError,
     HttpTransientError,
 )
-from gtm_intelligence.connectors.github import (
+from sourceglint.connectors.github import (
     DEFAULT_MAX_PER_QUERY,
     GITHUB_SEARCH_URL,
     GitHubAdapter,
     SOURCE_NAME,
 )
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.pipeline.adapters import (
     AdapterAuthMissing,
     AdapterInvalidResponse,
     AdapterRateLimited,
@@ -58,7 +58,7 @@ class _ScriptedHttpClient:
 
     @property
     def user_agent(self):
-        return "gtm-intelligence/test"
+        return "sourceglint/test"
 
     def request(self, url, *, headers=None, timeout=15.0):
         self.calls.append({"url": url, "headers": dict(headers or {}), "timeout": timeout})
@@ -188,7 +188,7 @@ def test_401_maps_to_auth_missing():
     """401 with a token should be AdapterAuthMissing so the orchestrator
     reports AUTH_MISSING rather than crashing."""
 
-    from gtm_intelligence.connectors._http import HttpPermanentError
+    from sourceglint.connectors._http import HttpPermanentError
 
     cap = _ScriptedHttpClient([("raise", HttpPermanentError(status=401, url="x"), None)])
     with pytest.raises(AdapterAuthMissing):

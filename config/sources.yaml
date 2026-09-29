@@ -1,4 +1,4 @@
-# gtm-intelligence runtime source registry — connector source of truth.
+# sourceglint runtime source registry — connector source of truth.
 # Schema: schemas/source_registry.schema.json
 #
 # SECURITY: `credentials` lists only the NAMES of required credentials.

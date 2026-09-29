@@ -90,7 +90,7 @@ def test_no_clock_or_locale_in_deterministic_core():
 
 
 def test_score_reproducible_50_runs():
-    from gtm_intelligence.scoring import ScoringConfig, compute_score
+    from sourceglint.scoring import ScoringConfig, compute_score
 
     factors = {
         "decision_relevance": 0.81,
@@ -106,8 +106,8 @@ def test_score_reproducible_50_runs():
 
 
 def test_renderer_clock_independent(monkeypatch):
-    from gtm_intelligence.ledger import EvidenceLedger
-    from gtm_intelligence.rendering import render_markdown
+    from sourceglint.ledger import EvidenceLedger
+    from sourceglint.rendering import render_markdown
 
     ledger = EvidenceLedger(":memory:")
     ledger.add({
@@ -128,7 +128,7 @@ def test_renderer_clock_independent(monkeypatch):
 
 
 def test_url_canonicalization_stable():
-    from gtm_intelligence.ids import canonicalize_url
+    from sourceglint.ids import canonicalize_url
     a = canonicalize_url("https://Example.com/A?utm_source=tw&b=2&a=1#frag")
     b = canonicalize_url("https://example.com/A?a=1&b=2&utm_source=tw#frag")
     assert a == b

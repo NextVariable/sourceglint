@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.recommendations.ids import (
+from sourceglint.recommendations.ids import (
     RECOMMENDATION,
     derive_recommendation_id,
     is_valid_action_anchor,

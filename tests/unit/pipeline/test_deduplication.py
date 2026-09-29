@@ -17,7 +17,7 @@ Contract:
 """
 from __future__ import annotations
 
-from gtm_intelligence.pipeline.deduplication import (
+from sourceglint.pipeline.deduplication import (
     DedupProvenance,
     Deduplicator,
     deduplicate,

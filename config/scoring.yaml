@@ -1,4 +1,4 @@
-# gtm-intelligence Signal Score config (v0.2 Architecture Baseline §10 + D9)
+# sourceglint Signal Score config (v0.2 Architecture Baseline §10 + D9)
 #
 # Formula (v0.2 D9, weighted geometric mean with deterministic floor):
 #   score = product over f in factors of max(f, min_factor) ** weight[f]

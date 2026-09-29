@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.recommendations.dtos import (
+from sourceglint.recommendations.dtos import (
     PreparedInsight,
     RecommendationAssessment,
     RecommendationConflict,

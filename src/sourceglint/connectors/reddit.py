@@ -208,7 +208,7 @@ class RedditAdapter:
         )
         headers = {
             "Authorization": auth_header,
-            "User-Agent": "gtm-intelligence:research:v0.2 (by /u/gtm-research)",
+            "User-Agent": "sourceglint:research:v0.2 (by /u/gtm-research)",
         }
 
         try:
@@ -458,7 +458,7 @@ class RedditAdapter:
                 headers={
                     "Authorization": basic,
                     "Content-Type": "application/x-www-form-urlencoded",
-                    "User-Agent": "gtm-intelligence:research:v0.2 (by /u/gtm-research)",
+                    "User-Agent": "sourceglint:research:v0.2 (by /u/gtm-research)",
                 },
             )
         except HttpTransientError as exc:

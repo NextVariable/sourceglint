@@ -19,7 +19,7 @@ Contract:
 """
 from __future__ import annotations
 
-from gtm_intelligence.pipeline.query_expansion import (
+from sourceglint.pipeline.query_expansion import (
     QUERY_EXPANSION_MAX,
     QueryExpander,
     ExpandedQuery,

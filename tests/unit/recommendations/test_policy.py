@@ -1,7 +1,7 @@
 """Phase 6B §46 — policy constants sanity (no scattered magic numbers)."""
 from __future__ import annotations
 
-from gtm_intelligence.recommendations import policy
+from sourceglint.recommendations import policy
 
 
 class TestWeightsSumToOne:

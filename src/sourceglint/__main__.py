@@ -1,4 +1,4 @@
-"""Phase 7 §22 — ``python -m gtm_intelligence`` entry."""
+"""Phase 7 §22 — ``python -m sourceglint`` entry."""
 import sys
 
 from .cli import main

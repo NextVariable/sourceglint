@@ -14,12 +14,12 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.normalization import (
+from sourceglint.normalization import (
     EvidenceNormalizationError,
     normalize_raw,
     validate_evidence_payload,
 )
-from gtm_intelligence.pipeline.adapters import RawSourceResult
+from sourceglint.pipeline.adapters import RawSourceResult
 
 
 def _raw(text: str) -> RawSourceResult:

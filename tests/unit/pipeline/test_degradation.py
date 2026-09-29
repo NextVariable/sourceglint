@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.pipeline.degradation import (
+from sourceglint.pipeline.degradation import (
     AllSourcesFailedError,
     InvalidResearchPlanError,
     InvalidSourceRegistryError,
@@ -37,31 +37,31 @@ def test_source_status_enum_values():
 
 
 def test_classify_adapter_unavailable():
-    from gtm_intelligence.pipeline.adapters import AdapterUnavailable
+    from sourceglint.pipeline.adapters import AdapterUnavailable
     exc = AdapterUnavailable(source="reddit", reason="503")
     assert classify_adapter_exception(exc) == SourceStatus.UNAVAILABLE
 
 
 def test_classify_adapter_auth_missing():
-    from gtm_intelligence.pipeline.adapters import AdapterAuthMissing
+    from sourceglint.pipeline.adapters import AdapterAuthMissing
     exc = AdapterAuthMissing(source="github", reason="no token")
     assert classify_adapter_exception(exc) == SourceStatus.AUTH_MISSING
 
 
 def test_classify_adapter_rate_limited():
-    from gtm_intelligence.pipeline.adapters import AdapterRateLimited
+    from sourceglint.pipeline.adapters import AdapterRateLimited
     exc = AdapterRateLimited(source="reddit", reason="429")
     assert classify_adapter_exception(exc) == SourceStatus.RATE_LIMITED
 
 
 def test_classify_adapter_timeout():
-    from gtm_intelligence.pipeline.adapters import AdapterTimeout
+    from sourceglint.pipeline.adapters import AdapterTimeout
     exc = AdapterTimeout(source="host_web_search", reason="30s elapsed")
     assert classify_adapter_exception(exc) == SourceStatus.TIMEOUT
 
 
 def test_classify_adapter_invalid_response():
-    from gtm_intelligence.pipeline.adapters import AdapterInvalidResponse
+    from sourceglint.pipeline.adapters import AdapterInvalidResponse
     exc = AdapterInvalidResponse(source="reddit", reason="malformed JSON")
     assert classify_adapter_exception(exc) == SourceStatus.INVALID_RESPONSE
 

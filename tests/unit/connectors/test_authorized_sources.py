@@ -5,13 +5,13 @@ from typing import Mapping
 
 import pytest
 
-from gtm_intelligence.connectors._http import (
+from sourceglint.connectors._http import (
     HttpPermanentError,
     HttpResponse,
     HttpTransientError,
 )
-from gtm_intelligence.connectors.authorized_sources import ProductHuntAdapter, XAdapter
-from gtm_intelligence.pipeline.adapters import (
+from sourceglint.connectors.authorized_sources import ProductHuntAdapter, XAdapter
+from sourceglint.pipeline.adapters import (
     AdapterAuthMissing,
     AdapterInvalidResponse,
     AdapterRateLimited,

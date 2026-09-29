@@ -4,11 +4,11 @@ from datetime import datetime, timezone
 
 import pytest
 
-from gtm_intelligence.application.api import run_gtm_intelligence
-from gtm_intelligence.intelligence.model import FakeIntelligenceModel, ModelResponse, ModelStatus
-from gtm_intelligence.interface.result import Status
-from gtm_intelligence.pipeline.adapters import FakeSourceAdapter
-from gtm_intelligence.recommendations.model import FakeRecommendationModel
+from sourceglint.application.api import run_sourceglint
+from sourceglint.intelligence.model import FakeIntelligenceModel, ModelResponse, ModelStatus
+from sourceglint.interface.result import Status
+from sourceglint.pipeline.adapters import FakeSourceAdapter
+from sourceglint.recommendations.model import FakeRecommendationModel
 
 
 SOURCE = {
@@ -61,19 +61,19 @@ class OneFactModel(FakeRecommendationModel):
 
 def test_api_requires_host_timestamp():
     with pytest.raises(ValueError, match="as_of is required"):
-        run_gtm_intelligence("Recent AI products", model=FakeIntelligenceModel())
+        run_sourceglint("Recent AI products", model=FakeIntelligenceModel())
 
 
 def test_baseline_request_fails_instead_of_silently_skipping_prior_window():
     with pytest.raises(ValueError, match="baseline comparisons are not yet available"):
-        run_gtm_intelligence(
+        run_sourceglint(
             "Is AI video demand rising?", baseline=True,
             model=FakeIntelligenceModel(), as_of=AS_OF,
         )
 
 
 def test_api_reports_no_evidence_without_inventing_a_finding():
-    result = run_gtm_intelligence(
+    result = run_sourceglint(
         "Recent AI products",
         model=FakeIntelligenceModel(),
         sources=[SOURCE],
@@ -87,7 +87,7 @@ def test_api_reports_no_evidence_without_inventing_a_finding():
 
 
 def test_default_no_evidence_uses_research_title():
-    result = run_gtm_intelligence(
+    result = run_sourceglint(
         "What new AI tools are people discussing?",
         model=FakeIntelligenceModel(), sources=[SOURCE],
         adapter_factory=lambda name, plan: FakeSourceAdapter(name=name),
@@ -111,7 +111,7 @@ def test_api_keeps_evidence_when_no_signal_is_supported():
             "published_at": "2026-09-08T12:00:00Z",
         }],
     )
-    result = run_gtm_intelligence(
+    result = run_sourceglint(
         "Recent AI products",
         model=FakeIntelligenceModel(),
         sources=[SOURCE],
@@ -135,7 +135,7 @@ def test_public_api_runs_evidence_through_to_a_cited_brief():
         "text": "A new AI product was discussed by users.",
         "published_at": "2026-09-08T12:00:00Z",
     }])
-    result = run_gtm_intelligence(
+    result = run_sourceglint(
         "Recent AI products", decision_support=True,
         model=OneFactModel(), sources=[SOURCE],
         adapter_factory=lambda name, plan: adapter, as_of=AS_OF,
@@ -158,7 +158,7 @@ def test_default_discovery_preserves_findings_without_unrequested_action():
         "published_at": "2026-09-08T12:00:00Z",
     }])
     model = OneFactModel()
-    result = run_gtm_intelligence(
+    result = run_sourceglint(
         "What new AI products are people discussing?",
         model=model, sources=[SOURCE],
         adapter_factory=lambda name, plan: adapter, as_of=AS_OF,

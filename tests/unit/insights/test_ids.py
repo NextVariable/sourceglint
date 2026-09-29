@@ -19,7 +19,7 @@ import re
 
 import pytest
 
-from gtm_intelligence.insights.ids import (
+from sourceglint.insights.ids import (
     derive_insight_id,
     is_valid_insight_id,
 )

@@ -3,24 +3,24 @@ from __future__ import annotations
 
 import pytest
 
-from gtm_intelligence.insights.model import ModelStatus
-from gtm_intelligence.recommendations.assess import (
+from sourceglint.insights.model import ModelStatus
+from sourceglint.recommendations.assess import (
     assess_priority,
     assess_recommendations,
     assess_risk,
     compute_reversibility,
     priority_bucket,
 )
-from gtm_intelligence.recommendations.dtos import (
+from sourceglint.recommendations.dtos import (
     RecommendationAssessment,
     RecommendationDraft,
     RecommendationSupport,
 )
-from gtm_intelligence.recommendations.model import (
+from sourceglint.recommendations.model import (
     FakeRecommendationModel,
     FakeRecommendationScript,
 )
-from gtm_intelligence.recommendations.policy import (
+from sourceglint.recommendations.policy import (
     PRIORITY_W_FEASIBILITY,
     PRIORITY_W_IMPACT,
     PRIORITY_W_REVERSIBILITY,

@@ -6,17 +6,17 @@ from pathlib import Path
 
 import pytest
 
-from gtm_intelligence.intelligence import ids, model, prompts
-from gtm_intelligence.intelligence.guardrails import (
+from sourceglint.intelligence import ids, model, prompts
+from sourceglint.intelligence.guardrails import (
     detect_recommendation_leakage,
     has_recommendation_leakage,
 )
-from gtm_intelligence.intelligence.ids import (
+from sourceglint.intelligence.ids import (
     derive_cluster_id,
     derive_signal_id,
     is_valid_signal_id,
 )
-from gtm_intelligence.intelligence.model import (
+from sourceglint.intelligence.model import (
     CONTRADICTION_RESPONSE_SCHEMA,
     CLUSTERING_RESPONSE_SCHEMA,
     SEMANTIC_FACTORS_RESPONSE_SCHEMA,
@@ -28,7 +28,7 @@ from gtm_intelligence.intelligence.model import (
     ModelResponse,
     ModelStatus,
 )
-from gtm_intelligence.intelligence.prompts import (
+from sourceglint.intelligence.prompts import (
     PROMPT_VERSIONS,
     TASK_CLUSTERING,
     TASK_CONTRADICTION,
