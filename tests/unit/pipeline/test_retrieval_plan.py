@@ -265,6 +265,15 @@ def test_only_one_plan_per_query_source_pair():
     assert len(pairs) == len(set(pairs))
 
 
+def test_source_specific_query_budget_limits_rate_limited_connector():
+    plan = _plan()
+    sources = [_source("reddit", max_queries_per_run=1)]
+    plans = build_retrieval_plans(plan, sources, _expand_query_stub())
+    assert len(plans) == 1
+    assert plans[0].source == "reddit"
+    assert plans[0].query == "Notion AI pricing"
+
+
 def test_unsupported_market_globally_excludes_all_sources():
     plan = _plan(market="zz")  # no source supports zz
     sources = [_source("only_global", markets=["global"])]

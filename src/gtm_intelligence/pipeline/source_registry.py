@@ -45,6 +45,7 @@ class SourceEntry:
     markets: tuple[str, ...]
     languages: tuple[str, ...]
     cache_ttl: int
+    max_queries_per_run: int
 
 
 @dataclass(frozen=True)
@@ -95,6 +96,7 @@ def _coerce_entry(raw: dict) -> SourceEntry:
         markets=tuple(str(m) for m in (raw.get("markets") or [])),
         languages=tuple(str(l) for l in (raw.get("languages") or [])),
         cache_ttl=int(raw.get("cache_ttl", 0)),
+        max_queries_per_run=int(raw.get("max_queries_per_run", 24)),
     )
 
 

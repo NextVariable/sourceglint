@@ -136,6 +136,28 @@ def test_empty_string_credentials_also_use_rss():
     assert len(cap.calls) == 1
 
 
+def test_keyless_rss_paces_consecutive_queries():
+    feed = '<feed xmlns="http://www.w3.org/2005/Atom"/>'
+    cap = _ScriptedHttpClient([("form", feed, 200), ("form", feed, 200)])
+    clock = [10.0]
+    sleeps: list[float] = []
+
+    def sleep(seconds: float) -> None:
+        sleeps.append(seconds)
+        clock[0] += seconds
+
+    adapter = RedditAdapter(
+        http_client=cap,
+        allow_keyless_rss=True,
+        rss_min_interval_seconds=2.0,
+        monotonic_provider=lambda: clock[0],
+        sleep_provider=sleep,
+    )
+    adapter.retrieve(plan=_plan(), request=_request(query="AI agents overview"))
+    adapter.retrieve(plan=_plan(), request=_request(query="AI agents problems"))
+    assert sleeps == [2.0]
+
+
 def test_keyless_rss_must_be_enabled_by_host():
     cap = _ScriptedHttpClient([])
     with pytest.raises(AdapterAuthMissing):

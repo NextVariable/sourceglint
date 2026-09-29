@@ -137,6 +137,12 @@ def test_fake_contradiction_defaults_support_to_all_minus_counter():
     assert resp.payload["supporting_evidence_ids"] == ["ev_a", "ev_b"]
 
 
+def test_contradiction_schema_exposes_only_supported_kind_values():
+    assert CONTRADICTION_RESPONSE_SCHEMA["properties"]["kind"]["enum"] == [
+        "none", "factual", "experience", "contextual",
+    ]
+
+
 def test_fake_factors_never_defaults_to_neutral_half():
     """An UNSCRIPTED cluster gets 0.0 + 'not assessed' — never a 0.5 that
     would silently look like a real judgement (Closeout §3)."""

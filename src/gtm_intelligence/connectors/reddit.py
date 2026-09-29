@@ -62,6 +62,7 @@ from ._http import (
     HttpTransientError,
     StdlibHttpClient,
 )
+from ._query import compact_search_query
 
 
 SOURCE_NAME = "reddit"
@@ -135,12 +136,16 @@ class RedditAdapter:
     max_per_query: int = DEFAULT_MAX_PER_QUERY
     source_name: str = SOURCE_NAME
     allow_keyless_rss: bool = False
+    rss_min_interval_seconds: float = 2.0
     token_ttl_default: int = 3600
     # Injectable clock (Phase 4 determinism). When None the token cache
     # is best-effort: refreshing only when missing — host integrations
     # supply a real wall-clock provider. Tests inject a fixed callable.
     now_provider: "Callable[[], float] | None" = None
+    monotonic_provider: "Callable[[], float]" = time.monotonic
+    sleep_provider: "Callable[[float], None]" = time.sleep
     _token: _Token | None = field(default=None, init=False, repr=False)
+    _last_rss_request_at: float | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self):
         if self.http_client is None:
@@ -159,7 +164,7 @@ class RedditAdapter:
     ) -> list[RawSourceResult]:
         client_id = (self.client_id or "").strip()
         client_secret = (self.client_secret or "").strip()
-        query = str(request.get("query") or "")
+        query = compact_search_query(str(request.get("query") or ""))
         if not query:
             raise AdapterInvalidResponse(
                 source=self.source_name, reason="retrieval request missing query"
@@ -347,6 +352,13 @@ class RedditAdapter:
     ) -> list[RawSourceResult]:
         from urllib.parse import urlencode
 
+        now = self.monotonic_provider()
+        if self._last_rss_request_at is not None:
+            wait = self.rss_min_interval_seconds - (now - self._last_rss_request_at)
+            if wait > 0:
+                self.sleep_provider(wait)
+                now = self.monotonic_provider()
+        self._last_rss_request_at = now
         url = f"{REDDIT_RSS_SEARCH_URL}?{urlencode({'q': query, 'sort': 'new', 't': 'month'})}"
         try:
             response = self.http_client.request(

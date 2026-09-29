@@ -88,6 +88,7 @@ class StdioHostSource:
         message: dict[str, Any] = {
             "type": "source_request", "source": self.name,
             "plan": dict(plan), "request": dict(request),
+            "allowed_source_types": ["post", "comment", "review", "page", "release"],
         }
         if self.name == "host_web_search":
             try:
@@ -130,9 +131,15 @@ class StdioHostSource:
             if not isinstance(item, dict):
                 raise AdapterInvalidResponse(self.name, "result must be an object")
             try:
+                source_type = str(item["source_type"])
+                if source_type not in {"post", "comment", "review", "page", "release"}:
+                    raise AdapterInvalidResponse(
+                        self.name,
+                        "source_type must be one of post, comment, review, page, release",
+                    )
                 out.append(RawSourceResult(
                     source=self.name,
-                    source_type=str(item["source_type"]),
+                    source_type=source_type,
                     source_native_id=str(item["source_native_id"]),
                     url=str(item["url"]),
                     title=str(item["title"]),

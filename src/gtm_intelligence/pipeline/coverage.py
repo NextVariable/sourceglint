@@ -8,13 +8,12 @@ Semantic clarity (Closeout §5):
   * `duplicate_dropped_count`   — items the dedup stage REMOVED (≥ 0)
   * `final_evidence_count`      — items KEPT after dedup (≥ 0)
   * `normalized_evidence_count` — items that landed in normalization (BEFORE
-                                   time filter and dedup). Users can derive
-                                   "items dropped by time filter" via
-                                   gap/warnings.
+                                   time filter and dedup).
   * `raw_result_count`          — items from adapters BEFORE normalization.
 
   Arithmetic invariant (always enforced by tests):
       normalized_evidence_count
+        - time_filter_dropped_count
         - duplicate_dropped_count
         == final_evidence_count
 
@@ -156,11 +155,14 @@ def build_coverage_report(
         str(q.get("market") or "") for q in queries_list
     )
 
+    # User-facing window counts describe evidence that survived the time
+    # filter and deduplication. Pre-filter counts produced contradictions such
+    # as "12 evidence items; current window 64" in a real report.
     current_count = sum(
-        1 for e in norm_list if str(e.get("window") or "") == "current"
+        1 for e in kept if str(e.get("window") or "") == "current"
     )
     baseline_count = sum(
-        1 for e in norm_list if str(e.get("window") or "") == "baseline"
+        1 for e in kept if str(e.get("window") or "") == "baseline"
     )
 
     gaps: list[str] = []

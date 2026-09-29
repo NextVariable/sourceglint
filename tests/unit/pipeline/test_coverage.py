@@ -135,6 +135,30 @@ def test_build_coverage_report_window_counts():
     assert rep.baseline_window_count == 1
 
 
+def test_window_counts_only_include_final_kept_evidence():
+    normalized = [
+        {"evidence_id": f"ev_{i}", "window": "current"} for i in range(6)
+    ]
+    kept = [
+        {"evidence_id": "ev_0", "window": "current"},
+        {"evidence_id": "ev_1", "window": "current"},
+    ]
+    rep = build_coverage_report(
+        requested_sources=["reddit"],
+        attempted_sources=["reddit"],
+        source_statuses={},
+        expanded_queries=[],
+        raw_results=[],
+        normalized_evidence=normalized,
+        deduplicated_dropped=1,
+        dropped_by_time_filter=3,
+        kept_evidence=kept,
+    )
+    assert rep.final_evidence_count == 2
+    assert rep.current_window_count == 2
+    assert rep.baseline_window_count == 0
+
+
 def test_build_coverage_report_languages_distinct():
     queries = [
         {"text": "q1", "query_language": "en", "market": "global"},

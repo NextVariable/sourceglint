@@ -81,6 +81,12 @@
         "type": "integer",
         "minimum": 0,
         "description": "Source-specific cache TTL in seconds."
+      },
+      "max_queries_per_run": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 24,
+        "description": "Maximum expanded-query variants sent to this source in one run. Use a low value for strict public rate limits."
       }
     }
   }

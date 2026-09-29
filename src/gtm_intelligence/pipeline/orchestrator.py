@@ -221,8 +221,18 @@ class ResearchPipeline:
                     out = adapter.retrieve(plan=plan, request=request)
                 except AdapterError as exc:
                     status = classify_adapter_exception(exc)
-                    rep.status = status
-                    rep.append_warning(f"{status.value}: {exc.reason}")
+                    if adapter_results:
+                        # Earlier query variants produced usable records. A
+                        # later timeout/rate limit makes this source partial,
+                        # not wholly unavailable; preserve both the evidence
+                        # and the exact failure boundary.
+                        rep.status = SourceStatus.PARTIAL
+                        rep.append_warning(
+                            f"partial after {status.value}: {exc.reason}"
+                        )
+                    else:
+                        rep.status = status
+                        rep.append_warning(f"{status.value}: {exc.reason}")
                     break
                 except Exception as exc:  # pragma: no cover - defensive
                     rep.status = SourceStatus.UNAVAILABLE

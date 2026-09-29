@@ -60,7 +60,27 @@ def test_host_source_round_trip():
     assert len(results) == 1
     assert results[0].source == "official_web"
     assert results[0].raw_metadata["official"] is True
-    assert json.loads(outgoing.getvalue())["type"] == "source_request"
+    request = json.loads(outgoing.getvalue())
+    assert request["type"] == "source_request"
+    assert request["allowed_source_types"] == [
+        "post", "comment", "review", "page", "release",
+    ]
+
+
+def test_host_source_rejects_unknown_source_type():
+    import pytest
+    from gtm_intelligence.pipeline.adapters import AdapterInvalidResponse
+
+    incoming = io.StringIO(json.dumps({
+        "type": "source_response", "source": "host_web_search",
+        "results": [{"source_type": "paper", "source_native_id": "p1",
+                     "url": "https://example.com/paper", "title": "Paper",
+                     "text": "Abstract", "published_at": "2026-09-01T00:00:00Z"}],
+    }) + "\n")
+    with pytest.raises(AdapterInvalidResponse):
+        StdioHostSource("host_web_search", incoming, io.StringIO()).retrieve(
+            {"topic": "paper"}, {"query": "paper", "query_language": "en"}
+        )
 
 
 def test_host_web_search_request_contains_bounded_platform_targets():

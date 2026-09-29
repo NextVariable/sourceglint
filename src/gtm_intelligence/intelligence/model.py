@@ -112,7 +112,10 @@ CONTRADICTION_RESPONSE_SCHEMA: Mapping[str, Any] = {
     "properties": {
         "supporting_evidence_ids": {"type": "array", "items": {"type": "string"}},
         "counter_evidence_ids": {"type": "array", "items": {"type": "string"}},
-        "kind": {"type": "string"},
+        "kind": {
+            "type": "string",
+            "enum": ["none", "factual", "experience", "contextual"],
+        },
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "rationale": {"type": "string"},
     },

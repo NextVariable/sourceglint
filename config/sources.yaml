@@ -52,6 +52,9 @@
   markets: [global, us, gb, jp, de, fr, kr, cn]
   languages: [en, ja, zh, de, fr, ko]
   cache_ttl: 900
+  # The public RSS endpoint rate-limits repeated variants aggressively. One
+  # well-shaped topic query is reliable; host search covers additional lanes.
+  max_queries_per_run: 1
 
 - name: hacker_news
   enabled: true

@@ -26,6 +26,7 @@ from ._http import (
     HttpTransientError,
     StdlibHttpClient,
 )
+from ._query import compact_search_query
 
 
 def _limit(request: Mapping[str, object], maximum: int = 20) -> int:
@@ -40,7 +41,7 @@ def _query(request: Mapping[str, object], source: str) -> str:
     value = str(request.get("query") or "").strip()
     if not value:
         raise AdapterInvalidResponse(source, "retrieval request missing query")
-    return value
+    return compact_search_query(value)
 
 
 def _days(plan: Mapping[str, object]) -> int:

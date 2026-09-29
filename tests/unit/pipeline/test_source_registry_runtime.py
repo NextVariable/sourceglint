@@ -292,5 +292,11 @@ def test_cache_ttl_int():
     assert reddit.cache_ttl == 900
 
 
+def test_project_reddit_has_single_query_budget_for_public_rss():
+    reg = load_registry()
+    reddit = next(e for e in reg.entries if e.name == "reddit")
+    assert reddit.max_queries_per_run == 1
+
+
 def test_registry_default_path_constant_exists():
     assert isinstance(REGISTRY_DIR, (str, Path))

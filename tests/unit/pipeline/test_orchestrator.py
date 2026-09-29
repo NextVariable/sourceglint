@@ -26,6 +26,7 @@ from gtm_intelligence.errors import ConfigValidationError
 from gtm_intelligence.ledger import EvidenceLedger
 from gtm_intelligence.pipeline.adapters import (
     AdapterAuthMissing,
+    AdapterRateLimited,
     AdapterUnavailable,
     FakeSourceAdapter,
     RawSourceResult,
@@ -181,6 +182,40 @@ def test_orchestrator_handles_adapter_unavailable(tmp_path):
     result = pipeline.run(plan=plan, sources=sources, ledger=EvidenceLedger(":memory:"))
     assert "reddit" in result.coverage.successful_sources
     assert "github" in result.coverage.failed_sources
+
+
+def test_later_query_rate_limit_preserves_earlier_results_as_partial():
+    class FirstQueryThenRateLimited:
+        name = "reddit"
+
+        def __init__(self):
+            self.calls = 0
+
+        def retrieve(self, plan, request):
+            self.calls += 1
+            if self.calls > 1:
+                raise AdapterRateLimited("reddit", "429 on later variant")
+            return [RawSourceResult(
+                source="reddit", source_type="post", source_native_id="first",
+                url="https://reddit.com/r/x/comments/first", title="First result",
+                text="Useful first result", published_at="2026-08-30T10:00:00Z",
+            )]
+
+    adapter = FirstQueryThenRateLimited()
+    pipeline = ResearchPipeline(
+        config=PipelineConfig(as_of="2026-09-06T10:00:00Z"),
+        adapter_factory=lambda name, plan: adapter,
+    )
+    result = pipeline.run(
+        plan=_plan(), sources=[_source("reddit")], ledger=EvidenceLedger(":memory:")
+    )
+    report = result.source_statuses["reddit"]
+    assert report.status is SourceStatus.PARTIAL
+    assert report.count == 1
+    assert "reddit" in result.coverage.successful_sources
+    assert "reddit" not in result.coverage.failed_sources
+    assert any("partial after rate_limited" in warning for warning in report.warnings)
+    assert len(result.evidence_ids) == 1
 
 
 def test_orchestrator_fails_when_all_sources_fail():

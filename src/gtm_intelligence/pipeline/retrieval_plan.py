@@ -150,6 +150,7 @@ def build_retrieval_plans(
     ordered = _ordered(eligible, list(source_priorities) if source_priorities else None)
 
     plans: list[RetrievalPlan] = []
+    emitted_by_source: dict[str, int] = {}
     for q in expanded_queries:
         # Accept both dict and ExpandedQuery dataclass.
         if hasattr(q, "text") and not isinstance(q, dict):
@@ -165,9 +166,16 @@ def build_retrieval_plans(
         for src in ordered:
             if not _language_compatible(src.get("languages") or [], qlang):
                 continue
+            source_name = str(src["name"])
+            try:
+                max_queries = max(1, min(24, int(src.get("max_queries_per_run", 24))))
+            except (TypeError, ValueError):
+                max_queries = 24
+            if emitted_by_source.get(source_name, 0) >= max_queries:
+                continue
             plans.append(
                 RetrievalPlan(
-                    source=src["name"],
+                    source=source_name,
                     query=text,
                     query_language=qlang,
                     market=plan_market,
@@ -176,4 +184,5 @@ def build_retrieval_plans(
                     priority=int(src.get("priority", 50)),
                 )
             )
+            emitted_by_source[source_name] = emitted_by_source.get(source_name, 0) + 1
     return plans

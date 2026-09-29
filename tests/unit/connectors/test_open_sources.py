@@ -95,6 +95,20 @@ def test_package_registries_maps_npm_search():
     assert out[0].raw_metadata["registry"] == "npm"
 
 
+def test_package_registry_compacts_prompt_length_query_before_request():
+    http = StubHttp({"objects": []})
+    long_request = {
+        **REQUEST,
+        "query": (
+            "What new AI agent tools, workflows, and user needs have people "
+            "discussed in the past 30 days? overview"
+        ),
+    }
+    PackageRegistriesAdapter(http_client=http).retrieve(PLAN, long_request)
+    assert "text=new+AI+agent+tools+workflows+user+needs+30+overview" in http.calls[0]
+    assert "What+new" not in http.calls[0]
+
+
 def test_semantic_scholar_requires_real_publication_date():
     http = StubHttp({"data": [{
         "paperId": "abc", "title": "Agent systems", "url": "https://example.org/paper",
