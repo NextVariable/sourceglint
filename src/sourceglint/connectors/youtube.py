@@ -1,7 +1,9 @@
 """YouTube recent-video discovery through the local ``yt-dlp`` CLI.
 
+This optional route uses public metadata and timed captions without an API key.
 It executes an argv list without a shell, disables browser-cookie loading, and
-returns only metadata.  It does not download video or audio.  Public web search
+returns metadata with bounded caption enrichment. It does not download video
+or audio. Public web search
 remains the fallback when the executable is absent or YouTube blocks the host.
 """
 from __future__ import annotations

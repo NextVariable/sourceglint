@@ -7,11 +7,11 @@ user needs, complaints and recurring discussions. It keeps publication dates,
 original links, source observations and traceable findings, so the research can
 be read directly or passed to another AI. Product and GTM advice are opt-in.
 
-[MIT](LICENSE) · [Getting started](#get-started) · [Live comparison](docs/benchmarks/2026-10-04.md) · [Architecture](docs/architecture.md) · [Contributing](CONTRIBUTING.md)
+[MIT](LICENSE) · [Getting started](#get-started) · [Evaluation](docs/benchmarks/2026-10-05-competitive-retest.md) · [Architecture](docs/architecture.md) · [Contributing](CONTRIBUTING.md)
 
 ## What you get
 
-This checkout is the **0.2.2.dev0** development revision; the published 0.2.1
+This checkout is the **0.2.2.dev1** development revision; the published 0.2.1
 release remains available separately.
 
 A recent research brief separates supported observations, cautious inferences,
@@ -30,6 +30,7 @@ Or in Chinese:
 > 用 Sourceglint 查最近 30 天 AI 编程工作流里出现了什么新工具、实际做法和用户反馈，保留原文链接、日期和反例。先给研究结果。
 
 See [dated examples](docs/examples/2026-10-04/README.md) and the
+[dated evaluation record](docs/benchmarks/2026-10-05-competitive-retest.md). These are bounded
 runs, not a claim that every source or topic works equally well.
 
 ## Get started
@@ -64,7 +65,8 @@ The agent operates this command and answers its requests:
   --ledger runs/my-research/evidence.jsonl --json
 ```
 
-The normalized ledger keeps excerpts up to 280 characters. Its companion
+The normalized ledger keeps excerpts up to 280 characters and, when retrieved,
+a separate source body up to 12,000 characters. Its companion
 `evidence.raw.jsonl` keeps the retrieved body and provider metadata before
 filtering; raw records may be outdated or invalid and are not findings.
 Use a fresh ledger path for every run. Add `--as-of 2026-10-04T00:00:00Z` to pin
@@ -103,6 +105,9 @@ keep different output stages separate.
 
 The earlier [comparison](docs/benchmarks/2026-10-04.md) records strengths and remaining gaps
 records the implemented depth improvements and the limits of the new comparison.
+
+The current [Skill audit](docs/reviews/2026-10-05-skill-audit.md) separates
+format, installation and live-retrieval checks from unresolved quality gaps.
 
 ## Develop and verify
 

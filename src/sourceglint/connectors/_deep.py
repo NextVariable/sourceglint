@@ -1,7 +1,6 @@
 """Bounded public-body retrieval. Child comments keep their own dates and URLs.
 
-Independent implementation using documented provider APIs; no copied upstream
-code. A failed enrichment never discards already retrieved parent evidence.
+A failed enrichment never discards already retrieved parent evidence.
 """
 
 from __future__ import annotations

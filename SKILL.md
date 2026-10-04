@@ -1,5 +1,6 @@
 ---
 name: sourceglint
+license: MIT
 description: Research a topic across available sources in the last 30 days, finding new tools, workflows, user needs, complaints and repeated discussions with dated original evidence. Use when the user asks what appeared or what people are saying recently. Add product or GTM advice only when explicitly requested.
 ---
 
