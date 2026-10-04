@@ -85,7 +85,7 @@ def default_adapter_factory(
     if name == "youtube":
         return YouTubeAdapter(include_transcripts=True)
     if name == "hacker_news":
-        return HackerNewsAdapter()
+        return HackerNewsAdapter(require_topic_match=True)
     if name == "github":
         token = _env("GITHUB_TOKEN")
         if not token:

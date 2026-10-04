@@ -11,7 +11,7 @@ be read directly or passed to another AI. Product and GTM advice are opt-in.
 
 ## What you get
 
-This checkout is the **0.2.2.dev1** development revision; the published 0.2.1
+This checkout is the **0.2.2.dev2** development revision; the published 0.2.1
 release remains available separately.
 
 A recent research brief separates supported observations, cautious inferences,
@@ -108,6 +108,9 @@ records the implemented depth improvements and the limits of the new comparison.
 
 The current [Skill audit](docs/reviews/2026-10-05-skill-audit.md) separates
 format, installation and live-retrieval checks from unresolved quality gaps.
+
+The [sampling repair](docs/reviews/2026-10-05-sampling-repair.md) records
+time-stratified Reddit discovery, visible-topic filtering and remaining provider failures.
 
 ## Develop and verify
 

@@ -292,3 +292,127 @@ def test_batch_model_body_budget_is_bounded_and_omission_explicit():
     assert sum(len(x["content"]) for x in payloads) <= 48000
     assert all("middle omitted" in x["content"] for x in payloads)
     assert all("Verify before merging." in x["content"] for x in payloads)
+
+
+def test_month_sampling_keeps_older_posts_when_latest_day_is_busy():
+    from urllib.parse import parse_qs, urlparse
+    seen = []
+
+    class Client:
+        def request(self, url, **kwargs):
+            if '/subreddits/search?' in url:
+                return response({'data': [{'subreddit': 'ClaudeCode'}]})
+            if '/comments/search?' in url:
+                return response({'data': []})
+            params = parse_qs(urlparse(url).query)
+            seen.append(params)
+            start = datetime.fromisoformat(params['after'][0].replace('Z', '+00:00'))
+            stamp = int(start.timestamp()) + 86400
+            return response({'data': [{'id': str(stamp), 'title': 'Claude Code workflow', 'selftext': 'Run a test before review', 'author': 'maker', 'permalink': '/r/ClaudeCode/comments/' + str(stamp) + '/', 'created_utc': stamp, 'num_comments': 100 if start.day > 20 else 1}]})
+
+    rows = reddit_archive(Client(), REQUEST['query'], PLAN, REQUEST, [], [], limit=4)
+    assert len(rows) == 4
+    assert len({r.published_at[:10] for r in rows}) == 4
+    assert any(r.published_at < '2026-09-12' for r in rows)
+    assert all('after' in p and 'before' in p for p in seen)
+
+
+def test_hn_topic_filter_rejects_search_hits_without_visible_subject():
+    from sourceglint.connectors.hacker_news import HackerNewsAdapter
+
+    class Client:
+        def request(self, url, **kwargs):
+            return response({'hits': [
+                {'objectID': '1', 'title': 'Obsidian plugin for notes', 'created_at_i': 1789603200},
+                {'objectID': '2', 'title': 'Pizza Bot for agents', 'created_at_i': 1789603200},
+            ]})
+
+    rows = HackerNewsAdapter(http_client=Client(), require_topic_match=True).retrieve(PLAN, {'query': 'Obsidian plugins'})
+    assert [r.source_native_id for r in rows] == ['1']
+
+
+def test_archive_keyword_timeout_falls_back_within_requested_window():
+    from urllib.parse import parse_qs, urlparse
+    from sourceglint.connectors._http import HttpPermanentError
+    calls = []
+
+    class Client:
+        def request(self, url, **kwargs):
+            if '/subreddits/search?' in url:
+                return response({'data': [{'subreddit': 'ObsidianMD'}]})
+            if '/comments/search?' in url:
+                return response({'data': []})
+            params = parse_qs(urlparse(url).query)
+            calls.append(params)
+            if 'query' in params:
+                raise HttpPermanentError(422, url)
+            stamp = int(datetime.fromisoformat(params['after'][0].replace('Z', '+00:00')).timestamp()) + 86400
+            return response({'data': [{'id': str(stamp), 'title': 'Obsidian plugins', 'author': 'maker', 'permalink': '/r/ObsidianMD/comments/' + str(stamp) + '/', 'created_utc': stamp}]})
+
+    gaps = []
+    rows = reddit_archive(Client(), 'Obsidian plugins', PLAN, {'query': 'Obsidian plugins'}, [], gaps, limit=4)
+    assert len(rows) == 4
+    assert any('filtered community sample' in gap for gap in gaps)
+    assert any('query' not in p for p in calls)
+    assert all('after' in p and 'before' in p for p in calls)
+
+
+def test_exact_observed_community_is_not_displaced_by_broader_prefix_matches():
+    from urllib.parse import parse_qs, urlparse
+    queried = []
+
+    class Client:
+        def request(self, url, **kwargs):
+            if '/subreddits/search?' in url:
+                return response({'data': [{'subreddit': x} for x in ['ClaudeAI', 'ClaudeMCP', 'ClaudeGTM']]})
+            if '/posts/search?' in url:
+                queried.extend(parse_qs(urlparse(url).query)['subreddit'])
+            return response({'data': []})
+
+    raw = RawSourceResult('reddit', 'post', 't3_a', 'https://reddit.com/r/ClaudeCode/comments/a/', 'Claude Code workflow', 'Review and test', published_at='2026-09-15T00:00:00Z', raw_metadata={'subreddit': 'ClaudeCode'})
+    reddit_archive(Client(), REQUEST['query'], PLAN, REQUEST, [raw], [])
+    assert 'ClaudeCode' in queried
+    assert len(set(queried)) <= 3
+
+
+def test_month_selection_does_not_spend_all_slots_on_one_busy_day():
+    from urllib.parse import parse_qs, urlparse
+
+    class Client:
+        def request(self, url, **kwargs):
+            if '/subreddits/search?' in url or '/comments/search?' in url:
+                return response({'data': []})
+            p = parse_qs(urlparse(url).query)
+            start = int(datetime.fromisoformat(p['after'][0].replace('Z', '+00:00')).timestamp())
+            return response({'data': [
+                {'id': str(start) + str(i), 'title': 'Claude Code workflow', 'author': 'user',
+                 'created_utc': start + (86400 if i < 3 else 172800),
+                 'permalink': '/r/ClaudeCode/comments/' + str(start) + str(i) + '/',
+                 'num_comments': 100 if i < 3 else 1}
+                for i in range(4)
+            ]})
+
+    rows = reddit_archive(Client(), REQUEST['query'], PLAN, REQUEST, [], [], limit=8)
+    assert len(rows) == 8
+    assert len({r.published_at[:10] for r in rows}) == 8
+
+
+def test_community_prefix_collision_does_not_query_minecraft_for_mcp():
+    from urllib.parse import parse_qs, urlparse
+    queried = []
+
+    class Client:
+        def request(self, url, **kwargs):
+            if '/subreddits/search?' in url:
+                return response({'data': [
+                    {'subreddit': 'MCPE', 'description': 'Minecraft Pocket Edition'},
+                    {'subreddit': 'MCPServers', 'description': 'MCP model context protocol servers'},
+                ]})
+            if '/posts/search?' in url:
+                queried.extend(parse_qs(urlparse(url).query)['subreddit'])
+            return response({'data': []})
+
+    reddit_archive(Client(), 'MCP security', PLAN, {'query': 'MCP security'}, [], [])
+    assert 'MCPE' not in queried
+    assert 'MCP' in queried
+    assert 'MCPServers' in queried

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sourceglint"
-version = "0.2.2.dev1"
+version = "0.2.2.dev2"
 description = "Evidence-linked recent information and demand discovery with optional GTM decision support"
 readme = "README.md"
 requires-python = ">=3.10"

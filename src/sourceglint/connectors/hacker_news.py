@@ -104,6 +104,7 @@ class HackerNewsAdapter:
     http_client: HttpClient | None = None
     max_per_query: int = DEFAULT_MAX_PER_QUERY
     source_name: str = SOURCE_NAME
+    require_topic_match: bool = False
 
     def __post_init__(self):
         if self.http_client is None:
@@ -143,7 +144,8 @@ class HackerNewsAdapter:
         # Market/language scope is expressed in query wording, not tag filters.
         from ._recency import search_bounds
         bounds = search_bounds(plan, request)
-        params = f"query={_q(query)}&hitsPerPage={limit}&tags={_q('(story,comment)')}"
+        search_limit = min(100, limit * 3) if self.require_topic_match else limit
+        params = f"query={_q(query)}&hitsPerPage={search_limit}&tags={_q('(story,comment)')}"
         if bounds:
             start, end = bounds
             filters = f"created_at_i>={int(start.timestamp())},created_at_i<={int(end.timestamp())}"
@@ -237,6 +239,11 @@ class HackerNewsAdapter:
                 # rather than fail the batch (some HN hits are comments-only).
                 continue
             final_url = f"{HN_ITEM_BASE}{obj_id}"
+            visible_body = _visible_comment(comment if is_comment else str(hit.get("story_text") or ""))
+            if self.require_topic_match:
+                from ._deep import subject_present
+                if not subject_present({"title": title, "body": visible_body, "html_url": url_field}, query):
+                    continue
             author = str(hit.get("author") or "").strip()
             published_at = _utc_iso_from_unix(hit.get("created_at_i"))
             engagement: dict[str, int] = {}
@@ -252,7 +259,7 @@ class HackerNewsAdapter:
                     source_native_id=obj_id,
                     url=final_url,
                     title=title,
-                    text=_visible_comment(comment) if is_comment else title,
+                    text=visible_body or title,
                     author=author,
                     published_at=published_at,
                     language=language or "en",
@@ -264,7 +271,7 @@ class HackerNewsAdapter:
                 )
             )
 
-        return out
+        return out[:limit]
 
 
 def _q(value: str) -> str:

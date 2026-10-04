@@ -2,6 +2,20 @@
 
 Python 3.10 compatibility is exercised by the public CI matrix; recommendation ID construction avoids syntax that requires Python 3.12.
 
+## 0.2.2.dev2 — 2026-10-05
+
+- Use relevance-ranked Reddit RSS discovery, resolve public community names,
+  prioritize exact observed communities, reject unrelated prefix collisions
+  using public descriptions and deduplicate names without case sensitivity.
+- Retrieve Reddit archive candidates in four time strata and retain available
+  strata and distinct publication days during selection; report missing coverage
+  instead of implying a full month.
+- Fall back from archive HTTP 422 keyword-search failures to bounded community
+  samples, preserve incomplete-source warnings and bound enrichment retries.
+- Check visible HN subject text with limited overfetch; preserve actual story
+  text when the provider supplies it, alongside comment evidence.
+- Add selectable topics/routes and parent-date metrics to the live comparison runner.
+
 ## Unreleased — 2026-10-04
 
 - Pass the original research topic into semantic analysis in general mode;

@@ -13,7 +13,10 @@ The failure-handling rules and code references are in
 
 The current native routes do not establish representative month-wide coverage.
 The [dated evaluation](benchmarks/2026-10-05-competitive-retest.md) records
-concentrated Reddit dates, failed community discovery and relevance gaps.
+concentrated Reddit dates, failed community discovery and relevance gaps in
+the earlier revision. The [sampling repair](reviews/2026-10-05-sampling-repair.md)
+records subsequent time-stratified discovery and community-context checks,
+with provider failures and incomplete coverage still visible.
 
 ## Current callable layers
 

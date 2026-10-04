@@ -372,7 +372,7 @@ class RedditAdapter:
                 self.sleep_provider(wait)
                 now = self.monotonic_provider()
         self._last_rss_request_at = now
-        url = f"{REDDIT_RSS_SEARCH_URL}?{urlencode({'q': query, 'sort': 'new', 't': 'month'})}"
+        url = f"{REDDIT_RSS_SEARCH_URL}?{urlencode({'q': query, 'sort': 'relevance', 't': 'month'})}"
         try:
             response = self.http_client.request(
                 url,

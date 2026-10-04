@@ -5,6 +5,7 @@ A failed enrichment never discards already retrieved parent evidence.
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import datetime, timezone
 import re
@@ -44,9 +45,14 @@ def subject_present(item, query):
         .casefold()
         .replace("-", " ")
     )
-    return all(
-        re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", text) for term in terms
-    )
+    for term in terms:
+        plural = len(term) > 4 and term.endswith("s") and not term.endswith("ss")
+        stem = term[:-1] if plural else term
+        pattern = r"(?<!\w)" + re.escape(stem) + (r"s?" if plural else "") + r"(?!\w)"
+        if not re.search(pattern, text):
+            return False
+    return True
+
 
 
 def intent_rank(item, query):
@@ -305,6 +311,11 @@ def issue_results(client, query, plan, request, headers, limitations, limit=20):
 
 
 def reddit_archive(client, query, plan, request, parents, limitations, limit=20):
+    # Optional enrichment has multiple bounded lanes; repeated retries per lane
+    # would multiply latency and load without improving an unavailable archive.
+    from ._http import StdlibHttpClient
+    if isinstance(client, StdlibHttpClient):
+        client = replace(client, max_attempts=1)
     bounds = search_bounds(plan, request)
     terms = [x.casefold() for x in re.findall(r"[A-Za-z0-9]+", query)[:2]]
     parents = [
@@ -323,40 +334,93 @@ def reddit_archive(client, query, plan, request, parents, limitations, limit=20)
             for t in terms
         )
     ]
-    # Use observed communities first. Explicit request targets override guesses.
+    # Observed/explicit communities take priority over inferred names.
     communities = list(request.get("subreddits") or [])
-    communities += ["".join(re.findall(r"[A-Za-z0-9]+", query)[:2])]
-    communities += [str(x.raw_metadata.get("subreddit") or "") for x in parents]
-    if not communities or not any(communities):
-        terms = re.findall(r"[A-Za-z0-9]+", query)
-        communities = ["".join(terms[:2]), terms[0] if terms else ""]
-    communities = list(
-        dict.fromkeys(x for x in communities if re.fullmatch(r"[A-Za-z0-9_]{2,32}", x))
-    )[:3]
-    by_id = {x.source_native_id.removeprefix("t3_"): x for x in parents}
-    output = list(parents)
-    # Fetch recent community listings rather than an unsupported global archive
-    # keyword query. Apply all subject words locally; the model checks intent.
-    for community in communities:
-        params = {"subreddit": community, "limit": min(100, limit * 4), "sort": "desc"}
-        if bounds:
-            params.update(
-                after=bounds[0].strftime("%Y-%m-%dT%H:%M:%SZ"),
-                before=bounds[1].strftime("%Y-%m-%dT%H:%M:%SZ"),
-            )
+    observed = [str(x.raw_metadata.get("subreddit") or "") for x in parents]
+    words = re.findall(r"[A-Za-z0-9]+", subject_query(query))
+    prefixes = list(dict.fromkeys(["".join(words[:2]), words[0] if words else ""]))
+    for prefix in prefixes[:2]:
+        if not prefix:
+            continue
         try:
             payload = client.request(
-                ARCHIVE + "/posts/search?" + urlencode(params), timeout=10
+                ARCHIVE + "/subreddits/search?" + urlencode({
+                    "subreddit_prefix": prefix, "limit": 5,
+                    "sort_type": "subscribers", "sort": "desc",
+                }), timeout=10,
             ).json()
-            if not isinstance(payload, dict) or not isinstance(
-                payload.get("data"), list
-            ):
-                raise ValueError("missing data")
+            for row in payload.get("data", []):
+                name = str(row.get("subreddit") or row.get("display_name") or "")
+                context = " ".join(str(row.get(k) or "") for k in
+                                   ("title", "description", "public_description"))
+                # Prefixes are candidate discovery only: MCPE (Minecraft)
+                # must not become a community for an MCP protocol question.
+                exact = name.casefold() == prefix.casefold()
+                contextual = re.search(r"(?<!\w)" + re.escape(words[0]) + r"(?!\w)", context, re.I) if words else None
+                if name.casefold().startswith(prefix.casefold()) and (exact or contextual):
+                    communities.append(name)
         except Exception as exc:
-            limitations.append(
-                f"Reddit public archive search r/{community} unavailable: {type(exc).__name__}"
-            )
-            continue
+            limitations.append(f"Reddit community discovery unavailable: {type(exc).__name__}")
+    communities += observed + prefixes
+    candidates = {}
+    for name in communities:
+        if isinstance(name, str) and re.fullmatch(r"(?:r/)?[A-Za-z0-9_]{2,32}", name):
+            cleaned = name.removeprefix("r/")
+            candidates.setdefault(cleaned.casefold(), cleaned)
+    explicit = {str(x).removeprefix("r/").casefold() for x in request.get("subreddits", [])}
+    entity = "".join(words[:2]).casefold()
+    first = words[0].casefold() if words else ""
+    communities = sorted(candidates.values(), key=lambda name: (
+        name.casefold() not in explicit,
+        name.casefold() != entity,
+        name.casefold() != first,
+        not name.casefold().startswith(first),
+    ))[:3]
+    by_id = {x.source_native_id.removeprefix("t3_"): x for x in parents}
+    output = list(parents)
+    # Partition the window before requesting listings: a single newest-first
+    # page cannot represent a busy community's full month.
+    windows = [bounds] if bounds else [None]
+    if bounds:
+        step = (bounds[1] - bounds[0]) / 4
+        windows = [(bounds[0] + step * i, bounds[0] + step * (i + 1)) for i in range(4)]
+    jobs = [(community, window) for community in communities for window in windows]
+
+    def fetch_listing(job):
+        community, window = job
+        params = {"subreddit": community, "limit": min(100, max(20, limit * 2)), "sort": "desc"}
+        # A topic's dedicated community supplies entity context. Broad
+        # communities need server-side keyword filtering before pagination.
+        entity = "".join(words[:2]).casefold()
+        if entity and entity not in community.casefold():
+            params["query"] = subject_query(query)
+        if window:
+            params.update(after=window[0].strftime("%Y-%m-%dT%H:%M:%SZ"),
+                          before=window[1].strftime("%Y-%m-%dT%H:%M:%SZ"))
+        try:
+            try:
+                payload = client.request(ARCHIVE + "/posts/search?" + urlencode(params), timeout=10).json()
+            except Exception as exc:
+                # The archive reports expensive keyword-search timeouts as
+                # HTTP 422. A bounded time-stratum listing is still usable.
+                if getattr(exc, "status", None) != 422 or "query" not in params:
+                    raise
+                params.pop("query")
+                payload = client.request(ARCHIVE + "/posts/search?" + urlencode(params), timeout=10).json()
+                return community, payload, "keyword search timed out; filtered community sample"
+            if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
+                raise ValueError("missing data")
+            return community, payload, None
+        except Exception as exc:
+            return community, {}, type(exc).__name__
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        pages = list(pool.map(fetch_listing, jobs))
+    for community, payload, error in pages:
+        if error:
+            limitations.append(f"Reddit public archive search r/{community}: {error}")
+            if not isinstance(payload.get("data"), list):
+                continue
         for row in payload["data"]:
             if not isinstance(row, dict):
                 continue
@@ -396,6 +460,7 @@ def reddit_archive(client, query, plan, request, parents, limitations, limit=20)
                 raw_metadata={
                     "subreddit": community,
                     "route": "public_archive",
+                    "archive_sampling": "time_stratified",
                     "archive_observation_not_live_reddit": True,
                 },
             )
@@ -406,14 +471,33 @@ def reddit_archive(client, query, plan, request, parents, limitations, limit=20)
             else:
                 output.append(record)
             by_id[pid] = record
-    output = sorted(
-        output,
-        key=lambda x: (
-            intent_rank({"title": x.title, "body": x.text}, query)[0],
-            int(x.engagement.get("comments") or 0),
-        ),
-        reverse=True,
-    )[:limit]
+    ranked = sorted(output, key=lambda x: (
+        intent_rank({"title": x.title, "body": x.text}, query)[0],
+        int(x.engagement.get("comments") or 0),
+    ), reverse=True)
+    # Select across available time strata; this preserves discovered older
+    # material without inventing coverage where a stratum returned nothing.
+    bins = [[] for _ in windows]
+    for item in ranked:
+        index = 0
+        if bounds:
+            date = datetime.fromisoformat(item.published_at.replace("Z", "+00:00"))
+            index = min(3, max(0, int((date - bounds[0]) / step))) if step.total_seconds() else 0
+        bins[index].append(item)
+    occupied = sum(bool(bucket) for bucket in bins)
+    output = []
+    selected_days = set()
+    while any(bins) and len(output) < limit:
+        for bucket in bins:
+            if bucket and len(output) < limit:
+                # A busy day must not occupy every slot within a stratum.
+                index = next((i for i, item in enumerate(bucket)
+                              if item.published_at[:10] not in selected_days), 0)
+                item = bucket.pop(index)
+                selected_days.add(item.published_at[:10])
+                output.append(item)
+    if bounds and occupied < 4:
+        limitations.append("Reddit discovery has empty time strata; month-wide coverage is incomplete")
     # An archive is one observation route, not independent corroboration.
     for parent in output.copy()[:5]:
         pid = parent.source_native_id.removeprefix("t3_")
