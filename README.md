@@ -11,7 +11,7 @@ be read directly or passed to another AI. Product and GTM advice are opt-in.
 
 ## What you get
 
-This checkout is the **0.2.2.dev2** development revision; the published 0.2.1
+This checkout is the **0.2.2.dev3** development revision; the published 0.2.1
 release remains available separately.
 
 A recent research brief separates supported observations, cautious inferences,
@@ -66,7 +66,8 @@ The agent operates this command and answers its requests:
 ```
 
 The normalized ledger keeps excerpts up to 280 characters and, when retrieved,
-a separate source body up to 12,000 characters. Its companion
+separate verbatim source excerpts up to 12,000 characters, with explicit omission
+markers and topic-focused reading. Its companion
 `evidence.raw.jsonl` keeps the retrieved body and provider metadata before
 filtering; raw records may be outdated or invalid and are not findings.
 Use a fresh ledger path for every run. Add `--as-of 2026-10-04T00:00:00Z` to pin
@@ -111,6 +112,10 @@ format, installation and live-retrieval checks from unresolved quality gaps.
 
 The [sampling repair](docs/reviews/2026-10-05-sampling-repair.md) records
 time-stratified Reddit discovery, visible-topic filtering and remaining provider failures.
+
+The [research-quality repair](docs/reviews/2026-10-05-quality-repair.md) records
+assessment failure handling, body enrichment, copied-report suppression and
+bounded topic/caption reading.
 
 ## Develop and verify
 

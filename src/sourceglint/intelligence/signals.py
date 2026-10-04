@@ -57,6 +57,7 @@ SIGNAL_SCHEMA_KEYS = (
     "confidence",
     "supporting_evidence_ids",
     "counter_evidence_ids",
+    "contradiction_assessed",
 )
 
 SIGNAL_TYPES = ("single_source", "cross_source", "repeated", "emerging", "contradictory")
@@ -168,8 +169,9 @@ def build_signal(
         "signal_type": signal_type,
         "novelty": float(factor_set.novelty),
         "score": float(breakdown.score),
-        "confidence": float(cluster.confidence),
-        "supporting_evidence_ids": list(assessment.supporting_evidence_ids),
+        "confidence": 0.0 if assessment.degraded else float(cluster.confidence),
+        "supporting_evidence_ids": [] if assessment.degraded else list(assessment.supporting_evidence_ids),
+        "contradiction_assessed": not assessment.degraded,
         "counter_evidence_ids": list(assessment.counter_evidence_ids),
     }
     # schema-shaped by construction: no key outside SIGNAL_SCHEMA_KEYS.

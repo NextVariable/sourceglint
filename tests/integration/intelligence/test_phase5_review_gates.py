@@ -251,7 +251,7 @@ def test_gate_i_result_carries_no_insight_or_recommendation():
     assert set(signals_mod.SIGNAL_SCHEMA_KEYS) == {
         "signal_id", "topic", "evidence_ids", "representative_evidence_ids",
         "source_diversity", "volume", "recency", "signal_type", "novelty",
-        "score", "confidence", "supporting_evidence_ids", "counter_evidence_ids",
+        "score", "confidence", "supporting_evidence_ids", "counter_evidence_ids", "contradiction_assessed",
     }
 
 

@@ -219,10 +219,10 @@ class TestRunInsightPipeline:
     def test_diagnostics_support_strength_is_structural_not_confidence(self):
         """§16: support_strength reflects support structure, not confidence.
 
-        The cross-signal inference (2 signals, 1 supporting fact, 2
-        distinct source URLs, no contradiction/weak flag) must equal the
+        The cross-signal inference (2 signals, 1 supporting fact, 1
+        source domain, no contradiction/weak flag) must equal the
         deterministic structural value:
-          0.35*min(1,2/2) + 0.35*min(1,1/2) + 0.30*min(1,2/3) = 0.725
+          0.35*min(1,2/2) + 0.35*min(1,1/2) + 0.30*min(1,1/3) = 0.625
         even though the model's inference confidence is 0.55.
         """
         signals, evidence, model = _full_setup()
@@ -231,5 +231,5 @@ class TestRunInsightPipeline:
         assert inferences, "expected an inference in the full setup"
         inf_id = inferences[0]["insight_id"]
         diag = next(d for d in result.diagnostics if d.insight_id == inf_id)
-        assert diag.support_strength == pytest.approx(0.725)
+        assert diag.support_strength == pytest.approx(0.625)
         assert diag.support_strength != float(inferences[0]["confidence"])

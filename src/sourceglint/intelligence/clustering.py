@@ -193,7 +193,7 @@ def cluster(
     ctx = research_context or ResearchContext()
     ctx_dict = ctx.to_dict()
     payload: dict[str, Any] = {
-        "evidence_items": model_payloads(items),
+        "evidence_items": model_payloads(items, topic=ctx.topic),
         "research_context": ctx_dict,
     }
     cache_key: str | None = None
@@ -204,6 +204,7 @@ def cluster(
             model_id=model.model_id,
             evidence_ids=(e.evidence_id for e in items),
             research_context=ctx_dict,
+            input_payload=payload,
         )
         cached = cache.get(cache_key)
         if cached is not None:

@@ -245,6 +245,7 @@ def synthesize_inferences(
         model_id=model.model_id,
         evidence_ids=all_evidence_ids | all_fact_ids,
         research_context=ctx.to_dict(),
+        input_payload={"signals": [ps.to_model_payload() for ps in prepared_signals], "facts": [f.to_dict() for f in facts]},
     )
 
     # Check cache

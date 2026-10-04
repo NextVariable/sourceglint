@@ -1,11 +1,8 @@
 """Phase 5 §28 — semantic cache for model calls.
 
-Cache key = task + prompt_version + model_id + sorted evidence ids +
-research context. It deliberately EXCLUDES free-text: two runs over the
-same evidence set with the same prompt version must hit, regardless of
-how the evidence was worded at call time (all text lives inside
-`evidence_items`, and any text change means a different evidence id set —
-there is no way to edit text without editing ids).
+Cache keys include task, prompt version, model, evidence IDs and research
+context. Callers can also fingerprint the exact model input: canonical IDs
+survive body enrichment, so identity alone cannot validate cached semantics.
 
 Only SUCCESS responses are stored. Failures are never cached (a transient
 unavailability must not poison a later retry).
@@ -45,6 +42,7 @@ def build_cache_key(
     model_id: str,
     evidence_ids: Iterable[str],
     research_context: Mapping[str, Any],
+    input_payload: Any = None,
 ) -> str:
     """Deterministic cache key (PRD §28). Evidence id order does not matter."""
     sorted_ids = sorted({str(eid) for eid in evidence_ids})
@@ -55,6 +53,8 @@ def build_cache_key(
         f"ids={_canonical(sorted_ids)}",
         f"ctx={_canonical(research_context)}",
     ]
+    if input_payload is not None:
+        parts.append("input=" + _canonical(input_payload))
     return _digest("\x1f".join(parts))
 
 

@@ -21,7 +21,8 @@ def _extract_summary(ev: Mapping[str, Any] | None) -> str:
         return ""
     content = str(ev.get("content") or "")
     if content:
-        return content[:6000]
+        from ..excerpts import select_excerpt
+        return select_excerpt(content, str(ev.get("query") or ev.get("title") or ""), 6000)
     snippet = str(ev.get("snippet") or "")
     if snippet:
         return snippet
@@ -76,8 +77,11 @@ def prepare_signals(
             warnings.append("signal without signal_id skipped")
             continue
 
+        if sig.get("contradiction_assessed") is False:
+            warnings.append(f"signal {signal_id}: contradiction unassessed; excluded from fact synthesis")
+            continue
         evidence_ids = tuple(str(eid) for eid in sig.get("evidence_ids") or [])
-        supporting_ids = [str(eid) for eid in sig.get("supporting_evidence_ids") or evidence_ids]
+        supporting_ids = [str(eid) for eid in (sig["supporting_evidence_ids"] if "supporting_evidence_ids" in sig else evidence_ids)]
         counter_ids = [str(eid) for eid in sig.get("counter_evidence_ids") or []]
 
         supporting_summaries = tuple(

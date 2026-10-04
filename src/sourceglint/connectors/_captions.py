@@ -47,6 +47,8 @@ def caption_body(body: bytes, extension: str):
 
 
 def fetch_captions(client, item, language="en"):
+    failures = []
+    attempts = 0
     for kind in ("subtitles", "automatic_captions"):
         languages = item.get(kind) or {}
         if not isinstance(languages, dict):
@@ -60,6 +62,8 @@ def fetch_captions(client, item, language="en"):
             ),
         )
         for key in keys[:2]:
+            if not isinstance(languages[key], list):
+                continue
             tracks = [
                 t
                 for t in languages[key]
@@ -74,13 +78,23 @@ def fetch_captions(client, item, language="en"):
                     or (parsed.hostname or "").endswith(".youtube.com")
                 ):
                     continue
-                response = client.request(url, timeout=10)
-                text, segments = caption_body(response.body, track["ext"])
+                if attempts >= 4:
+                    return "", {"transcript_status": "unavailable", "caption_failures": failures}
+                attempts += 1
+                try:
+                    response = client.request(url, timeout=10)
+                    if getattr(response, "status", 200) != 200:
+                        raise ValueError("caption HTTP failure")
+                    text, segments = caption_body(response.body, track["ext"])
+                except Exception as exc:
+                    failures.append({"language": key, "format": track["ext"], "error_type": type(exc).__name__})
+                    continue
                 if text:
                     return text, {
+                        "caption_failures": failures,
                         "caption_language": key,
                         "caption_kind": kind,
                         "caption_segments": segments,
                         "caption_url": url,
                     }
-    return "", {"transcript_status": "unavailable"}
+    return "", {"transcript_status": "unavailable", "caption_failures": failures}

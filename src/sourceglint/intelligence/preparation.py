@@ -141,16 +141,18 @@ def model_payloads(
     *,
     max_title_chars: int = MAX_TITLE_CHARS,
     max_snippet_chars: int = MAX_SNIPPET_CHARS,
+    topic: str = "",
 ) -> list[dict]:
     """Convenience helper: the exact list handed to the semantic model."""
     items = list(prepared)
     bodies = sum(bool(item.content) for item in items)
     content_cap = min(6000, 48000 // max(1, bodies))
-    return [
-        item.to_model_payload(
-            max_title_chars=max_title_chars,
-            max_snippet_chars=max_snippet_chars,
-            max_content_chars=content_cap,
-        )
-        for item in items
-    ]
+    from ..excerpts import select_excerpt
+    out = []
+    for item in items:
+        payload = item.to_model_payload(max_title_chars=max_title_chars,
+            max_snippet_chars=max_snippet_chars, max_content_chars=content_cap)
+        if item.content:
+            payload["content"] = select_excerpt(item.content, topic, content_cap)
+        out.append(payload)
+    return out

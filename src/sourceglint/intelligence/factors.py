@@ -199,7 +199,7 @@ def _semantic_assessment(
         "label": cluster.label,
         "claim": cluster.claim,
         "evidence_ids": list(cluster.evidence_ids),
-        "evidence_items": model_payloads(members),
+        "evidence_items": model_payloads(members, topic=research_context.topic + " " + cluster.claim),
         "research_context": research_context.to_dict(),
     }
     cache_key: str | None = None
@@ -210,6 +210,7 @@ def _semantic_assessment(
             model_id=model.model_id,
             evidence_ids=cluster.evidence_ids,
             research_context=research_context.to_dict(),
+            input_payload=payload,
         )
         cached = cache.get(cache_key)
         if cached is not None:

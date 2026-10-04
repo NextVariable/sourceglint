@@ -2,6 +2,18 @@
 
 Python 3.10 compatibility is exercised by the public CI matrix; recommendation ID construction avoids syntax that requires Python 3.12.
 
+## 0.2.2.dev3 — 2026-10-05
+
+- Keep failed contradiction assessments explicitly unassessed; exclude those
+  signals from fact generation and preserve empty support partitions.
+- Enrich duplicate evidence with compatible source bodies while preserving
+  identity, publication dates, quotes and retrieval provenance; register aliases.
+- Apply copied-text origin suppression consistently to signal and insight support.
+- Select bounded verbatim head/topic/tail excerpts with Unicode-safe offsets;
+  fingerprint model inputs so body enrichment invalidates cached analyses.
+- Try alternative public caption tracks within a four-attempt budget, retaining
+  failure diagnostics and avoiding malformed tracks.
+
 ## 0.2.2.dev2 — 2026-10-05
 
 - Use relevance-ranked Reddit RSS discovery, resolve public community names,

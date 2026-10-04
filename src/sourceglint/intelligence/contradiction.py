@@ -19,7 +19,7 @@ What CODE owns here:
     under-report. An unknown kind value collapses to `none` — code never
     invents a kind the model did not name;
   * failure semantics (PRD §27) — contradiction is NOT a required step.
-    A model failure for one cluster degrades to "no contradiction found"
+    A model failure leaves support and contradiction unassessed
     for that cluster, with a warning; it never raises.
 """
 from __future__ import annotations
@@ -79,10 +79,10 @@ def _degraded_assessment(
     cluster: ValidatedCluster,
     reason: str,
 ) -> ContradictionAssessment:
-    """Model unusable → code falls back to 'all support, no contradiction'."""
+    """Model unusable → evidence remains unassessed; no support is inferred."""
     return ContradictionAssessment(
         cluster_id=cluster.cluster_id,
-        supporting_evidence_ids=cluster.evidence_ids,
+        supporting_evidence_ids=(),
         counter_evidence_ids=(),
         kind=CONTRADICTION_NONE,
         confidence=0.0,
@@ -123,7 +123,7 @@ def analyze_contradictions(
             "claim": cluster.claim,
             "label": cluster.label,
             "evidence_ids": list(member_ids),
-            "evidence_items": model_payloads(members),
+            "evidence_items": model_payloads(members, topic=cluster.claim + " " + ctx.topic),
             "research_context": ctx_dict,
         }
         cache_key: str | None = None
@@ -134,6 +134,7 @@ def analyze_contradictions(
                 model_id=model.model_id,
                 evidence_ids=member_ids,
                 research_context=ctx_dict,
+            input_payload=payload,
             )
             cached = cache.get(cache_key)
             if cached is not None:

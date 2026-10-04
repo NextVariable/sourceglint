@@ -84,6 +84,7 @@ def deduplicate(items: Iterable[Mapping[str, object]]) -> DedupResult:
     # First seen -> (source, native_id) -> evidence_id mapping.
     by_native: dict[str, str] = {}
 
+    kept_by_id = {}
     dup_count = 0
     for item in items_list:
         if not isinstance(item, Mapping):
@@ -96,11 +97,13 @@ def deduplicate(items: Iterable[Mapping[str, object]]) -> DedupResult:
         # First check exact evidence_id collision with kept items.
         canonical_owner = by_url.get(url_key)
         native_owner = by_native.get(native_key) if native_key else None
-        owner = canonical_owner or native_owner
+        owner = eid if eid in kept_by_id else canonical_owner or native_owner
 
         if owner is None:
             # First occurrence — keep.
-            kept.append(dict(item))
+            record = dict(item)
+            kept.append(record)
+            kept_by_id[eid] = record
             if url_key:
                 by_url[url_key] = eid
             if native_key:
@@ -110,10 +113,20 @@ def deduplicate(items: Iterable[Mapping[str, object]]) -> DedupResult:
             # Same evidence_id seen again — provenance bump, no second kept.
             dup_count += 1
             provenance[eid] = _bump_provenance(provenance[eid], item)
+            _merge_body(kept_by_id[eid], item)
         else:
             # Different evidence_id, same url or native_id — collapse to owner.
             dup_count += 1
             provenance[owner] = _bump_provenance(provenance[owner], item)
+            _merge_body(kept_by_id[owner], item)
+
+        # Register all aliases, including URLs/native IDs first observed on
+        # a duplicate, so later host fetches cannot reintroduce the same item.
+        kept_owner = owner or eid
+        if url_key:
+            by_url[url_key] = kept_owner
+        if native_key:
+            by_native[native_key] = kept_owner
 
     return DedupResult(
         kept=kept,
@@ -159,3 +172,15 @@ def _bump_provenance(prov: DedupProvenance, item: Mapping[str, object]) -> Dedup
         source_hits=new_hits,
         retrieval_count=prov.retrieval_count + 1,
     )
+
+def _merge_body(kept, incoming):
+    """Keep canonical identity/quote/date; enrich only compatible source bodies."""
+    for key in ("published_at", "author"):
+        if kept.get(key) and incoming.get(key) and kept[key] != incoming[key]:
+            return
+    body = str(incoming.get("content") or "")
+    current = str(kept.get("content") or "")
+    if len(body) > len(current):
+        quote = str(kept.get("snippet") or "").strip()
+        if not quote or quote in body or (current and current in body):
+            kept["content"] = body

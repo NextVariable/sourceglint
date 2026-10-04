@@ -32,16 +32,16 @@ def distinct_source_count(
     evidence_ids: Iterable[str],
     evidence_by_id: Mapping[str, Mapping[str, Any]],
 ) -> int:
-    """Distinct source identities among the given evidence ids."""
-    seen: set[str] = set()
+    """Use the same copied-report/domain rules as the signal layer."""
+    from ..intelligence.features import count_reporting_origins
+    from ..intelligence.preparation import prepare_evidence
+    records = []
     for eid in evidence_ids:
         ev = evidence_by_id.get(eid)
-        if not ev:
-            continue
-        identity = str(ev.get("url") or "").strip() or str(ev.get("source") or "").strip()
-        if identity:
-            seen.add(identity)
-    return len(seen)
+        if ev and (ev.get("url") or ev.get("source")):
+            records.append({**ev, "evidence_id": eid})
+    return count_reporting_origins(prepare_evidence(records))
+
 
 
 def compute_support_strength(

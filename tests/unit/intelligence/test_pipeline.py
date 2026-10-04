@@ -113,7 +113,7 @@ def test_result_carries_no_insight_recommendation_fields():
             "signal_id", "topic", "evidence_ids", "representative_evidence_ids",
             "source_diversity", "volume", "recency", "signal_type", "novelty",
             "score", "confidence", "supporting_evidence_ids",
-            "counter_evidence_ids",
+            "counter_evidence_ids", "contradiction_assessed",
         }
 
 

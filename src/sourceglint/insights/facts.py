@@ -246,6 +246,7 @@ def synthesize_facts(
         model_id=model.model_id,
         evidence_ids=all_evidence_ids,
         research_context=ctx.to_dict(),
+        input_payload=[ps.to_model_payload() for ps in prepared_signals],
     )
 
     # Check cache

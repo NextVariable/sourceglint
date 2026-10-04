@@ -2,9 +2,10 @@
 
 Everything in this module is pure counting — NO model call (PRD §4, §12):
 
-  * source independence (PRD §13): two items are independent reports only
-    when they come from DIFFERENT canonical origins. Two threads on the
-    same host (e.g. two hacker_news items) are ONE origin. A canonical
+  * source independence is conservatively approximated by distinct domains,
+    collapsing substantial identical or near-copied bodies across origins.
+    Domain separation alone is not a proof of independent reporting.
+    Two threads on the same host (e.g. two hacker_news items) are ONE origin. A canonical
     origin is the url host with scheme/path/www dropped; when a record has
     no url at all we fall back to its `source` name (marked with the
     `origin_fallback` kind so downstream knows the count is weaker).
@@ -23,6 +24,7 @@ a market signal here; that decision belongs to signal classification.
 from __future__ import annotations
 
 from typing import Iterable, Mapping, Sequence
+import re
 from urllib.parse import urlsplit
 
 from .dtos import (
@@ -103,9 +105,11 @@ def derive_features(
     origins: list[tuple[str, bool]] = [_origin_key(m) for m in members]
     origin_keys = {key for key, _ in origins}
     used_fallback = any(fallback for _, fallback in origins)
-    independent = len(origin_keys)
+    independent = count_reporting_origins(members)
 
     kinds: list[str] = []
+    if independent < len(origin_keys):
+        kinds.append("shared_text_origin")
     if independent >= 2:
         kinds.append(KIND_MULTI_ORIGIN)
     else:
@@ -158,3 +162,35 @@ def derive_all_features(
     """Batch helper — same order as `clusters`. Index is built once."""
     index = build_evidence_index(prepared)
     return [derive_features(cluster, index) for cluster in clusters]
+
+
+def count_reporting_origins(members: Sequence[PreparedEvidence]) -> int:
+    """Conservative origin count with substantial copied-text suppression."""
+    origins = [_origin_key(member) for member in members]
+    origin_keys = {key for key, _ in origins}
+    # Different domains are only candidate origins. Identical substantial
+    # bodies are shared reporting, not independent corroboration. Preserve all
+    # evidence and domains while unioning origins connected by copied text.
+    parent = {key: key for key in origin_keys}
+    def root(key):
+        while parent[key] != key:
+            key = parent[key]
+        return key
+    fingerprints = {}
+    substantial = []
+    for member, (origin, _) in zip(members, origins):
+        text = re.sub(r"\s+", " ", member.content or member.snippet).strip().casefold()
+        if len(text) < (20 if member.content else 80):
+            continue
+        words = re.findall(r"\w+", text)
+        shingles = {tuple(words[i:i+5]) for i in range(max(0, len(words)-4))}
+        if len(text) >= 200 and len(shingles) >= 20:
+            for old_origin, old in substantial:
+                if len(shingles & old) / max(1, len(shingles | old)) >= .9:
+                    parent[root(origin)] = root(old_origin)
+            substantial.append((origin, shingles))
+        if text in fingerprints:
+            parent[root(origin)] = root(fingerprints[text])
+        else:
+            fingerprints[text] = origin
+    return len({root(key) for key in origin_keys})

@@ -208,7 +208,8 @@ def normalize_raw(
     # Keep the quote contract small, but do not discard the source body before
     # semantic analysis. Raw export retains the unabridged returned body.
     if len(raw.text) > _SNIPPET_MAX:
-        out["content"] = raw.text[:12000]
+        from .excerpts import select_excerpt
+        out["content"] = select_excerpt(raw.text, raw.query, 12000)
     if raw.published_at:
         _validate_iso(raw.published_at, "published_at")
         out["published_at"] = raw.published_at

@@ -14,13 +14,13 @@ def _ev(eid, url="", source="reddit"):
 
 
 class TestDistinctSourceCount:
-    def test_counts_distinct_urls(self):
+    def test_different_urls_on_one_domain_count_as_one_origin(self):
         ev = {
             "a": _ev("a", url="https://x.example/1"),
             "b": _ev("b", url="https://x.example/2"),
             "c": _ev("c", url="https://x.example/1"),  # duplicate url
         }
-        assert distinct_source_count(("a", "b", "c"), ev) == 2
+        assert distinct_source_count(("a", "b", "c"), ev) == 1
 
     def test_falls_back_to_source_name_when_no_url(self):
         ev = {"a": _ev("a"), "b": _ev("b")}

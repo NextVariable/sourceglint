@@ -63,6 +63,10 @@
       "uniqueItems": true,
       "description": "Evidence that supports the signal's main claim."
     },
+    "contradiction_assessed": {
+      "type": "boolean",
+      "description": "False means assessment unavailable or invalid; do not promote this signal into facts."
+    },
     "counter_evidence_ids": {
       "type": "array",
       "items": { "$ref": "https://schemas.sourceglint.dev/common.schema.json#/$defs/evidence_id" },
