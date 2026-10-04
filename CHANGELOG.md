@@ -1,5 +1,7 @@
 # Changelog
 
+Python 3.10 compatibility is exercised by the public CI matrix; recommendation ID construction avoids syntax that requires Python 3.12.
+
 ## 0.2.1 — 2026-10-04
 
 - Retain direct-source public-search fallbacks in the host-only first-run path;

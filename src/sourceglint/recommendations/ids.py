@@ -65,10 +65,11 @@ def derive_recommendation_id(
     if not insights:
         raise ValueError("cannot derive a recommendation id without supporting insights")
     anchor = normalize_action_anchor(action_anchor)
-    return f"{INSIGHT_ID_PREFIX}{_digest([
+    digest = _digest([
         RECOMMENDATION,
         *insights,
         *dims,
         str(action_class),
         anchor,
-    ])}"
+    ])
+    return f"{INSIGHT_ID_PREFIX}{digest}"
