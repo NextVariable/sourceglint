@@ -27,7 +27,7 @@ def group(*ids, claim="MCP security"):
 
 
 @pytest.mark.parametrize("prefix,subject,budget,position", list(itertools.product(
-    ["x", "ß", "İ", "中🙂"], ["MCP security", "Obsidian plugins", "安全漏洞", "会議要約"],
+    ["x", "ß", "İ", "中🙂"], ["MCP security", "Obsidian plugins", "安全漏洞", "会議要約", "安全", "会議", "AI", "Straße", "İstanbul"],
     [120, 300, 1200, 6000], [0.25, 0.75])))
 def test_excerpt_retains_topic_and_literal_offsets(prefix, subject, budget, position):
     length = budget * 6

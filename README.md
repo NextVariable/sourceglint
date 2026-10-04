@@ -117,6 +117,10 @@ The [research-quality repair](docs/reviews/2026-10-05-quality-repair.md) records
 assessment failure handling, body enrichment, copied-report suppression and
 bounded topic/caption reading.
 
+The [bulk audit](docs/reviews/2026-10-05-bulk-audit.md) records seeded stress
+checks, a five-topic live matrix, real host scenarios and the remaining relevance
+and recall limits; test volume does not certify research completeness.
+
 ## Develop and verify
 
 ```sh

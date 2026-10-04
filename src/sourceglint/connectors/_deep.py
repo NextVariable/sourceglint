@@ -33,7 +33,7 @@ def subject_query(query):
         "recent",
         "hooks",
     }
-    terms = re.findall(r"[\w+#.-]+", query)
+    terms = re.findall(r"[\w+#.]+", query.replace("-", " "))
     selected = [x for x in terms if x.casefold() not in intent]
     return " ".join(selected) or query
 
@@ -45,13 +45,39 @@ def subject_present(item, query):
         .casefold()
         .replace("-", " ")
     )
-    for term in terms:
-        plural = len(term) > 4 and term.endswith("s") and not term.endswith("ss")
-        stem = term[:-1] if plural else term
-        pattern = r"(?<!\w)" + re.escape(stem) + (r"s?" if plural else "") + r"(?!\w)"
-        if not re.search(pattern, text):
+    matches = []
+    for index, term in enumerate(terms):
+        inflectable = len(term) > 4 and not term.endswith("ss")
+        stem = term[:-1] if inflectable and term.endswith("s") else term
+        # CJK scripts do not normally delimit words with spaces. Latin
+        # boundaries still prevent AI matching chairman or MCP matching MCPE.
+        if re.search(r"[\u3040-\u30ff\u3400-\u9fff]", term):
+            pattern = re.escape(term)
+        else:
+            pattern = r"(?<![a-z0-9_])" + re.escape(stem) + (r"s?" if inflectable else "") + r"(?![a-z0-9_])"
+        positions = [(m.start(), index) for m in re.finditer(pattern, text)]
+        if not positions:
             return False
-    return True
+        matches.extend(positions)
+    if len(terms) < 2:
+        return bool(terms)
+    # Long roundups can mention every query word in unrelated sections.
+    # Require a local co-occurrence, while leaving semantic/intent judgment
+    # to the host. This is a conservative lexical floor, not certification.
+    matches.sort()
+    counts = {}
+    left = 0
+    for position, term_index in matches:
+        counts[term_index] = counts.get(term_index, 0) + 1
+        while position - matches[left][0] > 240:
+            old_index = matches[left][1]
+            counts[old_index] -= 1
+            if counts[old_index] == 0:
+                del counts[old_index]
+            left += 1
+        if len(counts) == len(terms):
+            return True
+    return False
 
 
 
@@ -317,22 +343,12 @@ def reddit_archive(client, query, plan, request, parents, limitations, limit=20)
     if isinstance(client, StdlibHttpClient):
         client = replace(client, max_attempts=1)
     bounds = search_bounds(plan, request)
-    terms = [x.casefold() for x in re.findall(r"[A-Za-z0-9]+", query)[:2]]
     parents = [
         x
         for x in parents
         if in_window(x.published_at, bounds)
-        and all(
-            t
-            in (
-                x.title
-                + " "
-                + x.text
-                + " "
-                + str(x.raw_metadata.get("subreddit") or "")
-            ).casefold()
-            for t in terms
-        )
+        and subject_present({"title": x.title, "body": x.text,
+                             "html_url": str(x.raw_metadata.get("subreddit") or "")}, query)
     ]
     # Observed/explicit communities take priority over inferred names.
     communities = list(request.get("subreddits") or [])
@@ -426,9 +442,7 @@ def reddit_archive(client, query, plan, request, parents, limitations, limit=20)
                 continue
             title = str(row.get("title") or "")
             body = str(row.get("selftext") or "")
-            if terms and not all(
-                t in (title + " " + body + " " + community).casefold() for t in terms
-            ):
+            if not subject_present({"title": title, "body": body, "html_url": community}, query):
                 continue
             pid = str(row.get("id") or "").removeprefix("t3_")
             date = epoch(row.get("created_utc"))

@@ -4,6 +4,12 @@ Python 3.10 compatibility is exercised by the public CI matrix; recommendation I
 
 ## 0.2.2.dev3 — 2026-10-05
 
+- Check the complete Reddit topic with Latin word boundaries, CJK matching,
+  hyphen/plural handling and local co-occurrence; retain semantic intent review.
+- Preserve two-character topic terms in verbatim excerpts, including Chinese,
+  Japanese and AI, and retain original Unicode topic spelling for matching;
+  iterate only the bounded candidate match count.
+
 - Keep failed contradiction assessments explicitly unassessed; exclude those
   signals from fact generation and preserve empty support partitions.
 - Enrich duplicate evidence with compatible source bodies while preserving

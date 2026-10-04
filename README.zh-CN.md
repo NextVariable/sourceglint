@@ -27,4 +27,6 @@ python3 -m venv .venv
 
 [研究质量修复](docs/reviews/2026-10-05-quality-repair.md)记录了反证失败降级、正文补充、转载识别和字幕备用路径的验证结果。
 
+[批量验收](docs/reviews/2026-10-05-bulk-audit.md)记录了固定种子压力检查、五主题联网检索和真实宿主端到端场景，同时保留相关性、召回与平台访问方面的限制。
+
 真实样例和检查结果见 [最新复测](docs/benchmarks/2026-10-05-competitive-retest.md)。完整技术说明、开发方式和使用命令见 [英文 README](README.md)。许可为 [MIT](LICENSE)。

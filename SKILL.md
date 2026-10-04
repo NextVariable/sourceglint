@@ -43,6 +43,10 @@ never use canned answers. Search the relevant routed targets, not the entire
 catalog. Record targets actually searched and their outcomes. Return empty
 results or an honest error when no usable dated evidence is available.
 
+Judge the subject and the requested intent separately. A post about using an
+AI to analyze customer complaints is not a complaint about that AI; words
+scattered across a long roundup do not establish a relevant observation.
+
 Add `--as-of` to pin the research window. Use `--mode`, `--market`, or `--language`
 only to preserve the user's scope. Add `--decision-support` only for an explicit
 question about implications, positioning, growth or actions. To enable direct
