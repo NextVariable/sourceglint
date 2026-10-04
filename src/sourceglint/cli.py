@@ -28,6 +28,7 @@ from typing import Any, Sequence
 from .application.api import run_sourceglint
 from .application.runtime import default_adapter_factory
 from .host_stdio import StdioHostSource
+from .ledger import EvidenceLedger
 from .interface.request import MODES
 from .resources import data_path
 
@@ -74,6 +75,8 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Deterministic 'as of' timestamp (ISO 8601).")
     p.add_argument("--output", default=None, metavar="FILE",
                    help="Write the brief markdown to FILE (stdout otherwise).")
+    p.add_argument("--ledger", default=None, metavar="JSONL",
+                   help="Persist retained evidence to a fresh JSONL path for reuse.")
     p.add_argument("--json", action="store_true", help="Emit SkillResult JSON.")
     p.add_argument("--debug", action="store_true",
                    help="Print stage statuses + warnings to stderr.")
@@ -144,6 +147,10 @@ def _emit(result: Any, args: argparse.Namespace, stream: Any) -> None:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    arguments = list(sys.argv[1:] if argv is None else argv)
+    if arguments and arguments[0] == "doctor":
+        from .health import main as doctor
+        return doctor(arguments[1:])
     parser = _build_parser()
     args = parser.parse_args(argv)
 
@@ -156,6 +163,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if name in ("host_web_search", "official_web"):
                     return StdioHostSource(name)
                 return default_adapter_factory(name, plan)
+        ledger = None
+        if args.ledger:
+            ledger_path = Path(args.ledger)
+            if ledger_path.exists() and ledger_path.stat().st_size:
+                raise ValueError("--ledger must be empty or new; choose a fresh path for this research run")
+            ledger = EvidenceLedger(ledger_path)
         result = run_sourceglint(
             args.query,
             mode=args.mode,
@@ -169,6 +182,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             model=model,
             adapter_factory=adapter_factory,
             sources=sources,
+            ledger=ledger,
+            raw_output=str(Path(args.ledger).with_suffix(".raw.jsonl")) if args.ledger else None,
             as_of=args.as_of or datetime.now(timezone.utc),
         )
     except ValueError as exc:

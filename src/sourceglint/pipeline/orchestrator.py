@@ -293,11 +293,6 @@ class ResearchPipeline:
         # Snapshot post-normalize evidence BEFORE time filter so coverage
         # metrics can separate "normalized" from "time-filter-kept".
         normalized_evidence_pre_filter = list(evidence_list)
-        # 7) Time filter.
-        # Snapshot post-normalize length BEFORE filtering so the coverage
-        # report can show "X raw -> Y normalized -> T time_filter_dropped
-        # -> D dedup_dropped -> N final" with each stage clearly distinct.
-        normalized_count = len(evidence_list)
         tf = apply_time_filter(
             evidence_list,
             plan.get("time_window") or {},

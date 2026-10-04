@@ -52,7 +52,7 @@ MODE_INTENT_PRIORITY: Mapping[str, tuple[str, ...]] = {
         "category", "problem", "emerging_terminology", "comparison",
     ),
     "general": (
-        "category", "problem", "exact",
+        "exact", "category", "problem",
     ),
     "market": (
         "category", "exact", "problem", "local_language",

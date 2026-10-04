@@ -58,6 +58,7 @@ def run_sourceglint(
     semantic_cache: Any = None,
     as_of: datetime | str | None = None,
     ledger: Any = None,
+    raw_output: str | None = None,
 ) -> SkillResult:
     """Run the canonical sourceglint pipeline for one request.
 
@@ -111,6 +112,9 @@ def run_sourceglint(
     as_of_dt = _to_iso(as_of)
     source_list = list(sources) if sources is not None else default_sources()
     factory = adapter_factory or default_adapter_factory
+    if raw_output:
+        from ..artifacts import recording_factory
+        factory = recording_factory(factory, raw_output)
     research = ResearchPipeline(
         config=PipelineConfig(as_of=as_of_dt.isoformat(), cache=retrieval_cache),
         adapter_factory=factory,
@@ -140,6 +144,12 @@ def run_sourceglint(
         "insight_count": outcome.insight_count,
         "recommendation_count": outcome.recommendation_count,
     }
+    if getattr(ctx.ledger, "path", None) is not None:
+        diagnostics["evidence_ledger"] = str(ctx.ledger.path)
+    if raw_output:
+        from pathlib import Path
+        if Path(raw_output).exists():
+            diagnostics["raw_source_archive"] = str(raw_output)
     if outcome.coverage is not None:
         diagnostics["coverage"] = outcome.coverage.to_dict()
     return SkillResult(

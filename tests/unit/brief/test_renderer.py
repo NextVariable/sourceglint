@@ -25,6 +25,7 @@ from sourceglint.brief.sections import (
     inferences,
     no_evidence_markdown,
     research_context,
+    evidence_excerpts,
     recent_items,
     sources,
     watchouts,
@@ -308,3 +309,16 @@ class TestNoEvidence:
         md = render_no_evidence_markdown(BriefContext(query="anything"))
         assert md.startswith("# Sourceglint Brief")
         assert "No usable evidence" in md
+
+
+def test_cited_excerpt_precedes_unselected_noise_and_cutoff_is_explicit():
+    records = {
+        "cited": {"title": "Relevant finding", "source": "github", "url": "https://github.com/a/b", "published_at": "2026-09-05", "snippet": "x" * 600},
+        "newer": {"title": "Newer unrelated observation", "source": "github", "url": "https://github.com/c/d", "published_at": "2026-10-01", "snippet": "Additional observation."},
+    }
+    selected = SelectedBrief(context=BriefContext(discovery_only=True), facts=(SelectedFact(insight_id="ins_example", statement="Finding", confidence=0.8, support=1, evidence_ids=("cited",)),))
+    rendered = evidence_excerpts(selected, records)
+    assert rendered.index("Relevant finding") < rendered.index("Newer unrelated observation")
+    assert "[excerpt truncated]" in rendered
+    assert "x" * 501 not in rendered
+    assert records["cited"]["snippet"] == "x" * 600

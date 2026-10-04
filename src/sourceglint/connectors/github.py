@@ -55,10 +55,8 @@ from ._http import (
 
 
 SOURCE_NAME = "github"
-# Evidence schema enum: "release" fits repo metadata best (PRD §8
-# describes releases/changelog signals; a repo's create event is the
-# canonical "first release" anchor).
-SOURCE_TYPE = "release"
+# Repository creation is page metadata, not a release event.
+SOURCE_TYPE = "page"
 
 
 GITHUB_SEARCH_URL = "https://api.github.com/search/repositories"
@@ -121,7 +119,14 @@ class GitHubAdapter:
         # read for competitor monitoring).
         from urllib.parse import quote_plus
 
-        q = quote_plus(query)
+        from ._recency import search_bounds
+        bounds = search_bounds(plan, request)
+        if bounds:
+            start, end = bounds
+            query_filter = f"{query} created:{start.date().isoformat()}..{end.date().isoformat()}"
+        else:
+            query_filter = query
+        q = quote_plus(query_filter)
         url = (
             f"{GITHUB_SEARCH_URL}?q={q}&per_page={per_page}&sort=updated&order=desc"
         )
@@ -218,11 +223,8 @@ class GitHubAdapter:
             if isinstance(owner, Mapping):
                 owner_login = str(owner.get("login") or "").strip()
 
-            # published_at: created_at is the canonical repo creation
-            # date; updated_at is the most recent change. For GTM signal
-            # purposes (release / launch monitoring), created_at is the
-            # right anchor — once the user wants a "recent activity"
-            # signal we add a separate *_at field elsewhere.
+            # Publish the actual repository creation date. Updated metadata
+            # is retained separately and must not be presented as a release.
             created_at = str(repo.get("created_at") or "").strip()
             if not created_at:
                 # Closeout §3: unknown ≠ neutral. Skip the repo rather
@@ -232,8 +234,6 @@ class GitHubAdapter:
             engagement: dict[str, int] = {}
             if "stargazers_count" in repo:
                 engagement["upvotes"] = _coerce_int(repo.get("stargazers_count"))
-            if "forks_count" in repo:
-                engagement["comments"] = _coerce_int(repo.get("forks_count"))
 
             out.append(
                 RawSourceResult(
@@ -256,6 +256,7 @@ class GitHubAdapter:
                         "github_language": str(repo.get("language") or ""),
                         "github_pushed_at": str(repo.get("pushed_at") or ""),
                         "github_updated_at": str(repo.get("updated_at") or ""),
+                        "github_forks_count": _coerce_int(repo.get("forks_count")),
                     },
                 )
             )

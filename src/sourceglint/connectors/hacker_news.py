@@ -31,6 +31,7 @@ The only third-party protocol it speaks is HN's public JSON.
 """
 from __future__ import annotations
 
+from html.parser import HTMLParser
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Mapping
@@ -47,6 +48,22 @@ from ._http import (
     HttpTransientError,
     StdlibHttpClient,
 )
+
+
+class _CommentText(HTMLParser):
+    """Decode provider markup without interpreting it as instructions."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+
+    def handle_data(self, data):
+        self.parts.append(data)
+
+
+def _visible_comment(markup: str) -> str:
+    parser = _CommentText()
+    parser.feed(markup)
+    return " ".join(" ".join(parser.parts).split())
 
 
 SOURCE_NAME = "hacker_news"
@@ -122,15 +139,16 @@ class HackerNewsAdapter:
             limit_n = self.max_per_query
         limit = max(1, min(limit_n, self.max_per_query))
 
-        # HN Algolia supports language/market-like filters via tags; we
-        # transparently pass them through if the caller supplies them,
-        # but Phase 4 keeps the call shape minimal.
-        params = f"query={_q(query)}&hitsPerPage={limit}&tags=story"
+        # Search stories and comments inside the requested publication window.
+        # Market/language scope is expressed in query wording, not tag filters.
+        from ._recency import search_bounds
+        bounds = search_bounds(plan, request)
+        params = f"query={_q(query)}&hitsPerPage={limit}&tags={_q('(story,comment)')}"
+        if bounds:
+            start, end = bounds
+            filters = f"created_at_i>={int(start.timestamp())},created_at_i<={int(end.timestamp())}"
+            params += "&numericFilters=" + _q(filters)
         url = f"{HN_SEARCH_URL}?{params}"
-        if market and market != "global":
-            # Algolia supports tag filters like `tags=story`; we leave
-            # market-specific filtering to the search query wording.
-            pass
 
         try:
             resp = self.http_client.request(url)
@@ -209,12 +227,16 @@ class HackerNewsAdapter:
                     reason="algolia hit missing objectID",
                 )
             title = str(hit.get("title") or "").strip()
+            comment = str(hit.get("comment_text") or "").strip()
+            is_comment = bool(comment)
+            if is_comment:
+                title = str(hit.get("story_title") or title or "Hacker News comment").strip()
             url_field = str(hit.get("url") or "").strip()
             if not title:
                 # A hit without a title has no story to cite — drop silently
                 # rather than fail the batch (some HN hits are comments-only).
                 continue
-            final_url = url_field or f"{HN_ITEM_BASE}{obj_id}"
+            final_url = f"{HN_ITEM_BASE}{obj_id}"
             author = str(hit.get("author") or "").strip()
             published_at = _utc_iso_from_unix(hit.get("created_at_i"))
             engagement: dict[str, int] = {}
@@ -226,11 +248,11 @@ class HackerNewsAdapter:
             out.append(
                 RawSourceResult(
                     source=self.source_name,
-                    source_type=SOURCE_TYPE,
+                    source_type="comment" if is_comment else SOURCE_TYPE,
                     source_native_id=obj_id,
                     url=final_url,
                     title=title,
-                    text=title,  # stories have no body beyond the title
+                    text=_visible_comment(comment) if is_comment else title,
                     author=author,
                     published_at=published_at,
                     language=language or "en",
@@ -238,17 +260,10 @@ class HackerNewsAdapter:
                     query=query,
                     query_language=language,
                     engagement=engagement,
-                    raw_metadata={"hn_item_id": obj_id},
+                    raw_metadata={"hn_item_id": obj_id, "hn_story_id": hit.get("story_id"), "external_url": url_field, "hn_comment_html": comment if is_comment else ""},
                 )
             )
 
-        # Phase 4 §19 — return the rank the host returned (Algolia's
-        # `hits` array is relevance-ranked). Stash it as internal
-        # metadata so downstream sort can prefer source rank when present.
-        for rank, raw in enumerate(out):
-            if not raw.raw_metadata:
-                # Make a shallow copy via dataclasses.replace — frozen.
-                pass  # the metadata is already a dict; mutate only the local var
         return out
 
 

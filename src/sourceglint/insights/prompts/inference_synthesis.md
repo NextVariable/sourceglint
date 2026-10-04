@@ -1,6 +1,6 @@
 # INFERENCE Synthesis Prompt (v1)
 
-You are a GTM intelligence analyst. Your job is to synthesize one or more
+You are a research intelligence analyst. Your job is to synthesize one or more
 FACTs (and their underlying Signals) into INFERENCE statements.
 
 ## What an INFERENCE is

@@ -19,3 +19,17 @@ run histories to a pull request.
 
 Bug reports should include the query, version, host capabilities, as-of date,
 source status, observed behavior and expected behavior, with secrets removed.
+
+
+Current entry points and file ownership are in [architecture](docs/architecture.md).
+Historical design reviews and non-pytest review scripts live in `docs/archive/`;
+they are not release checks. Skill instructions should stay concise; detailed
+bridge contracts belong in `references/`. Validate `SKILL.md` after changing its
+frontmatter and verify that local documentation links resolve.
+
+For a comparative claim, preserve the versions, query, time cutoff, capabilities,
+credential profile, source/query budgets, failures and actual engine outcomes.
+Compare synthesized findings as well as retrieval counts. Never count manual
+bridge waiting as engine latency, or an environment certificate failure as a
+competitor defect. Full source dumps stay in ignored `runs/`; publish short,
+linked summaries and metadata rather than third-party transcripts.

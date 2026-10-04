@@ -105,6 +105,20 @@ def _plan() -> dict:
 # ---- normal story with external URL -----------------------------------
 
 
+def test_comment_body_date_and_thread_provenance_are_preserved():
+    hit = {"objectID": "77", "story_title": "Claude Code workflows", "story_id": 66,
+           "comment_text": "I use hooks to wait for approval.", "created_at_i": 1789084800}
+    cap = _ScriptedHttpClient([("json", {"hits": [hit]}, 200)])
+    raw = HackerNewsAdapter(http_client=cap).retrieve(plan=_plan(), request=_request())[0]
+    assert raw.source_type == "comment"
+    assert raw.text == hit["comment_text"]
+    assert raw.url == f"{HN_ITEM_BASE}77"
+    assert raw.raw_metadata["hn_story_id"] == 66
+    query = parse_qs(urlparse(cap.calls[0]["url"]).query)
+    assert "comment" in query["tags"][0]
+    assert "created_at_i>=" in query["numericFilters"][0]
+
+
 def test_story_with_external_url_maps_to_raw():
     hit = {
         "objectID": "111",
@@ -124,7 +138,7 @@ def test_story_with_external_url_maps_to_raw():
     raw = out[0]
     assert raw.source == SOURCE_NAME
     assert raw.source_native_id == "111"
-    assert raw.url == "https://example.com/x"
+    assert raw.url == f"{HN_ITEM_BASE}111"
     assert raw.title == "Show HN: AI Meeting Assistant"
     assert raw.author == "user_a"
     assert raw.published_at and raw.published_at.startswith("20")  # RFC3339 prefix
@@ -348,3 +362,11 @@ def test_limit_clamped_to_max_per_query():
     adapter.retrieve(plan=_plan(), request=_request(limit=10000))
     qs = parse_qs(urlparse(cap.calls[0]["url"]).query)
     assert qs.get("hitsPerPage") == ["10"]
+
+
+def test_comment_markup_is_readable_and_original_is_kept():
+    markup = "I&#x27;m using plan mode.<p>Then <i>review</i> before implementation."
+    cap = _ScriptedHttpClient([("json", {"hits": [{"objectID": "88", "story_title": "Workflow", "comment_text": markup, "created_at_i": 1789084800}]}, 200)])
+    raw = HackerNewsAdapter(http_client=cap).retrieve(plan={"time_window": {"days": 30}}, request=_request())[0]
+    assert raw.text == "I'm using plan mode. Then review before implementation."
+    assert raw.raw_metadata["hn_comment_html"] == markup

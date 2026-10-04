@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sourceglint"
+  short_description: "Recent research with dated original evidence"
+  default_prompt: "Use $sourceglint to research recent tools, discussions and user needs about my topic."

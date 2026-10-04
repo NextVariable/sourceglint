@@ -99,7 +99,7 @@ def test_trend_mode_priority_intents():
 def test_general_mode_priority_intents():
     plan = _plan(mode="general")
     intents = [q.intent for q in expand_queries(plan) if q.intent != "explicit"]
-    assert intents[:3] == ["category", "problem", "exact"]
+    assert intents[:3] == ["exact", "category", "problem"]
 
 
 def test_market_mode_priority_intents():

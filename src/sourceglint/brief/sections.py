@@ -287,15 +287,18 @@ def evidence_excerpts(sel: SelectedBrief, lookup: Mapping[str, object]) -> str:
     """Keep source observations, including unselected counterexamples, auditable."""
     if not sel.context.discovery_only or not lookup:
         return ""
-    records = sorted(lookup.items(), key=lambda pair: (_rec_field(pair[1], "published_at"), pair[0]), reverse=True)
-    lines = ["Verbatim source excerpts are observations; a launch description is not verified user experience. Dates are publication dates where available."]
-    for eid, rec in records[:20]:
+    cited = set(_referenced_evidence(sel))
+    records = sorted(lookup.items(), key=lambda pair: (pair[0] in cited, _rec_field(pair[1], "published_at"), pair[0]), reverse=True)
+    limit = max(10, len(cited))
+    lines = ["Source excerpts are observations; a launch description is not verified user experience. Cited items appear first; additional items have not been selected as findings. Dates are publication dates where available."]
+    for eid, rec in records[:limit]:
         lines.append(f"- {_untrusted_inline(_rec_field(rec, 'title'))} — {_ref(lookup, eid)}")
         excerpt = _rec_field(rec, "snippet")
         if excerpt:
-            lines.append("  " + _untrusted_inline(excerpt))
-    if len(records) > 20:
-        lines.append(f"Showing 20 of {len(records)} retained items; use the run ledger for the complete corpus.")
+            preview = excerpt[:500]
+            lines.append("  " + _untrusted_inline(preview) + (" [excerpt truncated]" if len(excerpt) > 500 else ""))
+    if len(records) > limit:
+        lines.append(f"Showing {limit} of {len(records)} retained items; use the run ledger for the complete corpus.")
     return _heading(2, "Source Excerpts") + "\n".join(lines) + "\n\n"
 
 

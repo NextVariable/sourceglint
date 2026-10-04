@@ -9,6 +9,7 @@ import json
 from sourceglint.application.api import run_sourceglint
 from sourceglint.application.runtime import default_sources
 from sourceglint.host_stdio import StdioHostModel
+from sourceglint.health import build_report
 from sourceglint.insights.prompts import get_insight_prompt
 from sourceglint.intelligence.prompts import get_prompt
 from sourceglint.pipeline.adapters import FakeSourceAdapter
@@ -17,6 +18,8 @@ from sourceglint.resources import data_path
 from sourceglint.source_catalog import load_source_catalog
 
 assert len(load_source_catalog()) >= 50
+assert build_report()["network_probed"] is False
+assert data_path("docs", "source-live-status.json").is_file()
 assert default_sources()
 registry = load_registry(path=data_path("config", "sources-host.yaml"))
 assert registry.entries

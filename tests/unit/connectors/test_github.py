@@ -118,7 +118,7 @@ def test_repo_result_maps_to_raw():
     assert len(out) == 1
     raw = out[0]
     assert raw.source == SOURCE_NAME
-    assert raw.source_type == "release"  # repo metadata doubles as release-type
+    assert raw.source_type == "page"  # repository creation is not a release
     assert raw.source_native_id == "acme/awesome"
     assert raw.url == "https://github.com/acme/awesome"
     assert raw.title == "acme/awesome"
@@ -240,9 +240,17 @@ def test_request_url_includes_query_and_per_page():
     assert parsed.scheme == "https"
     assert parsed.netloc.startswith("api.github.com")
     qs = parse_qs(parsed.query)
-    assert qs["q"] == ["meeting transcription"]
+    assert qs["q"] == ["meeting transcription created:2026-08-07..2026-09-06"]
     assert qs["per_page"] == ["20"]
     assert qs["sort"] == ["updated"]
+
+
+def test_repository_forks_are_not_reported_as_comments():
+    item = {"id": 1, "full_name": "owner/project", "created_at": "2026-09-01T00:00:00Z", "forks_count": 7}
+    cap = _ScriptedHttpClient([("json", {"items": [item]}, 200)])
+    raw = GitHubAdapter(http_client=cap).retrieve(plan=_plan(), request=_request())[0]
+    assert "comments" not in raw.engagement
+    assert raw.raw_metadata["github_forks_count"] == 7
 
 
 def test_default_max_per_query_is_twenty():
