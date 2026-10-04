@@ -96,7 +96,12 @@ There is no public prior-window comparison yet: `--baseline` fails explicitly.
 Recent attention is not proof of a growing trend. Scheduled monitoring is outside
 the default research workflow. Browser-cookie imports and paid providers require
 user authorization. `SUCCESS`, `PARTIAL` and research quality are distinct.
-The [comparison](docs/benchmarks/2026-10-04.md) records strengths and remaining gaps
+The latest [competitive retest](docs/benchmarks/2026-10-05-competitive-retest.md)
+in month-wide sampling, community discovery and relevance; no overall superiority
+is established. Its [metrics](docs/benchmarks/2026-10-05-competitive-retest.metrics.json)
+keep different output stages separate.
+
+The earlier [comparison](docs/benchmarks/2026-10-04.md) records strengths and remaining gaps
 records the implemented depth improvements and the limits of the new comparison.
 
 ## Develop and verify
