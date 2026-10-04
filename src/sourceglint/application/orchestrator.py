@@ -75,6 +75,7 @@ def build_research_context(
         market=str(plan.get("market") or "global"),
         decision_context=str(plan.get("decision_context") or ""),
         languages=tuple(languages or (plan.get("languages") or ["en"])),
+        topic=str(plan.get("topic") or ""),
     )
 
 

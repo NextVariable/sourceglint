@@ -19,6 +19,9 @@ def _extract_summary(ev: Mapping[str, Any] | None) -> str:
     """Extract the best available text summary from an evidence item."""
     if ev is None:
         return ""
+    content = str(ev.get("content") or "")
+    if content:
+        return content[:6000]
     snippet = str(ev.get("snippet") or "")
     if snippet:
         return snippet

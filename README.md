@@ -51,8 +51,8 @@ python3 -m venv .venv
 On Windows use `.venv\Scripts\python.exe`. Other hosts can place the complete
 folder in their supported Skill directory; compatibility requires the same
 interactive bridge capabilities and has not been certified for every host.
-Ask the agent to use Sourceglint. Its first-run profile uses the host's existing
-public search and reasoning, so platform-specific keys are optional. Host costs
+Ask the agent to use Sourceglint. Its first-run profile combines bounded native
+retrieval with the host's public search and reasoning, so platform keys are optional. Host costs
 and usage limits apply.
 
 The agent operates this command and answers its requests:
@@ -60,7 +60,7 @@ The agent operates this command and answers its requests:
 ```sh
 .venv/bin/python -m sourceglint 'Claude Code workflows' \
   --model sourceglint.host_stdio:build_model \
-  --host-sources-stdio --registry config/sources-host.yaml \
+  --host-sources-stdio --registry config/sources-hybrid.yaml \
   --ledger runs/my-research/evidence.jsonl --json
 ```
 
@@ -78,11 +78,14 @@ The exact request/response contract is in [host protocol](references/host-protoc
 | --- | --- | --- |
 | Host search, default | Dated public pages across relevant routed platforms | Index-dependent; no full-platform or private-access guarantee |
 | Direct HN | Recent stories and matching comments, original item URLs | Search samples, not complete discussion threads |
-| Direct GitHub | Repositories created in the research window | Repository metadata, not releases, issues or adoption proof |
-| Direct Reddit | Public RSS, optional OAuth | RSS may be blocked; limited text, no reliable engagement or full comments |
-| Other direct connectors | Video metadata, developer and academic sources | Availability, local tools and credentials vary by provider |
+| Direct GitHub | Repositories, issues/PRs and independently dated comments, including recent replies to old issues | Bounded samples; community claims are not verified defects or adoption proof |
+| Direct Reddit | RSS/OAuth discovery, public archive bodies and dated comments | Archive coverage and freshness vary; sampled communities and threads |
+| Direct YouTube | Recent video metadata and public timed captions through `yt-dlp` | Captions can fail or be unavailable; no media download |
+| Other direct connectors | Developer and academic sources | Availability and credentials vary by provider |
 
-Use `config/sources.yaml` for direct connectors and host fallbacks.
+Use `config/sources-hybrid.yaml` for bounded native retrieval plus host supplements.
+Use `config/sources-host.yaml` when only host search is available, or
+`config/sources.yaml` for the broader direct registry.
 `sourceglint doctor --json` reports implementation, missing credential **names**,
 local tools and historical test dates. It makes no network requests and does
 not certify live availability. The broad catalog is a routing map, not a list
@@ -94,6 +97,7 @@ Recent attention is not proof of a growing trend. Scheduled monitoring is outsid
 the default research workflow. Browser-cookie imports and paid providers require
 user authorization. `SUCCESS`, `PARTIAL` and research quality are distinct.
 The [comparison](docs/benchmarks/2026-10-04.md) records strengths and remaining gaps
+records the implemented depth improvements and the limits of the new comparison.
 
 ## Develop and verify
 

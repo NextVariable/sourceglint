@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import re
 import unicodedata
 from typing import Mapping
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
@@ -79,7 +80,11 @@ def canonicalize_url(url: str) -> str:
     if not path:
         path = "/"
 
-    return urlunsplit((scheme, netloc, path, query, ""))
+    # These anchors identify separate published comments, not page navigation.
+    fragment = ""
+    if netloc == "github.com" and re.fullmatch(r"issuecomment-\d+", parts.fragment):
+        fragment = parts.fragment
+    return urlunsplit((scheme, netloc, path, query, fragment))
 
 
 def normalize_text(text: str) -> str:

@@ -20,7 +20,7 @@ TASK_SEMANTIC_FACTORS = "semantic_factors"
 
 #: Bump these whenever the corresponding .md changes semantics.
 PROMPT_VERSIONS: dict[str, str] = {
-    TASK_CLUSTERING: "clustering:v1",
+    TASK_CLUSTERING: "clustering:v2",
     TASK_CONTRADICTION: "contradiction:v1",
     TASK_SEMANTIC_FACTORS: "semantic_factors:v1",
 }

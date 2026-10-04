@@ -43,7 +43,7 @@
   cost: free
   # Default runtime discovery uses Reddit's public Atom/RSS search feed.
   # OAuth credentials may still be supplied for the richer official route,
-  # but RSS intentionally does not claim engagement or full comment depth.
+  # public archive enrichment supplies separately labeled bodies and comments.
   auth_required: false
   credentials: []
   priority: 80
@@ -76,10 +76,8 @@
   auth_required: false
   credentials: []
   priority: 85
-  # Capability honesty (Phase 4 §44): the MVP adapter implements repo
-  # SEARCH only. `releases` was listed here before the adapter existed;
-  # a future adapter may re-add it, config must never out-claim code.
-  capabilities: [search]
+  # Native issue/PR search and independently dated comment samples.
+  capabilities: [search, comments]
   rate_limit: { rpm: 60 }
   markets: [global, us, gb, jp, de, fr, kr, cn]
   languages: [en, ja, zh, de, fr, ko]

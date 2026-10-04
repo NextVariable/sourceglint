@@ -83,17 +83,31 @@ def default_adapter_factory(
             app_password=_env("BSKY_APP_PASSWORD") or None,
         )
     if name == "youtube":
-        return YouTubeAdapter()
+        return YouTubeAdapter(include_transcripts=True)
     if name == "hacker_news":
         return HackerNewsAdapter()
     if name == "github":
         token = _env("GITHUB_TOKEN")
-        return GitHubAdapter(token=token or None)
+        if not token:
+            # Reuse the user's existing public-GitHub CLI authentication only.
+            # Never log, serialize or place the credential in an argv string.
+            import shutil
+            import subprocess
+            from ..connectors._command import run_command
+            if shutil.which("gh"):
+                try:
+                    result = run_command(["gh", "auth", "token", "--hostname", "github.com"], 5)
+                    if result.returncode == 0:
+                        token = result.stdout.strip()
+                except (OSError, subprocess.TimeoutExpired):
+                    pass
+        return GitHubAdapter(token=token or None, include_discussions=True)
     if name == "reddit":
         return RedditAdapter(
             client_id=_env("REDDIT_CLIENT_ID", "REDDIT_CLIENT_ID") or None,
             client_secret=_env("REDDIT_CLIENT_SECRET") or None,
             allow_keyless_rss=True,
+            include_archive=True,
         )
     public_adapters = {
         "arxiv": ArxivAdapter,

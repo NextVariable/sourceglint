@@ -6,7 +6,7 @@ remains the fallback when the executable is absent or YouTube blocks the host.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
 import shutil
@@ -14,6 +14,7 @@ import subprocess
 from typing import Callable, Mapping, Sequence
 
 from ._command import CommandResult, run_command
+from ._http import StdlibHttpClient
 from ..pipeline.adapters import (
     AdapterInvalidResponse,
     AdapterRateLimited,
@@ -58,6 +59,9 @@ class YouTubeAdapter:
     max_per_query: int = DEFAULT_MAX_PER_QUERY
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS
     source_name: str = SOURCE_NAME
+    include_transcripts: bool = False
+    http_client: object = field(default_factory=StdlibHttpClient)
+    limitations: list[str] = field(default_factory=list, compare=False)
 
     def __post_init__(self) -> None:
         if self.executable is None:
@@ -93,6 +97,13 @@ class YouTubeAdapter:
             "--no-warnings",
             "--no-download",
         ]
+        if self.include_transcripts:
+            from ._recency import search_bounds
+            bounds = search_bounds(plan, request)
+            # Relevance-only search often spends its entire budget on old videos.
+            command[3] = f"ytsearch{limit * 3}:{query}"
+            if bounds:
+                command.extend(["--dateafter", bounds[0].strftime("%Y%m%d"), "--datebefore", bounds[1].strftime("%Y%m%d")])
         try:
             result = self.runner(command, self.timeout_seconds)
         except subprocess.TimeoutExpired as exc:
@@ -122,6 +133,7 @@ class YouTubeAdapter:
         language = str(request.get("query_language") or "")
         market = str(request.get("market") or "")
         output: list[RawSourceResult] = []
+        transcript_attempts = 0
         for line in result.stdout.splitlines():
             if not line.strip():
                 continue
@@ -137,7 +149,34 @@ class YouTubeAdapter:
             title = str(item.get("title") or "").strip()
             if not video_id or not title:
                 continue
+            if self.include_transcripts:
+                from ._deep import in_window
+                if not in_window(_published_at(item), bounds) or len(output) >= limit:
+                    continue
             description = str(item.get("description") or "").strip()
+            metadata = {"duration_seconds": _count(item.get("duration"))}
+            body = description or title
+            if self.include_transcripts:
+                from ._deep import in_window
+                from ._recency import search_bounds
+                from ._captions import fetch_captions
+                date = _published_at(item)
+                if in_window(date, search_bounds(plan, request)) and transcript_attempts < 3:
+                    transcript_attempts += 1
+                    try:
+                        transcript, details = fetch_captions(self.http_client, item, language or "en")
+                        metadata.update(details)
+                        if transcript:
+                            body = transcript
+                            metadata["transcript_status"] = "available"
+                            metadata["video_description"] = description
+                        else:
+                            self.limitations.append(f"YouTube transcript unavailable: {video_id}")
+                    except Exception as exc:
+                        metadata["transcript_status"] = "failed"
+                        self.limitations.append(f"YouTube transcript failed for {video_id}: {type(exc).__name__}")
+                else:
+                    metadata["transcript_status"] = "outside_window_or_budget"
             output.append(
                 RawSourceResult(
                     source=self.source_name,
@@ -145,7 +184,7 @@ class YouTubeAdapter:
                     source_native_id=video_id,
                     url=f"https://www.youtube.com/watch?v={video_id}",
                     title=title,
-                    text=description or title,
+                    text=body,
                     author=str(item.get("channel") or item.get("uploader") or ""),
                     published_at=_published_at(item),
                     language=language or "en",
@@ -157,7 +196,7 @@ class YouTubeAdapter:
                         "likes": _count(item.get("like_count")),
                         "comments": _count(item.get("comment_count")),
                     },
-                    raw_metadata={"duration_seconds": _count(item.get("duration"))},
+                    raw_metadata=metadata,
                 )
             )
         return output

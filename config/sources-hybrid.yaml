@@ -1,0 +1,133 @@
+# Bounded native deep retrieval with host search supplements.
+- name: host_web_search
+  enabled: true
+  type: web
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 60
+  capabilities:
+  - search
+  rate_limit:
+    rpm: 30
+  markets:
+  - global
+  - us
+  - gb
+  - jp
+  - de
+  - fr
+  - kr
+  - cn
+  languages:
+  - en
+  - ja
+  - zh
+  - de
+  - fr
+  - ko
+  cache_ttl: 900
+  max_queries_per_run: 1
+- name: reddit
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 80
+  capabilities:
+  - search
+  - comments
+  rate_limit:
+    rpm: 60
+  markets:
+  - global
+  - us
+  - gb
+  - jp
+  - de
+  - fr
+  - kr
+  - cn
+  languages:
+  - en
+  - ja
+  - zh
+  - de
+  - fr
+  - ko
+  cache_ttl: 900
+  max_queries_per_run: 1
+- name: hacker_news
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 70
+  capabilities:
+  - search
+  - stories
+  - comments
+  rate_limit:
+    rpm: 60
+  markets:
+  - global
+  - us
+  - gb
+  - jp
+  - de
+  - fr
+  - kr
+  - cn
+  languages:
+  - en
+  cache_ttl: 1800
+  max_queries_per_run: 1
+- name: github
+  enabled: true
+  type: official
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 85
+  capabilities:
+  - search
+  - comments
+  rate_limit:
+    rpm: 60
+  markets:
+  - global
+  - us
+  - gb
+  - jp
+  - de
+  - fr
+  - kr
+  - cn
+  languages:
+  - en
+  - ja
+  - zh
+  - de
+  - fr
+  - ko
+  cache_ttl: 3600
+  max_queries_per_run: 1
+- name: youtube
+  enabled: true
+  type: community
+  cost: free
+  auth_required: false
+  credentials: []
+  priority: 78
+  capabilities:
+  - search
+  rate_limit:
+    rpm: 10
+  markets:
+  - global
+  languages:
+  - en
+  cache_ttl: 3600
+  max_queries_per_run: 1

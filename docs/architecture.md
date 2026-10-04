@@ -38,7 +38,7 @@ configuration, schemas and the dated source snapshot into the built package;
 `resources.data_path` resolves either installed data or checkout data. Do not
 edit `build/` or generated `_data` directories.
 
-`--ledger` writes normalized retained evidence (280-character excerpts) and a
+`--ledger` writes normalized retained evidence (280-character quotes plus up to 12,000 characters of source body) and a
 raw companion containing retrieved bodies and provider metadata before filtering.
 The raw archive is not a validated corpus. Keep private run data out of public Git.
 
@@ -46,3 +46,14 @@ The live source snapshot is historical evidence, not a probe. `sourceglint
 doctor` checks configuration without making network requests. Research reports
 describe the actual run. Both are needed to distinguish an implemented route,
 local readiness and successful delivery.
+
+Deep retrieval helpers live in `connectors/_deep.py` and `connectors/_captions.py`.
+Semantic model inputs retain up to 6,000 characters of body per item; snippets
+remain small quotations. Raw exports preserve the complete returned body.
+
+The research topic is passed explicitly to semantic clustering and relevance
+assessment, including general-mode requests. Batch body excerpts have a 48,000
+character budget; oversized excerpts include an explicit omitted-middle marker.
+Later claim analysis reads up to 6,000 characters per supporting body. This is
+bounded analysis, not a claim to have read every full source. The ledger retains
+up to 12,000 characters per body and raw exports retain the returned full text.

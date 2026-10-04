@@ -36,7 +36,7 @@ Capability boundary:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Mapping
 
 from ..pipeline.adapters import (
@@ -82,6 +82,8 @@ class GitHubAdapter:
     source_name: str = SOURCE_NAME
     # Token in constructor only — never read environment here (PRD §5 boundary).
     token: str | None = None
+    include_discussions: bool = False
+    limitations: list[str] = field(default_factory=list, compare=False)
 
     def __post_init__(self):
         if self.http_client is None:
@@ -261,6 +263,9 @@ class GitHubAdapter:
                 )
             )
 
+        if self.include_discussions:
+            from ._deep import issue_results
+            out.extend(issue_results(self.http_client, str(request.get("query") or ""), plan, request, headers, self.limitations, per_page))
         return out
 
 

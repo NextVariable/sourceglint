@@ -127,6 +127,7 @@ def prepare_evidence(
                 engagement=_read_engagement(payload),
                 url=str(payload.get("url") or ""),
                 has_text=bool(title or snippet),
+                content=str(payload.get("content") or ""),
             )
         )
 
@@ -142,10 +143,14 @@ def model_payloads(
     max_snippet_chars: int = MAX_SNIPPET_CHARS,
 ) -> list[dict]:
     """Convenience helper: the exact list handed to the semantic model."""
+    items = list(prepared)
+    bodies = sum(bool(item.content) for item in items)
+    content_cap = min(6000, 48000 // max(1, bodies))
     return [
         item.to_model_payload(
             max_title_chars=max_title_chars,
             max_snippet_chars=max_snippet_chars,
+            max_content_chars=content_cap,
         )
-        for item in prepared
+        for item in items
     ]

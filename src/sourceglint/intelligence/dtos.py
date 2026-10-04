@@ -77,6 +77,7 @@ class PreparedEvidence:
     engagement: Mapping[str, int] = field(default_factory=dict)
     url: str = ""
     has_text: bool = False
+    content: str = ""
 
     # -- model boundary ----------------------------------------------------
 
@@ -85,6 +86,7 @@ class PreparedEvidence:
         *,
         max_title_chars: int = MAX_TITLE_CHARS,
         max_snippet_chars: int = MAX_SNIPPET_CHARS,
+        max_content_chars: int = 6000,
     ) -> dict:
         """Minimal, size-bounded payload for the semantic model (PRD §6).
 
@@ -100,6 +102,14 @@ class PreparedEvidence:
             payload["title"] = self.title[:max_title_chars]
         if self.snippet:
             payload["snippet"] = self.snippet[:max_snippet_chars]
+        if self.content:
+            body = self.content
+            if len(body) > max_content_chars:
+                marker = "\n[body excerpt: middle omitted]\n"
+                available = max(0, max_content_chars - len(marker))
+                head = available // 2
+                body = body[:head] + marker + body[-(available - head):] if available else marker[:max_content_chars]
+            payload["content"] = body
         # window is always known (absent in ledger == current).
         payload["window"] = self.window
         return payload
@@ -120,6 +130,7 @@ class PreparedEvidence:
             "engagement": dict(self.engagement),
             "url": self.url,
             "has_text": self.has_text,
+            **({"content": self.content} if self.content else {}),
         }
 
 
@@ -136,6 +147,7 @@ class ResearchContext:
     market: str = "global"
     decision_context: str = ""
     languages: tuple[str, ...] = ()
+    topic: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -144,6 +156,7 @@ class ResearchContext:
             "market": self.market,
             "decision_context": self.decision_context,
             "languages": list(self.languages),
+            **({"topic": self.topic} if self.topic else {}),
         }
 
 

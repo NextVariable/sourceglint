@@ -164,6 +164,9 @@ def normalize_raw(
 
     canonical_url = canonicalize_url(raw.url)
     tier = _known_tier(raw.source)
+    if raw.source == "github" and raw.raw_metadata.get("github_kind") in ("issue", "pull_request", "issue_comment"):
+        # An official API transports community claims; it does not certify them.
+        tier = 2
     quality = _known_quality(tier) if tier is not None else None
 
     # Phase 4 §6 + §20: when raw_metadata declares an official-domain match,
@@ -202,6 +205,10 @@ def normalize_raw(
 
     if raw.author:
         out["author"] = raw.author
+    # Keep the quote contract small, but do not discard the source body before
+    # semantic analysis. Raw export retains the unabridged returned body.
+    if len(raw.text) > _SNIPPET_MAX:
+        out["content"] = raw.text[:12000]
     if raw.published_at:
         _validate_iso(raw.published_at, "published_at")
         out["published_at"] = raw.published_at

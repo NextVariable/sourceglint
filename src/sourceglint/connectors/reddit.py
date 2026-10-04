@@ -136,6 +136,8 @@ class RedditAdapter:
     max_per_query: int = DEFAULT_MAX_PER_QUERY
     source_name: str = SOURCE_NAME
     allow_keyless_rss: bool = False
+    include_archive: bool = False
+    limitations: list[str] = field(default_factory=list)
     rss_min_interval_seconds: float = 2.0
     token_ttl_default: int = 3600
     # Injectable clock (Phase 4 determinism). When None the token cache
@@ -186,7 +188,15 @@ class RedditAdapter:
         # expose engagement, so those fields stay unknown rather than invented.
         if not client_id or not client_secret:
             if self.allow_keyless_rss:
-                return self._retrieve_rss(query, language, market, limit)
+                if not self.include_archive:
+                    return self._retrieve_rss(query, language, market, limit)
+                try:
+                    parents = self._retrieve_rss(query, language, market, limit)
+                except (AdapterUnavailable, AdapterRateLimited, AdapterTimeout, AdapterInvalidResponse) as exc:
+                    parents = []
+                    self.limitations.append(f"Reddit RSS unavailable: {type(exc).__name__}; using public archive")
+                from ._deep import reddit_archive
+                return reddit_archive(self.http_client, query, plan, request, parents, self.limitations, limit)
             raise AdapterAuthMissing(
                 source=self.source_name,
                 reason=(
@@ -326,7 +336,7 @@ class RedditAdapter:
                     source_native_id=name,
                     url=final_url,
                     title=title,
-                    text=(selftext[:280] if selftext else title),
+                    text=(selftext if selftext else title),
                     author=author,
                     published_at=created,
                     language=language or "en",
@@ -341,6 +351,9 @@ class RedditAdapter:
                     },
                 )
             )
+        if self.include_archive:
+            from ._deep import reddit_archive
+            return reddit_archive(self.http_client, query, plan, request, out, self.limitations, limit)
         return out
 
     def _retrieve_rss(
@@ -419,7 +432,7 @@ class RedditAdapter:
                     source_native_id=f"t3_{post_id}",
                     url=permalink.replace("http://", "https://"),
                     title=title,
-                    text=(text[:500] if text else title),
+                    text=(text if text else title),
                     author=author,
                     published_at=published_at,
                     language=language or "en",

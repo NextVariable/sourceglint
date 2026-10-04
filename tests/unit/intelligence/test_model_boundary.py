@@ -273,7 +273,7 @@ def test_every_task_has_a_prompt_file():
 
 
 def test_prompt_versions_are_explicit_and_stable():
-    assert prompt_version(TASK_CLUSTERING) == "clustering:v1"
+    assert prompt_version(TASK_CLUSTERING) == "clustering:v2"
     assert prompt_version(TASK_CONTRADICTION) == "contradiction:v1"
     assert prompt_version(TASK_SEMANTIC_FACTORS) == "semantic_factors:v1"
 

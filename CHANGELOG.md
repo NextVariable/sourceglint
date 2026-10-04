@@ -4,6 +4,18 @@ Python 3.10 compatibility is exercised by the public CI matrix; recommendation I
 
 ## Unreleased — 2026-10-04
 
+- Pass the original research topic into semantic analysis in general mode;
+  bound batch body inputs and mark omitted passages explicitly.
+- Read bounded source bodies in semantic analysis rather than only the first
+  280 characters; preserve the short quote contract and unabridged raw export.
+- Add GitHub issues/PRs, independently dated comments and recent replies in
+  older threads; preserve comment anchors and classify community claims as T2.
+- Add public Reddit archive discovery and dated comment evidence, with explicit
+  archive provenance and filtering of unrelated feed entries and moderator bots.
+- Read recent YouTube timed captions without downloading media or cookies.
+- Make the maintained Skill workflow use bounded native retrieval plus host
+  supplements instead of leaving deep connectors outside the first-run path.
+
 - Clarify the research-first installation and workflow; add host metadata and
   move protocol details into progressively loaded references.
 - Archive historical designs and obsolete manual review gates without deleting

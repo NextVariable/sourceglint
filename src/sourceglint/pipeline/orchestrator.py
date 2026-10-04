@@ -254,6 +254,9 @@ class ResearchPipeline:
 
             raw_results.extend(adapter_results)
             rep.count = len(adapter_results)
+            for limitation in getattr(adapter, "limitations", []):
+                if limitation not in rep.warnings:
+                    rep.warnings.append(limitation)
             if rep.status == SourceStatus.SUCCESS and rep.warnings:
                 rep.status = SourceStatus.PARTIAL
             per_source[source_name] = rep
