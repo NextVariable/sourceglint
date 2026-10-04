@@ -458,7 +458,10 @@ def test_gate_f_no_dotenv_tracked():
 
 def test_gate_g_pyproject_deps_complete():
     """pyproject.toml must declare all runtime + dev dependencies used."""
-    import tomllib
+    try:
+        import tomllib
+    except ModuleNotFoundError:
+        import tomli as tomllib
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     deps = pyproject.get("project", {}).get("dependencies", [])
     dev_deps = pyproject.get("project", {}).get("optional-dependencies", {}).get("dev", [])
@@ -473,7 +476,10 @@ def test_gate_g_pyproject_extras_dev_installable():
     test infra itself — we run inside the venv. This is a sanity check
     that pyproject's optional-dependencies.dev is non-empty so the
     clean-env gate can `pip install -e .[dev]`."""
-    import tomllib
+    try:
+        import tomllib
+    except ModuleNotFoundError:
+        import tomli as tomllib
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     dev = pyproject.get("project", {}).get("optional-dependencies", {}).get("dev", [])
     assert dev, "pyproject.toml [project.optional-dependencies].dev is empty"
