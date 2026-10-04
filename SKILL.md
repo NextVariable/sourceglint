@@ -5,6 +5,22 @@ description: Research what has appeared and what people are discussing across av
 
 # Sourceglint
 
+For every `source_response`, report `searched_targets` as an array of
+`{"name":"reddit","status":"success|no_results|unavailable"}` objects.
+Record only targets actually queried; the routed target list is a suggestion,
+not proof of execution. Add `limitations` and `unanswered_parts` as arrays of
+strings when retrieval is incomplete or a requested aspect lacks evidence.
+An empty result is not evidence that a product, complaint or market does not
+exist. Use a verified publication date, not a crawl date. If only the day is
+known, normalize to midnight UTC and explain that precision in the run notes.
+Do not backdate a current page.
+
+Reports include original platforms, dated citations and source excerpts.
+Keep vendor launch claims distinct from independent experiences, and retain
+counterexamples even when they do not become headline facts. The JSON
+`research_quality` is `LIMITED` or `NOT_ASSESSED`; it never certifies market
+representativeness. Show coverage limitations along with `brief_markdown`.
+
 The default job is simple: given a topic, find what appeared or changed recently, combine duplicate coverage of the same event, surface new tools, workflows, needs, complaints, and repeated discussion, and retain dates and links to original material. This is a research result someone can read or give to an AI for further work. Product and GTM decisions are optional follow-ups, not the default output. The host supplies search and reasoning through the JSON-lines bridge; no separate model account is needed. The engine owns evidence IDs, validation, scoring, ordering, and rendering. The broad coverage catalog is `config/source_catalog.yaml`; it describes discovery opportunities and honest access routes, while `config/sources.yaml` contains the smaller set the runtime can actually attempt.
 
 First invocation: locate this Skill's folder and check for Python 3.10+,

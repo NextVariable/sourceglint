@@ -19,8 +19,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Any, Mapping
+from ..resources import data_path
 
-_REPO_CONFIG = Path(__file__).resolve().parents[3] / "config" / "sources.yaml"
+_REPO_CONFIG = data_path("config", "sources.yaml")
 _ENV_CONFIG = os.environ.get("GTM_INTELLIGENCE_SOURCES_YAML", "")
 
 

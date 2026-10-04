@@ -1,0 +1,4 @@
+include LICENSE README.md SKILL.md setup.py
+recursive-include config *.yaml
+recursive-include schemas *.json
+recursive-include src/sourceglint *.md

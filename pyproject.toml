@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sourceglint"
-version = "0.2.0"
+version = "0.2.1"
 description = "Evidence-linked recent information and demand discovery with optional GTM decision support"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -28,6 +28,9 @@ sourceglint = "sourceglint.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+sourceglint = ["intelligence/prompts/*.md", "insights/prompts/*.md", "recommendations/prompts/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

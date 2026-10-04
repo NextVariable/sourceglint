@@ -1,5 +1,5 @@
 {
-  "verified_at": "2026-09-30",
+  "verified_at": "2026-10-04",
   "command": "RUN_LIVE_TESTS=1 .venv/bin/python -m pytest tests/live -q -ra",
   "passed": [
     "arxiv",

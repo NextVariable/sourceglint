@@ -25,6 +25,7 @@ from dataclasses import dataclass, field
 from typing import Iterable, Mapping
 
 from .degradation import SourceStatus, SourceStatusReport
+from ..provenance import original_platform
 
 
 @dataclass(frozen=True)
@@ -47,6 +48,10 @@ class CoverageReport:
     markets_covered: tuple[str, ...] = ()
     gaps: tuple[str, ...] = ()
     warnings: tuple[str, ...] = ()
+    original_platforms: tuple[str, ...] = ()
+    searched_targets: tuple[str, ...] = ()
+    unavailable_targets: tuple[str, ...] = ()
+    unanswered_parts: tuple[str, ...] = ()
 
     @property
     def deduplicated_count(self) -> int:
@@ -86,6 +91,11 @@ class CoverageReport:
             "markets_covered": list(self.markets_covered),
             "gaps": list(self.gaps),
             "warnings": list(self.warnings),
+            "original_platforms": list(self.original_platforms),
+            "searched_targets": list(self.searched_targets),
+            "unavailable_targets": list(self.unavailable_targets),
+            "unanswered_parts": list(self.unanswered_parts),
+            "research_quality": "LIMITED" if self.gaps else "NOT_ASSESSED",
         }
 
 
@@ -129,6 +139,7 @@ def build_coverage_report(
     deduplicated_dropped: int,
     dropped_by_time_filter: int,
     kept_evidence: Iterable[Mapping[str, object]] | None = None,
+    host_observations: Iterable[Mapping[str, object]] = (),
 ) -> CoverageReport:
     """Build the final CoverageReport from pipeline inputs.
 
@@ -169,6 +180,25 @@ def build_coverage_report(
     if not norm_list:
         gaps.append("no evidence collected from any source")
 
+    platforms = tuple(sorted({original_platform(str(e.get("url") or "")) for e in kept}))
+    if len(platforms) == 1:
+        gaps.append(f"All retained evidence is from {platforms[0]}; no independent cross-platform corroboration.")
+    if kept and len(kept) < 3:
+        gaps.append("Fewer than three retained items; this is a small sample, not a representative pattern.")
+    observations = list(host_observations)
+    searched, unavailable, unanswered = [], [], []
+    for obs in observations:
+        if not obs.get("coverage_reported"):
+            gaps.append("Host target execution was not reported; routed targets must not be counted as searched.")
+        for target in obs.get("searched_targets") or []:
+            if target.get("status") == "unavailable":
+                unavailable.append(str(target["name"]))
+            else:
+                searched.append(str(target["name"]))
+        gaps.extend(str(x) for x in (obs.get("limitations") or []))
+        unanswered.extend(str(x) for x in (obs.get("unanswered_parts") or []))
+    gaps.extend(f"Requested aspect not answered: {part}" for part in unanswered)
+
     warnings: list[str] = []
     if dropped_by_time_filter:
         warnings.append(f"time_filter_dropped={dropped_by_time_filter}")
@@ -188,6 +218,10 @@ def build_coverage_report(
         baseline_window_count=baseline_count,
         languages_covered=languages,
         markets_covered=markets,
-        gaps=tuple(gaps),
+        gaps=_distinct_preserve_first(gaps),
         warnings=tuple(warnings),
+        original_platforms=platforms,
+        searched_targets=_distinct_preserve_first(searched),
+        unavailable_targets=_distinct_preserve_first(unavailable),
+        unanswered_parts=_distinct_preserve_first(unanswered),
     )

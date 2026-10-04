@@ -20,6 +20,7 @@ from rfc3339_validator import validate_rfc3339
 from .errors import SchemaValidationError
 from .ids import canonicalize_url, derive_evidence_id
 from .pipeline.adapters import RawSourceResult
+from .resources import data_path
 
 
 _EVIDENCE_VALID_SOURCE_TYPES = {"post", "comment", "review", "page", "release"}
@@ -225,12 +226,12 @@ def normalize_raw(
 
 def _evidence_schema() -> dict:
     # src/sourceglint/normalization.py → repo root = parents[2]
-    path = Path(__file__).resolve().parents[2] / "schemas" / "evidence.schema.json"
+    path = data_path("schemas", "evidence.schema.json")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _common_schema() -> dict:
-    path = Path(__file__).resolve().parents[2] / "schemas" / "common.schema.json"
+    path = data_path("schemas", "common.schema.json")
     return json.loads(path.read_text(encoding="utf-8"))
 
 

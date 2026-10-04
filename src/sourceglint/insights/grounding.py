@@ -194,7 +194,15 @@ def check_fact_grounding(
                     f"unsupported causality: '{phrase}' not present in cited evidence"
                 )
         for phrase in _UNIVERSAL_PHRASES:
-            if phrase in lower and phrase not in pool_lower:
+            # A bounded disclaimer denies a generalization rather than
+            # asserting it. Check each occurrence so a disclaimer cannot
+            # hide an affirmative claim elsewhere in the statement.
+            occurrences = list(re.finditer(re.escape(phrase), lower))
+            affirmative = any(not re.search(
+                r"(?:not (?:evidence|proof) of|does not establish) [^.?!;]*$",
+                lower[:match.start()],
+            ) for match in occurrences)
+            if affirmative and phrase not in pool_lower:
                 violations.append(
                     f"unsupported universality: '{phrase}' not present in cited evidence"
                 )

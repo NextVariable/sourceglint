@@ -140,6 +140,8 @@ def run_sourceglint(
         "insight_count": outcome.insight_count,
         "recommendation_count": outcome.recommendation_count,
     }
+    if outcome.coverage is not None:
+        diagnostics["coverage"] = outcome.coverage.to_dict()
     return SkillResult(
         status=Status(outcome.status),
         brief_markdown=outcome.markdown,

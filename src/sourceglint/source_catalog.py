@@ -19,12 +19,12 @@ import yaml
 from referencing import Registry, Resource
 
 from .errors import ConfigValidationError
+from .resources import data_path
 
 
-_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CATALOG_PATH = _ROOT / "config" / "source_catalog.yaml"
-_SCHEMA_PATH = _ROOT / "schemas" / "source_catalog.schema.json"
-_COMMON_SCHEMA_PATH = _ROOT / "schemas" / "common.schema.json"
+DEFAULT_CATALOG_PATH = data_path("config", "source_catalog.yaml")
+_SCHEMA_PATH = data_path("schemas", "source_catalog.schema.json")
+_COMMON_SCHEMA_PATH = data_path("schemas", "common.schema.json")
 
 
 @dataclass(frozen=True)
@@ -104,14 +104,13 @@ def select_host_search_targets(
     market: str,
     language: str,
     budget: int = 10,
+    covered_direct_sources: Sequence[str] = (),
 ) -> list[SourceTarget]:
     """Select a diverse, bounded set of public-web targets for one run.
 
-    Ready no-auth direct connectors are excluded to avoid paying for the same
-    source twice. Credential-gated connectors keep their public-search fallback
-    so a missing secret does not erase that evidence surface. Sources may also
-    have an official API without a built-in connector; they remain eligible
-    when ``host_web_search`` is declared.
+    Exclude a direct source only when the caller explicitly reports it covered
+    in this run. Catalog readiness alone is not evidence of execution; the
+    first-run host-only profile must retain Reddit, HN and GitHub fallback.
     At most two targets per family are selected before a second fill pass.
     """
     if budget <= 0:
@@ -121,10 +120,7 @@ def select_host_search_targets(
     for target in catalog:
         if "host_web_search" not in target.routes:
             continue
-        # No-auth direct connectors are already queried by the runtime.
-        # Credential-gated direct connectors retain their
-        # public-web fallback so a missing secret does not erase the source.
-        if "direct_connector" in target.routes and target.availability == "ready":
+        if target.name in covered_direct_sources:
             continue
         if target.availability == "unavailable":
             continue

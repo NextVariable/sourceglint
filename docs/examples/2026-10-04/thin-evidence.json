@@ -1,0 +1,101 @@
+{
+  "query": "What are people saying about the Sourceglint Python research Skill in the past 30 days?",
+  "as_of": "2026-10-04T00:00:00Z",
+  "model": "Codex current-session reasoning via host-stdio:v1",
+  "elapsed_seconds": 31.409,
+  "latency_note": "Includes host search, reasoning and waiting between interactive bridge responses; not autonomous engine latency.",
+  "result": {
+    "status": "NO_EVIDENCE",
+    "brief_markdown": "# Recent Intelligence Brief\n**Research:** What are people saying about the Sourceglint Python research Skill in the past 30 days?\n**Mode:** general · **Market:** global · **Languages:** en\n**Window:** Last 30 days · **As of:** 2026-10-04\n**Entities:** Skill in the past 30 days\n\nNo usable evidence was retrieved for this research request.\n\n## Coverage\n\n- Markets: global\n- Languages: en\n- Evidence: 0 evidence items; current window 0; baseline 0\n- Retrieval routes: host_web_search\n- Host targets actually searched: Public web\n- Coverage limitation: no evidence collected from any source\n- Coverage limitation: Bounded exact-name public searches retrieved no relevant dated Sourceglint discussion.\n- Coverage limitation: No additional expansion search was issued beyond the bounded exact-name search.\n- Coverage limitation: No independent dated discussion found in the bounded search; this expansion was not separately queried.\n- Coverage limitation: Requested aspect not answered: No verified dated public discussion retrieved; this does not establish nonexistence.\n- Pipeline completion does not certify research completeness, market representativeness or a growing trend.\n- No validated signals found.\n- No validated higher-order insights were generated.\n\n",
+    "warnings": [
+      "research: dedup_pre_drop=0"
+    ],
+    "stage_statuses": {
+      "research": "ok",
+      "signals": "skipped",
+      "insights": "skipped",
+      "recommendations": "skipped",
+      "brief": "ok"
+    },
+    "request": {
+      "query": "What are people saying about the Sourceglint Python research Skill in the past 30 days?",
+      "mode": "general",
+      "market": "global",
+      "languages": [
+        "en"
+      ],
+      "time_window": {
+        "days": 30
+      },
+      "time_window_text": "Last 30 days",
+      "entities": [
+        "Skill in the past 30 days"
+      ],
+      "query_language": "en",
+      "needs_clarification": false
+    },
+    "research_plan": {
+      "topic": "What are people saying about the Sourceglint Python research Skill in the past 30 days?",
+      "mode": "general",
+      "time_window": {
+        "days": 30
+      },
+      "languages": [
+        "en"
+      ],
+      "entities": [
+        "Skill in the past 30 days"
+      ]
+    },
+    "diagnostics": {
+      "evidence_count": 0,
+      "signal_count": 0,
+      "insight_count": 0,
+      "recommendation_count": 0,
+      "coverage": {
+        "requested_sources": [
+          "host_web_search"
+        ],
+        "attempted_sources": [
+          "host_web_search"
+        ],
+        "successful_sources": [
+          "host_web_search"
+        ],
+        "failed_sources": [],
+        "query_count": 3,
+        "raw_result_count": 0,
+        "normalized_evidence_count": 0,
+        "duplicate_dropped_count": 0,
+        "time_filter_dropped_count": 0,
+        "final_evidence_count": 0,
+        "current_window_count": 0,
+        "baseline_window_count": 0,
+        "languages_covered": [
+          "en"
+        ],
+        "markets_covered": [
+          "global"
+        ],
+        "gaps": [
+          "no evidence collected from any source",
+          "Bounded exact-name public searches retrieved no relevant dated Sourceglint discussion.",
+          "No additional expansion search was issued beyond the bounded exact-name search.",
+          "No independent dated discussion found in the bounded search; this expansion was not separately queried.",
+          "Requested aspect not answered: No verified dated public discussion retrieved; this does not establish nonexistence."
+        ],
+        "warnings": [],
+        "original_platforms": [],
+        "searched_targets": [
+          "Public web"
+        ],
+        "unavailable_targets": [],
+        "unanswered_parts": [
+          "No verified dated public discussion retrieved; this does not establish nonexistence."
+        ],
+        "research_quality": "LIMITED"
+      }
+    },
+    "research_quality": "LIMITED"
+  }
+}

@@ -19,22 +19,27 @@ def test_catalog_is_valid_unique_and_broad():
         assert expected in names
 
 
-def test_host_search_router_is_bounded_diverse_and_skips_direct_connectors():
+def test_host_search_router_is_bounded_and_skips_only_reported_coverage():
     targets = select_host_search_targets(
         load_source_catalog(),
         mode="voc",
         market="global",
         language="en",
         budget=8,
+        covered_direct_sources=("reddit", "hacker_news", "github"),
     )
     assert 1 <= len(targets) <= 8
     assert len({target.family for target in targets}) >= 3
     assert all("host_web_search" in target.routes for target in targets)
-    assert all(
-        not ("direct_connector" in target.routes and target.availability == "ready")
-        for target in targets
-    )
     assert "reddit" not in {target.name for target in targets}
+
+
+def test_host_only_first_run_keeps_reddit_hn_and_github():
+    targets = select_host_search_targets(
+        load_source_catalog(), mode="general", market="global", language="en",
+    )
+    names = {target.name for target in targets}
+    assert {"reddit", "hacker_news", "github"} <= names
 
 
 def test_japan_routing_prefers_local_sources_without_querying_everything():

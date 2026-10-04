@@ -188,6 +188,7 @@ class ResearchPipeline:
         raw_results: list[RawSourceResult] = []
         per_source: dict[str, SourceStatusReport] = {}
         warnings: list[str] = []
+        host_observations: list[dict] = []
 
         # Group retrieval plans by source so each adapter call is one request
         # (the cache key includes the query, so a per-(source,query) request
@@ -256,6 +257,14 @@ class ResearchPipeline:
             if rep.status == SourceStatus.SUCCESS and rep.warnings:
                 rep.status = SourceStatus.PARTIAL
             per_source[source_name] = rep
+
+            if hasattr(adapter, "searched_targets"):
+                host_observations.append({
+                    "coverage_reported": getattr(adapter, "coverage_reported", False),
+                    "searched_targets": list(adapter.searched_targets),
+                    "limitations": list(adapter.limitations),
+                    "unanswered_parts": list(adapter.unanswered_parts),
+                })
 
         # 6) Normalize raw -> Evidence.
         evidence_list: list[dict] = []
@@ -342,6 +351,7 @@ class ResearchPipeline:
             deduplicated_dropped=dedup.duplicate_count,
             dropped_by_time_filter=len(tf.dropped),
             kept_evidence=kept_evidence,
+            host_observations=host_observations,
         )
 
         # 11) All-sources-failed guard.

@@ -14,12 +14,12 @@
 ## What We Know
 
 - **Interpreter support was added to the entry offer in the current window and is already a named comparison topic in community threads.**
-  confidence: 0.90 — [official](https://jp.example.com/product/interpreter) `ev_a1`, [community](https://community.example.com/t/interpreter-quality) `ev_a2`
+  confidence: 0.90 — [official](https://jp.example.com/product/interpreter) · 2026-08-20 `ev_a1`, [community](https://community.example.com/t/interpreter-quality) · 2026-08-21 `ev_a2`
 
 ## What It Likely Means
 
 - **Interpreter support is becoming a decision factor for Japanese-market buyers, but perceived quality is still uneven.**
-  confidence: 0.68 — [official](https://jp.example.com/product/interpreter) `ev_a1`, [community](https://community.example.com/t/interpreter-quality) `ev_a2`
+  confidence: 0.68 — [official](https://jp.example.com/product/interpreter) · 2026-08-20 `ev_a1`, [community](https://community.example.com/t/interpreter-quality) · 2026-08-21 `ev_a2`
 
 ## Recommended Actions
 
@@ -29,47 +29,49 @@
   confidence: 0.74 · risk: MEDIUM
   why: Interpreter support was added to the entry offer in the current window and is already a named comparison topic in community threads.
   why: Interpreter support is becoming a decision factor for Japanese-market buyers, but perceived quality is still uneven.
-  evidence: [official](https://jp.example.com/product/interpreter) `ev_a1`, [community](https://community.example.com/t/interpreter-quality) `ev_a2`
+  evidence: [official](https://jp.example.com/product/interpreter) · 2026-08-20 `ev_a1`, [community](https://community.example.com/t/interpreter-quality) · 2026-08-21 `ev_a2`
 
 ### NEXT
 
 - **Ship the winning interpreter messaging variant to the full JP funnel.**
   confidence: 0.60 · risk: LOW
   why: Interpreter support is becoming a decision factor for Japanese-market buyers, but perceived quality is still uneven.
-  evidence: [official](https://jp.example.com/product/interpreter) `ev_a1`, [community](https://community.example.com/t/interpreter-quality) `ev_a2`
+  evidence: [official](https://jp.example.com/product/interpreter) · 2026-08-20 `ev_a1`, [community](https://community.example.com/t/interpreter-quality) · 2026-08-21 `ev_a2`
 
 ### WATCH
 
 - **Track Japanese translation-quality complaints in a weekly watchlist.**
   confidence: 0.50 · risk: LOW
   why: Japanese-language translation complaints may be early friction that interpreter positioning could amplify.
-  evidence: [community](https://community.example.com/ja/threads/honyaku) `ev_a4`
+  evidence: [community](https://community.example.com/ja/threads/honyaku) · 2026-08-25 `ev_a4`
 
 ## Watchouts
 
 - **Segment nuance**: Enterprise willingness-to-pay evidence and SMB price-sensitivity evidence point in opposite directions.
   related recommendations: `ins_a_r_now`
 - **Price tolerance splits by segment** *(conflicting evidence)*
-  supporting: [community](https://community.example.com/t/enterprise-price) `ev_a5`
-  against: [community](https://community.example.com/t/smb-price) `ev_a6`
+  supporting: [community](https://community.example.com/t/enterprise-price) · 2026-08-22 `ev_a5`
+  against: [community](https://community.example.com/t/smb-price) · 2026-08-23 `ev_a6`
 
 ## Emerging Signals
 
-- **Japanese-language translation complaints may be early friction that interpreter positioning could amplify.** *(weak — monitor)* — [community](https://community.example.com/ja/threads/honyaku) `ev_a4`
+- **Japanese-language translation complaints may be early friction that interpreter positioning could amplify.** *(weak — monitor)* — [community](https://community.example.com/ja/threads/honyaku) · 2026-08-25 `ev_a4`
 
 ## Coverage
 
 - Markets: jp
 - Languages: en, ja
 - Evidence: 6 evidence items; current window 4; baseline 2
-- Sources reached: community, official
+- Retrieval routes: community, official
+- Coverage limitation: reddit
+- Pipeline completion does not certify research completeness, market representativeness or a growing trend.
 - Sources unavailable: reddit
 - Coverage limitation: Reddit unavailable due to missing credentials.
 
 ## Sources
 
-- [official](https://jp.example.com/product/interpreter) `ev_a1`
-- [community](https://community.example.com/t/interpreter-quality) `ev_a2`
-- [community](https://community.example.com/ja/threads/honyaku) `ev_a4`
-- [community](https://community.example.com/t/enterprise-price) `ev_a5`
-- [community](https://community.example.com/t/smb-price) `ev_a6`
+- [official](https://jp.example.com/product/interpreter) · 2026-08-20 `ev_a1`
+- [community](https://community.example.com/t/interpreter-quality) · 2026-08-21 `ev_a2`
+- [community](https://community.example.com/ja/threads/honyaku) · 2026-08-25 `ev_a4`
+- [community](https://community.example.com/t/enterprise-price) · 2026-08-22 `ev_a5`
+- [community](https://community.example.com/t/smb-price) · 2026-08-23 `ev_a6`

@@ -65,4 +65,6 @@ class SkillResult:
             out["research_plan"] = dict(self.research_plan)
         if self.diagnostics:
             out["diagnostics"] = dict(self.diagnostics)
+            coverage = self.diagnostics.get("coverage") or {}
+            out["research_quality"] = coverage.get("research_quality", "NOT_ASSESSED")
         return out

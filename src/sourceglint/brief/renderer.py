@@ -44,6 +44,7 @@ def render_brief_markdown(
         sections.recent_items(selected, ledger),
         sections.coverage(selected),
         sections.sources(selected, lookup),
+        sections.evidence_excerpts(selected, lookup),
     ]
     return "".join(parts).rstrip() + "\n"
 

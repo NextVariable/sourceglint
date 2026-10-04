@@ -18,6 +18,7 @@ import re
 from typing import Iterable, Mapping
 
 from .. import rendering
+from ..provenance import original_platform
 from .dtos import (
     BriefContext,
     SelectedBrief,
@@ -58,9 +59,11 @@ def _ref(lookup: Mapping[str, object], eid: str) -> str:
     if rec is None:
         return f"`{eid}`"
     url = _rec_field(rec, "url")
-    label = _rec_field(rec, "source") or "source"
+    label = original_platform(url) if _rec_field(rec, "source") == "host_web_search" else (_rec_field(rec, "source") or "source")
+    date = _rec_field(rec, "published_at")[:10]
+    suffix = f" · {date}" if date else ""
     if url:
-        return f"[{label}]({url}) `{eid}`"
+        return f"[{label}]({url}){suffix} `{eid}`"
     return f"`{eid}`"
 
 
@@ -278,6 +281,22 @@ def sources(sel: SelectedBrief, lookup: Mapping[str, object]) -> str:
         return ""
     lines = [f"- {refs(lookup, [e])}" for e in eids]
     return _heading(2, H["sources"]) + "\n".join(lines) + "\n\n"
+
+
+def evidence_excerpts(sel: SelectedBrief, lookup: Mapping[str, object]) -> str:
+    """Keep source observations, including unselected counterexamples, auditable."""
+    if not sel.context.discovery_only or not lookup:
+        return ""
+    records = sorted(lookup.items(), key=lambda pair: (_rec_field(pair[1], "published_at"), pair[0]), reverse=True)
+    lines = ["Verbatim source excerpts are observations; a launch description is not verified user experience. Dates are publication dates where available."]
+    for eid, rec in records[:20]:
+        lines.append(f"- {_untrusted_inline(_rec_field(rec, 'title'))} — {_ref(lookup, eid)}")
+        excerpt = _rec_field(rec, "snippet")
+        if excerpt:
+            lines.append("  " + _untrusted_inline(excerpt))
+    if len(records) > 20:
+        lines.append(f"Showing 20 of {len(records)} retained items; use the run ledger for the complete corpus.")
+    return _heading(2, "Source Excerpts") + "\n".join(lines) + "\n\n"
 
 
 # -------- no-evidence guard (§20) --------

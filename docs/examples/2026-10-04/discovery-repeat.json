@@ -1,0 +1,104 @@
+{
+  "query": "What new AI agent tools and workflow ideas appeared in the past 30 days?",
+  "as_of": "2026-10-04T00:00:00Z",
+  "model": "Codex current-session reasoning via host-stdio:v1",
+  "elapsed_seconds": 125.354,
+  "latency_note": "Includes host search, reasoning and waiting between interactive bridge responses; not autonomous engine latency.",
+  "result": {
+    "status": "SUCCESS",
+    "brief_markdown": "# Recent Intelligence Brief\n**Research:** What new AI agent tools and workflow ideas appeared in the past 30 days?\n**Mode:** general · **Market:** global · **Languages:** en\n**Window:** Last 30 days · **As of:** 2026-10-04\n\n## Emerging Signals\n\n- **The sampled releases describe Dapr streaming responses, Kit as a coding agent runtime, and Bolt Forge as an agent using open-source models. These descriptions establish announcements, not independently measured outcomes.** *(weak — monitor)* — [Product Hunt](https://www.producthunt.com/products/speakeasydev) · 2026-09-06 `ev_oq24bcwrqp7bplzlqf4yq3yy6tudzph6`, [GitHub](https://github.com/dapr/dapr-agents/releases/tag/v1.0.6) · 2026-09-28 `ev_q6tlyjj6zdmn2fhso5ia5qztjsb46l4k`, [Product Hunt](https://www.producthunt.com/products/bolt-new) · 2026-09-19 `ev_rkyyli4u65bqsgbnrilomxkfvhuw2s3e`\n\n## Coverage\n\n- Markets: global\n- Languages: en\n- Evidence: 5 evidence items; current window 5; baseline 0\n- Retrieval routes: host_web_search\n- Original platforms: GitHub, Hacker News, Product Hunt\n- Host targets actually searched: github, hacker_news, product_hunt, reddit\n- Coverage limitation: Bounded public-web sample; no authenticated platform APIs, complete comment depth or market-wide coverage.\n- Coverage limitation: Product Hunt dates have day precision and are normalized to midnight UTC.\n- Coverage limitation: Repeat run re-opened the same primary release pages and HN conversation; no independent broad search rerun.\n- Coverage limitation: These two HN comments are one conversation, not independent adoption statistics or measured coding-agent failures.\n- Coverage limitation: No separate expansion search; repeat checks the same bounded re-opened primary corpus.\n- Coverage limitation: Requested aspect not answered: Independent evidence of newly adopted user workflows is not established by these release descriptions.\n- Pipeline completion does not certify research completeness, market representativeness or a growing trend.\n\n## Sources\n\n- [Product Hunt](https://www.producthunt.com/products/speakeasydev) · 2026-09-06 `ev_oq24bcwrqp7bplzlqf4yq3yy6tudzph6`\n- [GitHub](https://github.com/dapr/dapr-agents/releases/tag/v1.0.6) · 2026-09-28 `ev_q6tlyjj6zdmn2fhso5ia5qztjsb46l4k`\n- [Product Hunt](https://www.producthunt.com/products/bolt-new) · 2026-09-19 `ev_rkyyli4u65bqsgbnrilomxkfvhuw2s3e`\n\n## Source Excerpts\n\nVerbatim source excerpts are observations; a launch description is not verified user experience. Dates are publication dates where available.\n- Dapr Agents v1\\.0\\.6 — [GitHub](https://github.com/dapr/dapr-agents/releases/tag/v1.0.6) · 2026-09-28 `ev_q6tlyjj6zdmn2fhso5ia5qztjsb46l4k`\n  Streaming agents: agents can stream responses as they are generated\n- Bolt Forge — [Product Hunt](https://www.producthunt.com/products/bolt-new) · 2026-09-19 `ev_rkyyli4u65bqsgbnrilomxkfvhuw2s3e`\n  Bolt's new agent with open-source models and 50X usage\n- A counterpoint questions agents for ETL — [Hacker News](https://news.ycombinator.com/item?id=49727500) · 2026-09-16 `ev_z2yxkshkotsulfpiaxpc64hsxcehtq37`\n  I could not think of a worse technology to use for an ETL pipeline\n- An operator reports testing agent workflows — [Hacker News](https://news.ycombinator.com/item?id=49726000) · 2026-09-16 `ev_jazkn3hi5fuxh5juiuestegzmzvb4wrr`\n  it takes patience to run tests\n- Kit by Speakeasy — [Product Hunt](https://www.producthunt.com/products/speakeasydev) · 2026-09-06 `ev_oq24bcwrqp7bplzlqf4yq3yy6tudzph6`\n  Your coding agent runtime\\. Claude but fast, cheap, concise\\.\n",
+    "warnings": [
+      "research: dedup_pre_drop=5"
+    ],
+    "stage_statuses": {
+      "research": "ok",
+      "signals": "ok",
+      "insights": "ok",
+      "recommendations": "skipped",
+      "brief": "ok"
+    },
+    "request": {
+      "query": "What new AI agent tools and workflow ideas appeared in the past 30 days?",
+      "mode": "general",
+      "market": "global",
+      "languages": [
+        "en"
+      ],
+      "time_window": {
+        "days": 30
+      },
+      "time_window_text": "Last 30 days",
+      "entities": [],
+      "query_language": "en",
+      "needs_clarification": false
+    },
+    "research_plan": {
+      "topic": "What new AI agent tools and workflow ideas appeared in the past 30 days?",
+      "mode": "general",
+      "time_window": {
+        "days": 30
+      },
+      "languages": [
+        "en"
+      ]
+    },
+    "diagnostics": {
+      "evidence_count": 5,
+      "signal_count": 1,
+      "insight_count": 1,
+      "recommendation_count": 0,
+      "coverage": {
+        "requested_sources": [
+          "host_web_search"
+        ],
+        "attempted_sources": [
+          "host_web_search"
+        ],
+        "successful_sources": [
+          "host_web_search"
+        ],
+        "failed_sources": [],
+        "query_count": 3,
+        "raw_result_count": 5,
+        "normalized_evidence_count": 5,
+        "duplicate_dropped_count": 0,
+        "time_filter_dropped_count": 0,
+        "final_evidence_count": 5,
+        "current_window_count": 5,
+        "baseline_window_count": 0,
+        "languages_covered": [
+          "en"
+        ],
+        "markets_covered": [
+          "global"
+        ],
+        "gaps": [
+          "Bounded public-web sample; no authenticated platform APIs, complete comment depth or market-wide coverage.",
+          "Product Hunt dates have day precision and are normalized to midnight UTC.",
+          "Repeat run re-opened the same primary release pages and HN conversation; no independent broad search rerun.",
+          "These two HN comments are one conversation, not independent adoption statistics or measured coding-agent failures.",
+          "No separate expansion search; repeat checks the same bounded re-opened primary corpus.",
+          "Requested aspect not answered: Independent evidence of newly adopted user workflows is not established by these release descriptions."
+        ],
+        "warnings": [],
+        "original_platforms": [
+          "GitHub",
+          "Hacker News",
+          "Product Hunt"
+        ],
+        "searched_targets": [
+          "github",
+          "product_hunt",
+          "hacker_news",
+          "reddit"
+        ],
+        "unavailable_targets": [],
+        "unanswered_parts": [
+          "Independent evidence of newly adopted user workflows is not established by these release descriptions."
+        ],
+        "research_quality": "LIMITED"
+      }
+    },
+    "research_quality": "LIMITED"
+  }
+}

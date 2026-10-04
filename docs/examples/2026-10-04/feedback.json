@@ -1,0 +1,101 @@
+{
+  "query": "What are developers complaining about with coding agents in the past 30 days?",
+  "as_of": "2026-10-04T00:00:00Z",
+  "model": "Codex current-session reasoning via host-stdio:v1",
+  "elapsed_seconds": 92.88,
+  "latency_note": "Includes host search, reasoning and waiting between interactive bridge responses; not autonomous engine latency.",
+  "result": {
+    "status": "SUCCESS",
+    "brief_markdown": "# Recent Intelligence Brief\n**Research:** What are developers complaining about with coding agents in the past 30 days?\n**Mode:** voc · **Market:** global · **Languages:** en\n**Window:** Last 30 days · **As of:** 2026-10-04\n\n## Emerging Signals\n\n- **In one sampled HN conversation, one participant mentions patience for testing and another questions agent use for ETL. This is not evidence of widespread complaints.** *(weak — monitor)* — [Hacker News](https://news.ycombinator.com/item?id=49726000) · 2026-09-16 `ev_jazkn3hi5fuxh5juiuestegzmzvb4wrr`, [Hacker News](https://news.ycombinator.com/item?id=49727500) · 2026-09-16 `ev_z2yxkshkotsulfpiaxpc64hsxcehtq37`\n\n## Coverage\n\n- Markets: global\n- Languages: en\n- Evidence: 2 evidence items; current window 2; baseline 0\n- Retrieval routes: host_web_search\n- Original platforms: Hacker News\n- Host targets actually searched: hacker_news, reddit\n- Coverage limitation: All retained evidence is from Hacker News; no independent cross-platform corroboration.\n- Coverage limitation: Fewer than three retained items; this is a small sample, not a representative pattern.\n- Coverage limitation: Only two comments from a single HN conversation are retained. The Reddit search surfaced no relevant dated item.\n- Coverage limitation: Searches are public-web/API checks; missing platforms and truncated excerpts limit coverage.\n- Coverage limitation: No separate expansion search issued beyond the earlier public retrieval.\n- Coverage limitation: This query variant was not independently searched.\n- Coverage limitation: Requested aspect not answered: Frequency, prevalence and independent corroboration of complaints are not established.\n- Pipeline completion does not certify research completeness, market representativeness or a growing trend.\n\n## Sources\n\n- [Hacker News](https://news.ycombinator.com/item?id=49726000) · 2026-09-16 `ev_jazkn3hi5fuxh5juiuestegzmzvb4wrr`\n- [Hacker News](https://news.ycombinator.com/item?id=49727500) · 2026-09-16 `ev_z2yxkshkotsulfpiaxpc64hsxcehtq37`\n\n## Source Excerpts\n\nVerbatim source excerpts are observations; a launch description is not verified user experience. Dates are publication dates where available.\n- A counterpoint questions agents for ETL — [Hacker News](https://news.ycombinator.com/item?id=49727500) · 2026-09-16 `ev_z2yxkshkotsulfpiaxpc64hsxcehtq37`\n  I could not think of a worse technology to use for an ETL pipeline\n- An operator reports testing agent workflows — [Hacker News](https://news.ycombinator.com/item?id=49726000) · 2026-09-16 `ev_jazkn3hi5fuxh5juiuestegzmzvb4wrr`\n  it takes patience to run tests\n",
+    "warnings": [
+      "research: dedup_pre_drop=2"
+    ],
+    "stage_statuses": {
+      "research": "ok",
+      "signals": "ok",
+      "insights": "ok",
+      "recommendations": "skipped",
+      "brief": "ok"
+    },
+    "request": {
+      "query": "What are developers complaining about with coding agents in the past 30 days?",
+      "mode": "voc",
+      "market": "global",
+      "languages": [
+        "en"
+      ],
+      "time_window": {
+        "days": 30
+      },
+      "time_window_text": "Last 30 days",
+      "entities": [],
+      "query_language": "en",
+      "needs_clarification": false
+    },
+    "research_plan": {
+      "topic": "What are developers complaining about with coding agents in the past 30 days?",
+      "mode": "voc",
+      "time_window": {
+        "days": 30
+      },
+      "languages": [
+        "en"
+      ]
+    },
+    "diagnostics": {
+      "evidence_count": 2,
+      "signal_count": 1,
+      "insight_count": 1,
+      "recommendation_count": 0,
+      "coverage": {
+        "requested_sources": [
+          "host_web_search"
+        ],
+        "attempted_sources": [
+          "host_web_search"
+        ],
+        "successful_sources": [
+          "host_web_search"
+        ],
+        "failed_sources": [],
+        "query_count": 4,
+        "raw_result_count": 2,
+        "normalized_evidence_count": 2,
+        "duplicate_dropped_count": 0,
+        "time_filter_dropped_count": 0,
+        "final_evidence_count": 2,
+        "current_window_count": 2,
+        "baseline_window_count": 0,
+        "languages_covered": [
+          "en"
+        ],
+        "markets_covered": [
+          "global"
+        ],
+        "gaps": [
+          "All retained evidence is from Hacker News; no independent cross-platform corroboration.",
+          "Fewer than three retained items; this is a small sample, not a representative pattern.",
+          "Only two comments from a single HN conversation are retained. The Reddit search surfaced no relevant dated item.",
+          "Searches are public-web/API checks; missing platforms and truncated excerpts limit coverage.",
+          "No separate expansion search issued beyond the earlier public retrieval.",
+          "This query variant was not independently searched.",
+          "Requested aspect not answered: Frequency, prevalence and independent corroboration of complaints are not established."
+        ],
+        "warnings": [],
+        "original_platforms": [
+          "Hacker News"
+        ],
+        "searched_targets": [
+          "hacker_news",
+          "reddit"
+        ],
+        "unavailable_targets": [],
+        "unanswered_parts": [
+          "Frequency, prevalence and independent corroboration of complaints are not established."
+        ],
+        "research_quality": "LIMITED"
+      }
+    },
+    "research_quality": "LIMITED"
+  }
+}

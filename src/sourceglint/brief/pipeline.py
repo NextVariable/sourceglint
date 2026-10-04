@@ -181,6 +181,9 @@ def run_brief_pipeline(brief_input: BriefInput) -> RenderedBrief:
     has_layer = bool(signals or usable_insight_list or usable_rec_list)
     if evidence_count == 0 and not has_layer:
         md = renderer.render_no_evidence_markdown(ctx)
+        if brief_input.coverage is not None:
+            from . import sections
+            md += "\n" + sections.coverage(selection.select_brief(brief_input))
         diag = BriefDiagnostics(
             evidence_count=0,
             warning_count=len(warnings),

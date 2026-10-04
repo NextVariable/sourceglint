@@ -116,6 +116,13 @@ class TestUnsupportedCausality:
 
 
 class TestUnsupportedUniversality:
+    def test_denied_generalization_is_not_an_assertion(self):
+        assert _check("This is not evidence of widespread complaints.") == []
+
+    def test_disclaimer_does_not_hide_a_later_assertion(self):
+        violations = _check("This is not evidence of widespread complaints. Widespread dissatisfaction is clear.")
+        assert any("unsupported universality" in v for v in violations)
+
     def test_universal_claim_supported_by_text_passes(self):
         # ev_1 text: "Several users complained..."
         assert _check("Several users complained about the price hike.") == []

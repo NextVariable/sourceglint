@@ -29,6 +29,7 @@ from .application.api import run_sourceglint
 from .application.runtime import default_adapter_factory
 from .host_stdio import StdioHostSource
 from .interface.request import MODES
+from .resources import data_path
 
 EXIT_OK = 0
 EXIT_INVALID = 1
@@ -86,6 +87,8 @@ def _load_registry(path: str | None) -> list[dict[str, Any]] | None:
     import yaml
 
     p = Path(path)
+    if not p.exists() and p.parts and p.parts[0] == "config":
+        p = data_path(*p.parts)
     if not p.exists():
         raise ValueError(f"--registry file not found: {path}")
     data = yaml.safe_load(p.read_text(encoding="utf-8"))

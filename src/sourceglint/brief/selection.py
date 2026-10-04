@@ -481,7 +481,18 @@ def _coverage_lines(coverage: Any) -> list[str]:
 
     reached = [str(s) for s in (c.get("successful_sources") or []) if s]
     if reached:
-        lines.append("Sources reached: " + ", ".join(sorted(reached)))
+        lines.append("Retrieval routes: " + ", ".join(sorted(reached)))
+    platforms = c.get("original_platforms") or []
+    if platforms:
+        lines.append("Original platforms: " + ", ".join(sorted(platforms)))
+    searched = c.get("searched_targets") or []
+    if searched:
+        lines.append("Host targets actually searched: " + ", ".join(sorted(searched)))
+    unavailable = c.get("unavailable_targets") or []
+    if unavailable:
+        lines.append("Host targets unavailable: " + ", ".join(sorted(unavailable)))
+    lines.extend("Coverage limitation: " + str(gap) for gap in (c.get("gaps") or []))
+    lines.append("Pipeline completion does not certify research completeness, market representativeness or a growing trend.")
     failed = [
         str(s)
         for s in (

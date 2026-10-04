@@ -25,6 +25,7 @@ from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
 from ..errors import ConfigValidationError
+from ..resources import data_path
 
 
 REGISTRY_DIR = "config"
@@ -60,7 +61,7 @@ class SourceRegistry:
 
 def _schema_dir() -> Path:
     # src/sourceglint/pipeline/source_registry.py → repo root = parents[3]
-    return Path(__file__).resolve().parents[3] / "schemas"
+    return data_path("schemas")
 
 
 def _load_validators() -> Draft202012Validator:
@@ -120,7 +121,7 @@ def load_registry(
         data = yaml.safe_load(yaml_text)
     else:
         p = Path(path) if path is not None else (
-            Path(__file__).resolve().parents[3] / REGISTRY_DIR / "sources.yaml"
+            data_path(REGISTRY_DIR, "sources.yaml")
         )
         with p.open("r", encoding="utf-8") as fh:
             data = yaml.safe_load(fh)

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import sys
+import atexit
 from dataclasses import dataclass, field
 from typing import Any, Mapping, TextIO
 
@@ -69,8 +70,30 @@ class StdioHostModel:
         return ModelResponse(task=task, status=ModelStatus.SUCCESS, payload=answer)
 
 
+def prepare_stdio_terminal() -> None:
+    """Avoid OS canonical-line truncation of long JSON responses on a PTY."""
+    if not sys.stdin.isatty():
+        return
+    try:
+        import termios
+        import tty
+        descriptor = sys.stdin.fileno()
+        original = termios.tcgetattr(descriptor)
+        tty.setcbreak(descriptor)
+        def restore():
+            try:
+                termios.tcsetattr(descriptor, termios.TCSADRAIN, original)
+            except (OSError, termios.error):
+                pass
+        atexit.register(restore)
+    except (ImportError, OSError):
+        # Windows and redirected pipes do not use POSIX canonical PTY input.
+        pass
+
+
 def build_model() -> StdioHostModel:
     """Factory for ``--model sourceglint.host_stdio:build_model``."""
+    prepare_stdio_terminal()
     return StdioHostModel()
 
 
@@ -82,6 +105,11 @@ class StdioHostSource:
     input_stream: TextIO = field(default_factory=lambda: sys.stdin)
     output_stream: TextIO = field(default_factory=lambda: sys.stdout)
 
+    searched_targets: list[dict[str, str]] = field(default_factory=list)
+    limitations: list[str] = field(default_factory=list)
+    unanswered_parts: list[str] = field(default_factory=list)
+    coverage_reported: bool = False
+
     def retrieve(
         self, plan: Mapping[str, object], request: Mapping[str, object]
     ) -> list[RawSourceResult]:
@@ -89,6 +117,11 @@ class StdioHostSource:
             "type": "source_request", "source": self.name,
             "plan": dict(plan), "request": dict(request),
             "allowed_source_types": ["post", "comment", "review", "page", "release"],
+            "coverage_response_fields": {
+                "searched_targets": "array of {name, status: success|no_results|unavailable}",
+                "limitations": "array of factual retrieval limitations",
+                "unanswered_parts": "array of requested aspects without usable evidence",
+            },
         }
         if self.name == "host_web_search":
             try:
@@ -123,6 +156,23 @@ class StdioHostSource:
             raise AdapterInvalidResponse(self.name, "source name mismatch")
         if response.get("error"):
             raise AdapterUnavailable(self.name, str(response["error"]))
+        targets = response.get("searched_targets")
+        if targets is not None:
+            if not isinstance(targets, list):
+                raise AdapterInvalidResponse(self.name, "searched_targets must be an array")
+            self.coverage_reported = True
+            for target in targets:
+                if (not isinstance(target, dict) or not target.get("name")
+                        or target.get("status") not in {"success", "no_results", "unavailable"}):
+                    raise AdapterInvalidResponse(self.name, "invalid searched target status")
+                self.searched_targets.append({
+                    "name": str(target["name"]), "status": str(target["status"]),
+                })
+        for field_name in ("limitations", "unanswered_parts"):
+            values = response.get(field_name, [])
+            if not isinstance(values, list) or any(not isinstance(v, str) for v in values):
+                raise AdapterInvalidResponse(self.name, f"{field_name} must be an array of strings")
+            getattr(self, field_name).extend(values)
         items = response.get("results")
         if not isinstance(items, list):
             raise AdapterInvalidResponse(self.name, "results must be an array")
