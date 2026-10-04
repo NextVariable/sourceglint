@@ -4,6 +4,16 @@ Python 3.10 compatibility is exercised by the public CI matrix; recommendation I
 
 ## 0.2.2.dev3 — 2026-10-05
 
+- Retain correctly scoped GitHub issues for resolved repository aliases and
+  carry repository context into independently dated child comments.
+- Balance bounded HN story/comment searches, retain original research intent
+  during selection, exclude canonical hiring threads unless hiring is requested,
+  and disclose failed lanes without dropping the surviving lane.
+- Accumulate limits across query variants and expose native-source warnings in
+  final coverage; disclose cached retrieval and avoid caching incomplete or host
+  results without their coverage diagnostics.
+  from ambient provider secrets, browser-cookie settings and local configuration.
+
 - Check the complete Reddit topic with Latin word boundaries, CJK matching,
   hyphen/plural handling and local co-occurrence; retain semantic intent review.
 - Preserve two-character topic terms in verbatim excerpts, including Chinese,

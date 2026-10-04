@@ -183,12 +183,10 @@ def issue_results(client, query, plan, request, headers, limitations, limit=20):
                 if (
                     isinstance(row, dict)
                     and row.get("id") is not None
-                    and subject_present(row, query)
                     and (
-                        not scope
-                        or str(row.get("html_url") or "").startswith(
+                        str(row.get("html_url") or "").startswith(
                             "https://github.com/" + scope.removeprefix("repo:") + "/"
-                        )
+                        ) if scope else subject_present(row, query)
                     )
                 ):
                     items[row["id"]] = row
@@ -226,12 +224,10 @@ def issue_results(client, query, plan, request, headers, limitations, limit=20):
             older_threads = [
                 x
                 for x in older_threads
-                if subject_present(x, query)
-                and (
-                    not scope
-                    or str(x.get("html_url") or "").startswith(
+                if (
+                    str(x.get("html_url") or "").startswith(
                         "https://github.com/" + scope.removeprefix("repo:") + "/"
-                    )
+                    ) if scope else subject_present(x, query)
                 )
             ]
         except Exception as exc:
@@ -330,6 +326,7 @@ def issue_results(client, query, plan, request, headers, limitations, limit=20):
                         "parent_url": parent.url,
                         "parent_published_at": parent.published_at,
                         "github_kind": "issue_comment",
+                        "retrieval_scope": parent.raw_metadata["retrieval_scope"],
                     },
                 )
             )

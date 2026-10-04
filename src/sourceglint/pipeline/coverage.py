@@ -177,6 +177,10 @@ def build_coverage_report(
     )
 
     gaps: list[str] = []
+    # Native routes carry access/enrichment limits too. Successful parent
+    # retrieval does not erase missing comments, captions or failed variants.
+    for name, report in source_statuses.items():
+        gaps.extend(f"{name}: {warning}" for warning in report.warnings)
     if not norm_list:
         gaps.append("no evidence collected from any source")
 

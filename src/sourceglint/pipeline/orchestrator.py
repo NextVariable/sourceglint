@@ -211,6 +211,7 @@ class ResearchPipeline:
                 cached = self._cache_get(source_name, r, plan)
                 if cached is not None:
                     adapter_results.extend(cached)
+                    rep.append_warning("cached retrieval: source access and enrichment limits were not rechecked in this run")
                     continue
                 request = {
                     "query": r.query,
@@ -222,6 +223,9 @@ class ResearchPipeline:
                     out = adapter.retrieve(plan=plan, request=request)
                 except AdapterError as exc:
                     status = classify_adapter_exception(exc)
+                    for limitation in getattr(adapter, "limitations", []):
+                        if limitation not in rep.warnings:
+                            rep.append_warning(limitation)
                     if adapter_results:
                         # Earlier query variants produced usable records. A
                         # later timeout/rate limit makes this source partial,
@@ -239,10 +243,21 @@ class ResearchPipeline:
                     rep.status = SourceStatus.UNAVAILABLE
                     rep.append_warning(f"unavailable: {exc}")
                     break
+                # Adapters reset per-query diagnostics. Capture each query's
+                # limits before the next variant can clear them, including
+                # empty but incomplete retrievals.
+                for limitation in getattr(adapter, "limitations", []):
+                    if limitation not in rep.warnings:
+                        rep.append_warning(limitation)
                 # Cache write.
                 ttl = self._ttl_for_source(
                     source_name, source_entries_by_name
                 )
+                if getattr(adapter, "limitations", []) or hasattr(adapter, "searched_targets"):
+                    # This cache stores rows only, not coverage diagnostics.
+                    # Do not cache an incomplete or host-reported retrieval
+                    # as though a future hit proved complete live access.
+                    ttl = 0
                 self._cache_put(
                     source_name,
                     r,

@@ -105,6 +105,7 @@ class HackerNewsAdapter:
     max_per_query: int = DEFAULT_MAX_PER_QUERY
     source_name: str = SOURCE_NAME
     require_topic_match: bool = False
+    limitations: list[str] = field(default_factory=list, init=False, compare=False)
 
     def __post_init__(self):
         if self.http_client is None:
@@ -145,76 +146,31 @@ class HackerNewsAdapter:
         from ._recency import search_bounds
         bounds = search_bounds(plan, request)
         search_limit = min(100, limit * 3) if self.require_topic_match else limit
-        params = f"query={_q(query)}&hitsPerPage={search_limit}&tags={_q('(story,comment)')}"
-        if bounds:
-            start, end = bounds
-            filters = f"created_at_i>={int(start.timestamp())},created_at_i<={int(end.timestamp())}"
-            params += "&numericFilters=" + _q(filters)
-        url = f"{HN_SEARCH_URL}?{params}"
-
-        try:
-            resp = self.http_client.request(url)
-        except HttpTransientError as exc:
-            if exc.status == 429:
-                raise AdapterRateLimited(
-                    source=self.source_name,
-                    reason="algolia rate limit (429)",
-                )
-            raise AdapterUnavailable(
-                source=self.source_name,
-                reason=f"algolia transient {exc.status}",
-            )
-        except Exception as exc:
-            # Map urllib/timeout errors uniformly.
-            name = type(exc).__name__
-            if "timeout" in str(exc).lower() or "timed out" in str(exc).lower():
-                raise AdapterTimeout(
-                    source=self.source_name, reason=str(exc)
-                )
-            # HttpPermanentError flow: handled below by status check.
-            from ._http import HttpPermanentError as _HPE  # local import
-
-            if isinstance(exc, _HPE):
-                raise AdapterInvalidResponse(
-                    source=self.source_name, reason=str(exc)
-                )
-            # Anything else is treated as unavailable.
-            raise AdapterUnavailable(
-                source=self.source_name, reason=f"{name}: {exc}"
-            )
-        from ._http import HttpTimeoutError as _HTE  # local import
-
-        if isinstance(getattr(self, "_", None), _HTE):  # pragma: no cover
-            pass
-        # Final status check (HttpClient raises on 5xx/429 already — this
-        # is a defensive guard for 200-with-bad-body shapes).
-        if resp.status != 200:
-            raise AdapterInvalidResponse(
-                source=self.source_name,
-                reason=f"algolia returned status {resp.status}",
-            )
-
-        try:
-            payload = resp.json()
-        except Exception as exc:
-            raise AdapterInvalidResponse(
-                source=self.source_name,
-                reason=f"algolia body not JSON: {exc}",
-            )
-
-        if not isinstance(payload, Mapping) or "hits" not in payload:
-            raise AdapterInvalidResponse(
-                source=self.source_name,
-                reason="algolia payload missing top-level 'hits'",
-            )
-        hits = payload.get("hits") or []
-        if not isinstance(hits, list):
-            raise AdapterInvalidResponse(
-                source=self.source_name,
-                reason="algolia 'hits' must be a list",
-            )
+        self.limitations.clear()
+        from ._deep import subject_query
+        search_query = subject_query(query) if self.require_topic_match else query
+        lanes = ("story", "comment") if self.require_topic_match else ("(story,comment)",)
+        hits = []
+        errors = []
+        succeeded = 0
+        for lane in lanes:
+            params = f"query={_q(search_query)}&hitsPerPage={search_limit}&tags={_q(lane)}"
+            if bounds:
+                start, end = bounds
+                filters = f"created_at_i>={int(start.timestamp())},created_at_i<={int(end.timestamp())}"
+                params += "&numericFilters=" + _q(filters)
+            try:
+                hits.extend(self._search_hits(f"{HN_SEARCH_URL}?{params}"))
+                succeeded += 1
+            except (AdapterRateLimited, AdapterUnavailable, AdapterTimeout, AdapterInvalidResponse) as exc:
+                errors.append(exc)
+                self.limitations.append(f"HN {lane} search failed: {type(exc).__name__}")
+        if not succeeded:
+            raise errors[0]
 
         out: list[RawSourceResult] = []
+        seen = set()
+        hiring_dropped = 0
         for hit in hits:
             if not isinstance(hit, Mapping):
                 continue
@@ -228,11 +184,17 @@ class HackerNewsAdapter:
                     source=self.source_name,
                     reason="algolia hit missing objectID",
                 )
+            if obj_id in seen:
+                continue
+            seen.add(obj_id)
             title = str(hit.get("title") or "").strip()
             comment = str(hit.get("comment_text") or "").strip()
             is_comment = bool(comment)
             if is_comment:
                 title = str(hit.get("story_title") or title or "Hacker News comment").strip()
+            if self.require_topic_match and _hiring_thread(title) and not _hiring_intent(query):
+                hiring_dropped += 1
+                continue
             url_field = str(hit.get("url") or "").strip()
             if not title:
                 # A hit without a title has no story to cite — drop silently
@@ -267,11 +229,98 @@ class HackerNewsAdapter:
                     query=query,
                     query_language=language,
                     engagement=engagement,
-                    raw_metadata={"hn_item_id": obj_id, "hn_story_id": hit.get("story_id"), "external_url": url_field, "hn_comment_html": comment if is_comment else ""},
+                    raw_metadata={"hn_item_id": obj_id, "hn_story_id": hit.get("story_id"), "external_url": url_field, "hn_comment_html": comment if is_comment else "", "search_query": search_query},
                 )
             )
 
-        return out[:limit]
+        if hiring_dropped:
+            self.limitations.append(f"HN excluded {hiring_dropped} canonical hiring-thread hits for a non-hiring query")
+        if not self.require_topic_match:
+            return out[:limit]
+        # Reserve room for independently published stories and dated comments.
+        stories = [row for row in out if row.source_type != "comment"]
+        comments = [row for row in out if row.source_type == "comment"]
+        from ._deep import intent_rank
+        for lane in (stories, comments):
+            lane.sort(key=lambda row: intent_rank({"title": row.title, "body": row.text}, query), reverse=True)
+        selected = stories[:(limit + 1) // 2] + comments[:limit // 2]
+        selected_ids = {row.source_native_id for row in selected}
+        selected.extend(row for row in stories + comments if row.source_native_id not in selected_ids)
+        return selected[:limit]
+
+    def _search_hits(self, url):
+        try:
+            resp = self.http_client.request(url)
+        except HttpTransientError as exc:
+            if exc.status == 429:
+                raise AdapterRateLimited(
+                    source=self.source_name,
+                    reason="algolia rate limit (429)",
+                )
+            raise AdapterUnavailable(
+                source=self.source_name,
+                reason=f"algolia transient {exc.status}",
+            )
+        except Exception as exc:
+            # Map urllib/timeout errors uniformly.
+            name = type(exc).__name__
+            if "timeout" in str(exc).lower() or "timed out" in str(exc).lower():
+                raise AdapterTimeout(
+                    source=self.source_name, reason=str(exc)
+                )
+            # HttpPermanentError flow: handled below by status check.
+            from ._http import HttpPermanentError as _HPE  # local import
+
+            if isinstance(exc, _HPE):
+                raise AdapterInvalidResponse(
+                    source=self.source_name, reason=str(exc)
+                )
+            # Anything else is treated as unavailable.
+            raise AdapterUnavailable(
+                source=self.source_name, reason=f"{name}: {exc}"
+            )
+        # Final status check (HttpClient raises on 5xx/429 already — this
+        # is a defensive guard for 200-with-bad-body shapes).
+        if resp.status != 200:
+            raise AdapterInvalidResponse(
+                source=self.source_name,
+                reason=f"algolia returned status {resp.status}",
+            )
+
+        try:
+            payload = resp.json()
+        except Exception as exc:
+            raise AdapterInvalidResponse(
+                source=self.source_name,
+                reason=f"algolia body not JSON: {exc}",
+            )
+
+        if not isinstance(payload, Mapping) or "hits" not in payload:
+            raise AdapterInvalidResponse(
+                source=self.source_name,
+                reason="algolia payload missing top-level 'hits'",
+            )
+        hits = payload.get("hits") or []
+        if not isinstance(hits, list):
+            raise AdapterInvalidResponse(
+                source=self.source_name,
+                reason="algolia 'hits' must be a list",
+            )
+
+        return hits
+
+
+def _hiring_thread(title: str) -> bool:
+    import re
+    return bool(re.match(
+        r"^ask hn:\s*(?:who(?: is|’s|'s)? hiring|who wants to be hired|freelancer\?\s*seeking freelancer\?)(?:\s*\(|\s*\?|\s*$)",
+        title.casefold(),
+    ))
+
+
+def _hiring_intent(query: str) -> bool:
+    import re
+    return bool(re.search(r"\b(?:jobs?|hiring|hired|recruit\w*|careers?|freelanc\w*)\b|招聘|求职", query.casefold()))
 
 
 def _q(value: str) -> str:

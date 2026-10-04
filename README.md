@@ -99,7 +99,12 @@ There is no public prior-window comparison yet: `--baseline` fails explicitly.
 Recent attention is not proof of a growing trend. Scheduled monitoring is outside
 the default research workflow. Browser-cookie imports and paid providers require
 user authorization. `SUCCESS`, `PARTIAL` and research quality are distinct.
-The latest [competitive retest](docs/benchmarks/2026-10-05-competitive-retest.md)
+records HN story/comment balance, repository-alias regressions, native-source
+coverage limits, final hybrid acceptance and isolated installation checks.
+It separates retrieval observations from ranked items and does not certify
+overall superiority or complete recall.
+
+The earlier [competitive retest](docs/benchmarks/2026-10-05-competitive-retest.md)
 in month-wide sampling, community discovery and relevance; no overall superiority
 is established. Its [metrics](docs/benchmarks/2026-10-05-competitive-retest.metrics.json)
 keep different output stages separate.

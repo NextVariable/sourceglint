@@ -128,7 +128,9 @@ with (directory / (args.name + ".trace.jsonl")).open("w", encoding="utf-8") as t
     started = time.monotonic()
 
     def adapter_factory(name, plan):
-        if args.direct_sources and name not in ("host_web_search", "official_web"):
+        # The registry is already the source-selection authority. Mirror the
+        # Skill CLI: only host lanes use stdio, regardless of filtering flags.
+        if name not in ("host_web_search", "official_web"):
             return default_adapter_factory(name, plan)
         return StdioHostSource(name, incoming, outgoing)
 
