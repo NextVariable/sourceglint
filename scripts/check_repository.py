@@ -1,8 +1,11 @@
 """Check publishable Skill metadata, local links and repository hygiene.
 
-Only Git-visible files are inspected; ignored local run data stays private.
+By default, inspect Git-visible files; --history also checks reachable old blobs
+and commit identities. Ignored local run data stays private.
 This is not a live-source or semantic quality certification.
 """
+import argparse
+import io
 import json
 from pathlib import Path
 import re
@@ -20,8 +23,64 @@ SECRET = re.compile(
     r"AIza[0-9A-Za-z_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----)"
 )
 
+PERSONAL_EMAIL = re.compile(
+    r"[\w.+-]+@(?:gmail|outlook|hotmail|qq|163|126|icloud)\.com", re.I,
+)
+
+
+def privacy_findings(name, text):
+    """Return categories only, never print matched private values."""
+    findings = []
+    if PRIVATE_PATH.search(text):
+        findings.append("personal machine path")
+    if PERSONAL_EMAIL.search(text):
+        findings.append("personal email")
+    for match in SECRET.finditer(text):
+        if name.startswith("tests/") and re.fullmatch(r"ghp_x+", match.group()):
+            continue
+        findings.append("credential-shaped content")
+        break
+    return findings
+
+
+def check_history(root):
+    """Inspect unique reachable blobs and commit identities across local refs."""
+    rows = subprocess.check_output(
+        ["git", "rev-list", "--objects", "--all"], cwd=root,
+    ).decode().splitlines()
+    objects = [row.split(" ", 1) for row in rows if " " in row]
+    payload = subprocess.check_output(
+        ["git", "cat-file", "--batch"], cwd=root,
+        input="".join(oid + "\n" for oid, _ in objects).encode(),
+    )
+    stream = io.BytesIO(payload)
+    errors = []
+    blobs = 0
+    for _, name in objects:
+        header = stream.readline().decode().strip().split()
+        if len(header) != 3 or header[1] not in {"blob", "tree", "commit", "tag"}:
+            raise ValueError("unexpected git cat-file response")
+        content = stream.read(int(header[2]))
+        if stream.read(1) != b"\n":
+            raise ValueError("incomplete git object response")
+        if header[1] != "blob":
+            continue
+        blobs += 1
+        for category in privacy_findings(name, content.decode("utf-8", errors="replace")):
+            errors.append(f"history {header[0][:12]} {name}: {category}")
+    identities = subprocess.check_output(
+        ["git", "log", "--all", "--format=%ae%n%ce"], cwd=root,
+    ).decode().splitlines()
+    personal = {value for value in identities if PERSONAL_EMAIL.search(value)}
+    if personal:
+        errors.append(f"history: {len(personal)} personal email(s) in commit identities")
+    return {"blobs": blobs, "errors": errors}
+
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--history", action="store_true", help="also scan reachable Git history and commit identities")
+    args = parser.parse_args()
     files = subprocess.check_output(
         ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT,
     ).decode().split("\0")
@@ -60,14 +119,8 @@ def main():
         if path.stat().st_size > 1_000_000:
             errors.append(f"{name}: oversized file; keep raw data in ignored runs/")
         text = path.read_text(encoding="utf-8", errors="replace")
-        if PRIVATE_PATH.search(text):
-            errors.append(f"{name}: personal machine path in publishable file")
-        for match in SECRET.finditer(text):
-            # These exact repeated-x sentinels test credential redaction.
-            if name.startswith("tests/") and re.fullmatch(r"ghp_x+", match.group()):
-                continue
-            errors.append(f"{name}: credential-shaped content requires review")
-            break
+        for category in privacy_findings(name, text):
+            errors.append(f"{name}: {category} in publishable file")
         if path.suffix != ".md" or "archive" in path.parts or "tests" in path.parts:
             continue
         body = re.sub(r"```.*?```", "", path.read_text(encoding="utf-8"), flags=re.S)
@@ -82,7 +135,13 @@ def main():
                 errors.append(f"{name}: broken local link {target}")
             elif not dest.is_relative_to(ROOT):
                 errors.append(f"{name}: local link escapes the repository: {target}")
-    print(json.dumps({"status": "FAIL" if errors else "PASS", "files": len(files), "local_links": links, "errors": errors}, ensure_ascii=False, indent=2))
+    history = check_history(ROOT) if args.history else None
+    if history:
+        errors.extend(history["errors"])
+    report = {"status": "FAIL" if errors else "PASS", "files": len(files), "local_links": links, "errors": errors}
+    if history:
+        report["history_blobs"] = history["blobs"]
+    print(json.dumps(report, ensure_ascii=False, indent=2))
     return bool(errors)
 
 

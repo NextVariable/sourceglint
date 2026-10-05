@@ -1,11 +1,7 @@
-"""Phase 6C §9, §10, §26, §33, §34 — deterministic selection & ranking.
+"""Rank validated findings and resolve their evidence citation chains.
 
-Everything in this module is CODE. The renderer does not think, and the
-selection layer does not reason either: it only ranks already-validated
-objects by code-owned numeric fields, applies per-section caps with
-stable-id tie-breaking, resolves citation chains through the ledger, and
-composes the extractive executive summary from already-validated
-statements (§26). No semantic claim is produced here.
+Selection applies section limits and stable-ID tie breaking. The executive
+summary extracts existing statements; this layer generates no semantic claims.
 """
 from __future__ import annotations
 

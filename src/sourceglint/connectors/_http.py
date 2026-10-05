@@ -1,38 +1,8 @@
-"""HTTP client abstraction for real source connectors (Phase 4 §10, §11, §12).
+"""Injectable stdlib HTTP transport for public-source connectors.
 
-Why stdlib (urllib.request + socket timeout) rather than a third-party HTTP lib
-============================================================================
-PRD §10 instructs to confirm stdlib is sufficient FIRST and to record
-WHY/TRADE-OFF if introducing a new dependency. We stick with stdlib:
-
-  * NO new dependency → keeps `pip install -e .[dev]` small, matches the
-    v0.2 PRD philosophy of "minimal surface, deterministic engines".
-  * urllib + json are part of Python's stable stdlib since 3.10 — no
-    version-skew concerns across the user's Python distributions.
-  * each request passes its socket timeout to urllib; parallel callers do
-    not alter process-wide defaults. This is not a total wall-clock deadline.
-  * test injection: clients that need to be replaceable (HN, GitHub, …)
-    accept any object that quacks like HttpClient. We never reach into
-    a third-party HTTP package inside sourceglint's core code.
-
-Trade-offs accepted:
-  * No async / connection pooling — fine for our sequential, low-rate
-    Research Pipeline runs.
-  * No automatic decompression header negotiation beyond what urllib
-    does by default.
-  * Slightly less ergonomic than a third-party alternative; the gap is
-    small (~30 lines per call) and isolated to this single module.
-
-Compliance with PRD:
-  * §11 Retry policy — only on transient failures (429 / 5xx / timeout),
-    bounded by `max_attempts` (default 3).
-  * §12 User-Agent — every connector advertises
-    sourceglint/<version> (+ optional contact URL via env if set).
-  * §13 Rate limit — connect adapters map 429 → AdapterRateLimited.
-  * §14 Auth — never log or include secrets in error reprs.
-  * §29 Security — token never stored, never echoed, never enters
-    Evidence (those checks live in the connectors; this client merely
-    keeps a header dict).
+Requests use a per-call socket timeout and bounded retries for transient errors.
+The timeout is not a total wall-clock deadline. Response bodies stay out of error
+messages; adapters handle authorization and map transport failures to source status.
 """
 from __future__ import annotations
 
