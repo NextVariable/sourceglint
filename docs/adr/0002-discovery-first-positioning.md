@@ -6,6 +6,7 @@
 
 ## Context
 
+The original GTM framing over-emphasized the final decision brief. The user clarified the broader starting problem: product managers, GTM practitioners, and technology workers spend time monitoring fragmented recent discussions and still miss new tools, needs, user complaints, and changes across sources. The differentiator is evidence quality and the option to continue toward product or GTM judgment.
 
 ## Decision
 
@@ -13,6 +14,7 @@ Keep one Skill and the existing seven research modes. Make evidence-linked recen
 
 ## Why
 
+This serves the information-discovery workflow through dated findings and reusable evidence. It avoids reducing all research questions to GTM advice and preserves the existing evidence-ledger and FACT/INFERENCE safeguards.
 
 ## Trade-offs
 
@@ -20,6 +22,7 @@ The default engine path still foregrounds recommendations for compatibility. The
 
 ## Alternatives Rejected
 
+Keep a GTM-decision-only trigger: too narrow for demand and technology discovery. Use only a broad social-search summary: would lose the evidence and judgment distinction. Split discovery and decision support into separate Skills now: duplicates the shared research pipeline without evidence of a workflow split.
 
 ## Consequences
 

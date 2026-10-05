@@ -8,7 +8,9 @@
 
 Information is scattered across social platforms, communities, official sites and research papers. The same story appears repeatedly, old discussions mix with new results, and useful tools, needs and feedback are easy to miss. Sourceglint researches a question to help you discover what happened recently, what people are discussing, and what deserves a closer look.
 
+给它一个主题或问题，它会回溯最近30天，通过可用的渠道搜集新产品、技术进展、市场讨论和用户反馈，合并重复内容，保留发表日期与原始来源，整理成可阅读、也可继续交给 AI 分析的研究结果。重点服务需求调研、市场研究和科技学习中的主动搜索。
 
+Give it a topic or question. It looks back over the last 30 days across available sources for new products, technology developments, market discussions and user feedback, combines duplicate coverage, and retains dates and original links. The result is research you can read or pass to an AI for further analysis. It focuses on active research for product discovery, market exploration and technology learning.
 
 [真实样例 / Examples](docs/examples/2026-10-04/discovery.md) · [来源与访问 / Source access](docs/source-access-matrix.md) · [使用协议 / Host protocol](references/host-protocol.md)
 
