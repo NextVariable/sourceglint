@@ -1,14 +1,10 @@
-# Dated examples — 2026-10-04
+# 实际研究样例：2026 年 10 月 4 日
 
-These host-assisted runs archive actual bridge requests and responses. They
-establish a bounded working path, not complete source or market coverage.
+这些样例记录了智能体参与的真实检索与推理过程，展示一次有限研究如何保留来源和缺口。
 
-- [Discovery](discovery.md): tools and developer observations.
-- [Feedback](feedback.md): user complaints with dated citations.
-- [Thin evidence](thin-evidence.md): no market conclusion from an empty sample.
-- [Installed Skill entry](public-install.md): host-operated first-use run.
+- [发现工具与实际做法](discovery.md)
+- [整理有日期依据的用户反馈](feedback.md)
+- [材料不足时保留不确定性](thin-evidence.md)
+- [首次安装后的实际使用](public-install.md)
 
-Matching JSON and JSONL traces record run scope and evidence IDs. These examples
-precede the additional changes and direct-connector comparison described in
-[the benchmark](../../benchmarks/2026-10-04.md). Historical excerpts may reflect
-the earlier renderer and do not demonstrate current native retrieval breadth.
+配套的 JSON 与 JSONL 文件记录研究范围、证据标识和交互过程。这些样例早于[后续检索比较](../../benchmarks/2026-10-04.md)，展示的是当时的输出；当前能力与边界以[项目首页](../../../README.md)为准。
