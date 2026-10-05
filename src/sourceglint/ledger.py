@@ -15,10 +15,9 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Iterator, Mapping
+from typing import Iterator, Mapping
 
 from .errors import EvidenceConflictError, EvidenceMalformedError
 from .ids import canonicalize_url, derive_evidence_id
@@ -58,9 +57,6 @@ class EvidenceRecord:
                 raise EvidenceMalformedError(
                     f"record missing required field: {key}"
                 )
-        known = {
-            k: payload[k] for k in LEDGER_REQUIRED if k in payload  # type: ignore[literal-required]
-        }
         return cls(
             evidence_id=str(payload["evidence_id"]),
             source=str(payload["source"]),

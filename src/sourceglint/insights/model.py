@@ -12,7 +12,7 @@ this repository.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
 from ..intelligence.model import (
@@ -20,7 +20,6 @@ from ..intelligence.model import (
     ModelResponse,
     ModelStatus,
 )
-from ..intelligence.dtos import CONTRADICTION_NONE
 
 #: Task identifiers (PRD §29 — modular, single-responsibility prompts).
 TASK_FACT_SYNTHESIS = "fact_synthesis"

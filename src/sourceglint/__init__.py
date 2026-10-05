@@ -1,9 +1,7 @@
-"""sourceglint: deterministic core for GTM recent market intelligence.
+"""sourceglint: evidence-linked recent research with opt-in decision support.
 
-Layer boundaries (per v0.2 Architecture Baseline):
-  * This package: deterministic primitives only (Phase 2).
-  * Phase 3 introduces Planner / Retrieval / Clustering (NOT here).
-  * LLM calls live ONLY at the Query Expansion / Insight boundary (NOT here).
+The application layer composes retrieval, host reasoning and validation.
+The public API is sourceglint.api.run_sourceglint.
 """
 from importlib.metadata import version as _pkg_version
 

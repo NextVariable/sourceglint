@@ -27,6 +27,10 @@ profile remains available for environments without local connectors.
 
 ## Research
 
+Resolve ambiguous product names from the user's context before searching; carry
+the product category into the query when needed, such as "Cursor AI editor".
+Do not treat a shared word or an automated coding signature as product feedback.
+
 Run from the Skill folder in an interactive terminal:
 
 ```sh
@@ -76,4 +80,4 @@ filtering; distinguish these unvalidated records from the dated retained ledger.
 Read [access truth](docs/source-access-matrix.md) and
 [the fallback playbook](docs/source-fallback-playbook.md) when troubleshooting.
 For maintenance, consult [architecture](docs/architecture.md) and
-[real comparative evaluation](docs/benchmarks/2026-10-04.md).
+[validation and comparative evaluation](docs/validation.md).

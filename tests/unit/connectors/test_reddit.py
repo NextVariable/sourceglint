@@ -73,8 +73,8 @@ class _ScriptedHttpClient:
     def user_agent(self):
         return "sourceglint/test"
 
-    def request(self, url, *, headers=None, timeout=15.0):
-        self.calls.append({"url": url, "headers": dict(headers or {}), "timeout": timeout})
+    def request(self, url, *, headers=None, timeout=15.0, method="GET", form_data=None):
+        self.calls.append({"url": url, "headers": dict(headers or {}), "timeout": timeout, "method": method, "form_data": form_data})
         if self._idx >= len(self._script):
             raise AssertionError(f"unexpected extra HTTP call to {url}")
         op, payload, status = self._script[self._idx]
@@ -300,7 +300,7 @@ def test_search_malformed_json_raises_invalid_response():
     ])
     # Need a body that's not JSON
     class _BadClient(_ScriptedHttpClient):
-        def request(self, url, *, headers=None, timeout=15.0):
+        def request(self, url, *, headers=None, timeout=15.0, method="GET", form_data=None):
             self.calls.append({"url": url, "headers": dict(headers or {}), "timeout": timeout})
             if "access_token" in url:
                 return HttpResponse(status=200, body=json.dumps({"access_token": "b", "expires_in": 3600}).encode("utf-8"), url=url)

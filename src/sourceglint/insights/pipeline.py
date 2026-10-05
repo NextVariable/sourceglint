@@ -25,9 +25,9 @@ from ..intelligence.cache import SemanticCache
 from ..intelligence.dtos import ResearchContext
 from .dedup import deduplicate_insights
 from .dtos import FACT, INFERENCE, InsightDiagnostics, InsightPipelineResult
-from .facts import FactSynthesisResult, synthesize_facts
+from .facts import synthesize_facts
 from .gtm_implications import derive_gtm_implications
-from .inferences import InferenceSynthesisResult, synthesize_inferences
+from .inferences import synthesize_inferences
 from .preparation import prepare_signals
 from .support import compute_support_strength, distinct_source_count
 from .validation import validate_insight_schema

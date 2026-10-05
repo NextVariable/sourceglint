@@ -22,11 +22,7 @@ from ..provenance import original_platform
 from .dtos import (
     BriefContext,
     SelectedBrief,
-    SelectedEmergingSignal,
-    SelectedFact,
-    SelectedInference,
     SelectedRecommendation,
-    SelectedWatchout,
 )
 from .policy import NO_EVIDENCE_STATEMENT, PRIORITY_ORDER, SECTION_HEADINGS
 

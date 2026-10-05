@@ -22,13 +22,11 @@ group size ≥ 2 and picks the winner deterministically.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any, Sequence
 
 from ..intelligence.cache import SemanticCache, build_cache_key
 from ..intelligence.dtos import ResearchContext
-from ..intelligence.model import ModelResponse, ModelStatus
 from .assess import AssessedRecommendation
-from .dtos import RecommendationConflict
 from .model import (
     PROMPT_VERSIONS,
     RECOMMENDATION_DEDUP_RESPONSE_SCHEMA,

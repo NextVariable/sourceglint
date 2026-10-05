@@ -34,7 +34,6 @@ from ..pipeline.adapters import (
     AdapterTimeout,
     AdapterUnavailable,
     RawSourceResult,
-    SourceAdapter,
 )
 
 

@@ -264,10 +264,6 @@ def test_gate_j_config_never_out_claims_code():
     assert github["capabilities"] == ["search", "comments"]
     from sourceglint.connectors._deep import issue_results
     assert callable(issue_results)  # Discussion capability has an implementation.
-    adapter_text = (ROOT / "src/sourceglint/connectors/github.py").read_text(
-        encoding="utf-8"
-    )
-    assert "MVP scope" in adapter_text
 
 
 # --- Gate K — traceability ---------------------------------------------

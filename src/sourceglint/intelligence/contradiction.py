@@ -24,8 +24,8 @@ What CODE owns here:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from typing import Any, Mapping, Sequence
 
 from .dtos import (
     CONTRADICTION_CONTEXTUAL,
@@ -41,8 +41,6 @@ from .cache import SemanticCache, build_cache_key
 from .model import (
     CONTRADICTION_RESPONSE_SCHEMA,
     IntelligenceModel,
-    ModelResponse,
-    ModelStatus,
 )
 from .preparation import model_payloads
 from .prompts import TASK_CONTRADICTION, prompt_version

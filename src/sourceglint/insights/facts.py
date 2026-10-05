@@ -16,14 +16,14 @@ detailed calibration instructions; the code catches egregious violations.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Iterable, Mapping
 
 from ..intelligence.cache import SemanticCache, build_cache_key
 from ..intelligence.dtos import ResearchContext
 from ..intelligence.guardrails import detect_recommendation_leakage
-from ..intelligence.model import ModelResponse, ModelStatus
-from .dtos import FACT, FactDraft, InsightDiagnostics
+from ..intelligence.model import ModelResponse
+from .dtos import FACT, FactDraft
 from .grounding import VOC_PREFIXES, check_fact_grounding
 from .ids import derive_insight_id
 from .model import (

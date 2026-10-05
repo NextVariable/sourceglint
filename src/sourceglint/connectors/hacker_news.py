@@ -1,33 +1,9 @@
-"""Hacker News real source adapter (Phase 4 §7).
+"""Bounded Hacker News story and comment retrieval through Algolia.
 
-Backend: HN Algolia search API + HN Firebase item lookup. Both are
-public, no-auth, JSON REST. We DO NOT scrape HTML.
-
-PRD §7 rules:
-  * Title / URL / author / published_at / engagement / source_native_id
-  * Story without external URL → use a stable HN item URL
-  * Deleted / dead items are silently dropped
-  * source must be 'hacker_news'
-  * max 20 hits/query (MVP)
-
-Module-level constants:
-  * HN_SEARCH_URL  — Algolia search endpoint
-  * HN_ITEM_BASE   — Firebase item URL prefix
-  * DEFAULT_MAX_PER_QUERY = 20
-
-PRD §11 retry / §13 rate limit / §14 auth: the underlying HttpClient
-handles retries + transient-failure mapping. This adapter is responsible
-for translating HTTP responses into SourceStatus taxonomy entries:
-
-  * HttpTransientError 429 → AdapterRateLimited
-  * HttpTransientError (other) → AdapterUnavailable
-  * HttpTimeoutError        → AdapterTimeout
-  * HttpPermanentError      → AdapterInvalidResponse
-  * malformed JSON body     → AdapterInvalidResponse
-  * missing top-level hits  → AdapterInvalidResponse
-
-Capability boundary: this module NEVER imports WorkBuddy/Claude/Codex.
-The only third-party protocol it speaks is HN's public JSON.
+Keep original HN item URLs and publication timestamps. Runtime topic filtering
+balances story/comment lanes and excludes canonical hiring threads unless the
+query requests hiring. Failed lanes retain surviving results with limitations.
+The HTTP client owns bounded retries and timeout handling; no auth is required.
 """
 from __future__ import annotations
 

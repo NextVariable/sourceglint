@@ -2,6 +2,9 @@
 
 Install Python 3.10+ and run `python -m pip install -e '.[dev]'`, then
 `python -m pytest tests -q`. Offline tests require no source credentials.
+Run `python -m ruff check src scripts` and `python scripts/check_repository.py`
+before committing. CI checks the same maintained source/scripts, Skill metadata,
+documentation links and publishable tree on Python 3.10 and 3.13.
 `RUN_LIVE_TESTS=1 python -m pytest tests/live -q` issues real upstream requests;
 credential skips are expected and must remain distinct from successful calls.
 

@@ -18,7 +18,6 @@ passed as data to the canonical ``run_sourceglint`` Python API.
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import sys
 from datetime import datetime, timezone

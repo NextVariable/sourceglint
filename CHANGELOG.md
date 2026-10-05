@@ -2,6 +2,22 @@
 
 Python 3.10 compatibility is exercised by the public CI matrix; recommendation ID construction avoids syntax that requires Python 3.12.
 
+## 0.2.2.dev4 — 2026-10-05
+
+- Validate cited publication dates as dates without treating their digits as supported percentages.
+
+
+- Send Reddit application authentication as an actual form-encoded POST;
+  keep concurrent HTTP timeouts local to each request.
+- Remove unreachable retry handling, duplicate registry work and stale imports;
+  repair runtime type annotations without moving public entry points.
+- Add source/script lint and Skill metadata, documentation-link and repository
+  hygiene checks to both supported Python CI jobs.
+- Add a reusable twelve-topic public comparison matrix with source fingerprints,
+  language hints, isolated credentials and explicit comparison boundaries.
+- Reorganize both READMEs around first use; retain dated evaluations behind a
+  validation index and document ambiguous-product query handling.
+
 ## 0.2.2.dev3 — 2026-10-05
 
 - Retain correctly scoped GitHub issues for resolved repository aliases and

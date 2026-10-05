@@ -28,9 +28,8 @@ Spoof scenarios enumerated by PRD §6:
 """
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass, field
-from typing import Iterable, Mapping
+from dataclasses import dataclass
+from typing import Iterable
 from urllib.parse import urlsplit
 
 

@@ -38,7 +38,6 @@ Failure-mode mapping (Phase 3 AdapterError taxonomy):
 from __future__ import annotations
 
 import base64
-import json
 import html
 import re
 import time
@@ -464,10 +463,11 @@ class RedditAdapter:
             return existing
         # Acquire a new token.
         basic = _basic_auth_header(client_id, client_secret)
-        body = "grant_type=client_credentials"
         try:
             resp = self.http_client.request(
                 REDDIT_ACCESS_TOKEN_URL,
+                method="POST",
+                form_data={"grant_type": "client_credentials"},
                 headers={
                     "Authorization": basic,
                     "Content-Type": "application/x-www-form-urlencoded",

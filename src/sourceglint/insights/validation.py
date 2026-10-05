@@ -16,7 +16,6 @@ Key invariants (insight.schema.json):
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import Any, Mapping
 
 from .gtm_implications import GTM_DIMENSIONS
@@ -124,7 +123,6 @@ def validate_insight_against_frozen_schema(insight: Mapping[str, Any]) -> list[s
 
     Returns a list of violation strings (empty = valid).
     """
-    import jsonschema
 
     try:
         validator = _insight_validator()

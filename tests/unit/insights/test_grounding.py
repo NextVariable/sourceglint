@@ -171,3 +171,29 @@ class TestVOCException:
         # Numeric grounding still applies inside reported speech.
         violations = _check("Users say 90% of their team quit.")
         assert any("90" in v and "unsupported quantification" in v for v in violations)
+
+@pytest.mark.parametrize('statement,valid', [
+    ('The issue was reported on September 9, 2026.', True),
+    ('The issue was reported on 2026-09-09.', True),
+    ('The issue was reported on September 23, 2026.', False),
+    ('The issue affected 9% of users.', False),
+    ('On September 9, 2026, it affected 9% of users.', False),
+])
+def test_publication_dates_are_dates_not_numeric_claims(statement, valid):
+    violations = check_fact_grounding(
+        statement, signal_ids=('sig',), evidence_ids=('ev',),
+        signal_evidence_map={'sig': {'ev'}},
+        evidence_by_id={'ev': {'snippet': 'A user reported an issue.',
+                               'published_at': '2026-09-09T12:00:00Z'}},
+    )
+    assert (violations == []) is valid
+
+
+def test_event_date_in_source_text_is_not_forced_to_publication_date():
+    assert check_fact_grounding(
+        'The vendor released the patch on September 9, 2026.',
+        signal_ids=('sig',), evidence_ids=('ev',),
+        signal_evidence_map={'sig': {'ev'}},
+        evidence_by_id={'ev': {'snippet': 'Released on September 9, 2026.',
+                               'published_at': '2026-09-23T12:00:00Z'}},
+    ) == []

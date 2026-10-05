@@ -13,14 +13,12 @@ GTM implication ≠ GTM action (§5).
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 from ..intelligence.cache import SemanticCache, build_cache_key
 from ..intelligence.dtos import ResearchContext
-from ..intelligence.model import ModelResponse, ModelStatus
-from .dtos import FACT, INFERENCE, GTMImplicationDraft
+from .dtos import GTMImplicationDraft
 from .facts import _detect_phase6a_leakage
 from .model import (
     GTM_IMPLICATIONS_RESPONSE_SCHEMA,

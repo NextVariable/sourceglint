@@ -21,7 +21,7 @@ Semantic clarity (Closeout §5):
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Iterable, Mapping
 
 from .degradation import SourceStatus, SourceStatusReport

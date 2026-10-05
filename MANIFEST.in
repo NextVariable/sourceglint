@@ -7,3 +7,4 @@ recursive-include tests *.py *.json *.jsonl *.yaml *.md
 recursive-include src/sourceglint *.md
 recursive-include references *.md
 recursive-include agents *.yaml
+recursive-include evals *.json

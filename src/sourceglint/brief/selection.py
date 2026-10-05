@@ -464,7 +464,7 @@ def _coverage_lines(coverage: Any) -> list[str]:
     markets = [str(m) for m in (c.get("markets_covered") or []) if m]
     if markets:
         lines.append(f"Markets: {', '.join(sorted(markets))}")
-    languages = [str(l) for l in (c.get("languages_covered") or []) if l]
+    languages = [str(language) for language in (c.get("languages_covered") or []) if language]
     if languages:
         lines.append(f"Languages: {', '.join(sorted(languages))}")
 

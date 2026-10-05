@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Mapping
 
 import jsonschema
@@ -262,7 +261,7 @@ def validate_evidence_payload(payload: Mapping[str, object]) -> None:
     """
     try:
         _evidence_validator().validate(payload)
-    except jsonschema.ValidationError as exc:
+    except jsonschema.ValidationError:
         raise
     except Exception as exc:  # pragma: no cover - defensive
         raise SchemaValidationError(f"evidence validator failed: {exc}") from exc

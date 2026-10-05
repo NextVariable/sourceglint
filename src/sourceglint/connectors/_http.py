@@ -9,8 +9,8 @@ WHY/TRADE-OFF if introducing a new dependency. We stick with stdlib:
     v0.2 PRD philosophy of "minimal surface, deterministic engines".
   * urllib + json are part of Python's stable stdlib since 3.10 — no
     version-skew concerns across the user's Python distributions.
-  * timeout is enforced via socket.setdefaulttimeout() inside the request
-    closure — strict upper bound, no surprise long polls.
+  * each request passes its socket timeout to urllib; parallel callers do
+    not alter process-wide defaults. This is not a total wall-clock deadline.
   * test injection: clients that need to be replaceable (HN, GitHub, …)
     accept any object that quacks like HttpClient. We never reach into
     a third-party HTTP package inside sourceglint's core code.
@@ -41,8 +41,9 @@ import socket
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import urlencode
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Protocol, runtime_checkable
+from typing import Any, Mapping, Protocol, runtime_checkable
 
 
 DEFAULT_USER_AGENT = "sourceglint/0.2.0"
@@ -134,6 +135,7 @@ class HttpClient(Protocol):
         timeout: float = DEFAULT_TIMEOUT_SECONDS,
         method: str = "GET",
         json_data: Mapping[str, object] | None = None,
+        form_data: Mapping[str, str] | None = None,
     ) -> HttpResponse:
         ...
 
@@ -160,8 +162,11 @@ class StdlibHttpClient:
         timeout: float | None = None,
         method: str = "GET",
         json_data: Mapping[str, object] | None = None,
+        form_data: Mapping[str, str] | None = None,
     ) -> HttpResponse:
         """Issue a bounded HTTP request; retry only transient failures."""
+        if json_data is not None and form_data is not None:
+            raise ValueError("json_data and form_data are mutually exclusive")
         bound_timeout = float(timeout if timeout is not None else self.default_timeout)
         last_exc: Exception | None = None
 
@@ -173,6 +178,7 @@ class StdlibHttpClient:
                     timeout=bound_timeout,
                     method=method,
                     json_data=json_data,
+                    form_data=form_data,
                 )
             except HttpTransientError as exc:
                 last_exc = exc
@@ -196,17 +202,6 @@ class StdlibHttpClient:
                 except Exception:  # pragma: no cover
                     pass
                 continue
-            except HttpTransientError as exc:
-                last_exc = exc
-                if attempt >= self.max_attempts:
-                    break
-                # Sleep is injected so tests can pass a no-op.
-                try:
-                    self.sleep(self.backoff_seconds * (2 ** (attempt - 1)))
-                except Exception:  # pragma: no cover - sleep injection is best-effort
-                    pass
-                continue
-
         assert last_exc is not None
         raise last_exc
 
@@ -220,6 +215,7 @@ class StdlibHttpClient:
         timeout: float,
         method: str,
         json_data: Mapping[str, object] | None,
+        form_data: Mapping[str, str] | None = None,
     ) -> HttpResponse:
         # Build headers with User-Agent always first.
         merged: dict[str, str] = {"User-Agent": self.user_agent}
@@ -232,57 +228,54 @@ class StdlibHttpClient:
         if json_data is not None:
             body = json.dumps(dict(json_data), separators=(",", ":")).encode("utf-8")
             merged.setdefault("Content-Type", "application/json")
+        elif form_data is not None:
+            body = urlencode(form_data).encode("utf-8")
+            merged.setdefault("Content-Type", "application/x-www-form-urlencoded")
 
-        # Enforce timeout at the socket layer — guarantees we cannot hang
-        # past the configured budget even if the server is unresponsive.
-        previous_timeout = socket.getdefaulttimeout()
-        socket.setdefaulttimeout(timeout)
+        # Keep timeout state local to this request, including parallel enrichments.
+        req = urllib.request.Request(
+            url=url,
+            headers=merged,
+            data=body,
+            method=method.upper(),
+        )
         try:
-            req = urllib.request.Request(
-                url=url,
-                headers=merged,
-                data=body,
-                method=method.upper(),
-            )
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                status = int(getattr(resp, "status", 200) or 200)
+                body = resp.read()
+                # Map urllib's http.client.HTTPMessage to a plain dict.
+                hdrs: dict[str, str] = {
+                    k.lower(): v for k, v in resp.headers.items()
+                }
+                return HttpResponse(
+                    status=status,
+                    headers=hdrs,
+                    body=body,
+                    url=url,
+                )
+        except urllib.error.HTTPError as exc:
+            status = int(exc.code)
+            body_preview = ""
             try:
-                with urllib.request.urlopen(req) as resp:
-                    status = int(getattr(resp, "status", 200) or 200)
-                    body = resp.read()
-                    # Map urllib's http.client.HTTPMessage to a plain dict.
-                    hdrs: dict[str, str] = {
-                        k.lower(): v for k, v in resp.headers.items()
-                    }
-                    return HttpResponse(
-                        status=status,
-                        headers=hdrs,
-                        body=body,
-                        url=url,
-                    )
-            except urllib.error.HTTPError as exc:
-                status = int(exc.code)
+                body_preview = (exc.read() or b"").decode("utf-8", "replace")
+            except Exception:  # pragma: no cover - body-read is best-effort
                 body_preview = ""
-                try:
-                    body_preview = (exc.read() or b"").decode("utf-8", "replace")
-                except Exception:  # pragma: no cover - body-read is best-effort
-                    body_preview = ""
-                if status == 429 or 500 <= status < 600:
-                    raise HttpTransientError(
-                        status=status,
-                        url=url,
-                        body_preview=body_preview,
-                    ) from exc
-                raise HttpPermanentError(status=status, url=url) from exc
-            except urllib.error.URLError as exc:
-                reason = str(getattr(exc, "reason", exc))
-                if "timed out" in reason.lower() or "timeout" in reason.lower():
-                    raise HttpTimeoutError(url=url, timeout=timeout) from exc
+            if status == 429 or 500 <= status < 600:
                 raise HttpTransientError(
-                    status=None, url=url, body_preview=reason
+                    status=status,
+                    url=url,
+                    body_preview=body_preview,
                 ) from exc
-            except socket.timeout as exc:
+            raise HttpPermanentError(status=status, url=url) from exc
+        except urllib.error.URLError as exc:
+            reason = str(getattr(exc, "reason", exc))
+            if "timed out" in reason.lower() or "timeout" in reason.lower():
                 raise HttpTimeoutError(url=url, timeout=timeout) from exc
-        finally:
-            socket.setdefaulttimeout(previous_timeout)
+            raise HttpTransientError(
+                status=None, url=url, body_preview=reason
+            ) from exc
+        except socket.timeout as exc:
+            raise HttpTimeoutError(url=url, timeout=timeout) from exc
 
 
 # ---------- Re-exports --------------------------------------------------

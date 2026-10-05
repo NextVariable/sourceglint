@@ -1,38 +1,12 @@
-"""GitHub real source adapter (Phase 4 §8).
+"""GitHub REST retrieval for repositories, issues/PRs and dated comments.
 
-Backend: GitHub REST API. NO HTML scraping. We DO NOT call any unofficial
-endpoint, do NOT store credentials, and DO NOT log or echo tokens.
+Repository creation dates are discovery metadata, not release dates. Discussion
+and comment records use their own publication timestamps. Deep discussion
+retrieval is bounded and reports failures without discarding surviving records.
 
-PRD §8 rules:
-  * public anonymous API works (60 req/h). `GITHUB_TOKEN` is optional
-    and lifts the budget to 5000 req/h.
-  * MVP scope (PRD §15 + §8): search repositories. The sources config
-    was aligned to this reality (Phase 4 §44): the github entry lists
-    only `search` — it must never out-claim the adapter. A future
-    adapter may add `releases`, but that is intentionally out of scope
-    for this commit (PRD §8 explicitly says "doesn't need all GitHub
-    objects at once").
-  * `created_at` ≠ `published_at` ≠ `updated_at`. We use `created_at`
-    for the canonical published date unless missing (in which case the
-    item is dropped — Closeout §3 invariant: unknown ≠ neutral).
-  * No rounding / smoothing of star/issue counters — raw ints only.
-
-Failure-mode mapping:
-  * HTTP 401 (with token) → AdapterAuthMissing
-  * HTTP 403/429         → AdapterRateLimited
-  * HTTP 5xx             → AdapterUnavailable
-  * HttpTimeoutError     → AdapterTimeout
-  * HttpPermanentError   → AdapterInvalidResponse
-  * malformed JSON       → AdapterInvalidResponse
-  * missing top-level 'items' → AdapterInvalidResponse
-  * missing id/full_name → AdapterInvalidResponse (silent drops hide
-                                 contract violations)
-
-Capability boundary:
-  * No WorkBuddy/Claude/Codex imports.
-  * The token comes in via constructor injection only. We never read the
-    environment directly inside this module — host integration layers
-    decide how to source it (matches PRD §5).
+The optional token is injected by the host runtime, never read or logged here.
+401 maps to missing auth, 403/429 to rate limiting, and transient failures to
+unavailable/timeout. Malformed responses raise an adapter error.
 """
 from __future__ import annotations
 

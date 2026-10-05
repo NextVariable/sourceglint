@@ -128,7 +128,7 @@ def check_citations(
     known_signal_ids: Iterable[str] = (),
     known_insight_ids: Iterable[str] = (),
     output_recommended_actions: Mapping[str, object] | None = None,
-) -> ValidationResult:
+) -> CitationValidationResult:
     """Verify structural claim -> evidence chains.
 
     Two entry points:

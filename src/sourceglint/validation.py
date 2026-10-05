@@ -9,7 +9,7 @@ problems; fixing them is downstream.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Iterable, Mapping, Sequence
+from typing import Iterable, Mapping
 
 from .errors import ReferentialIntegrityError
 from .ledger import EvidenceLedger

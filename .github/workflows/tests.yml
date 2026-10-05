@@ -16,6 +16,8 @@ jobs:
         with:
           python-version: '${{ matrix.python }}'
       - run: python -m pip install -e '.[dev]'
+      - run: python -m ruff check src scripts
+      - run: python scripts/check_repository.py
       - run: python -m pytest tests -q
       - run: python -m pip wheel --no-deps . --wheel-dir /tmp/sourceglint-dist
       - run: |

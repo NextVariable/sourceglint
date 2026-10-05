@@ -19,7 +19,7 @@ from typing import Any, Mapping, Sequence
 
 from ..intelligence.cache import SemanticCache, build_cache_key
 from ..intelligence.dtos import ResearchContext
-from ..intelligence.model import ModelResponse, ModelStatus
+from ..intelligence.model import ModelResponse
 from ..insights.gtm_implications import GTM_DIMENSIONS
 from .context import prepare_decision_context
 from .dtos import RecommendationDraft

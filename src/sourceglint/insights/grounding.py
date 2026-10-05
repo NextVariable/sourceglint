@@ -39,6 +39,7 @@ callers reject the draft (§32 — no silent repair).
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from typing import Any, Iterable, Mapping
 
 #: Reporting prefixes that mark a statement as reported speech (§28).
@@ -140,6 +141,51 @@ def _signal_pool_numbers_and_text(
     return numbers, " ".join(texts)
 
 
+_MONTHS = "January February March April May June July August September October November December".split()
+_DATE_RE = re.compile(
+    r"\b(?:\d{4}-\d{2}-\d{2}|(?:" + "|".join(_MONTHS) +
+    r") \d{1,2}(?:,? \d{4})?)\b", re.IGNORECASE
+)
+
+
+def _remove_grounded_dates(statement, evidence_ids, evidence_by_id):
+    """Validate date expressions separately; never whitelist date digits as counts."""
+    dates = set()
+    for eid in evidence_ids:
+        value = evidence_by_id.get(eid, {}).get("published_at")
+        if isinstance(value, str):
+            try:
+                dates.add(datetime.fromisoformat(value.replace("Z", "+00:00")).date())
+            except ValueError:
+                pass
+    violations = []
+
+    def replace(match):
+        phrase = match.group()
+        # A source may describe an event on a date other than its own publication.
+        if any(re.search(r"(?<!\w)" + re.escape(phrase) + r"(?!\w)",
+                         _evidence_text(evidence_by_id.get(eid)), re.IGNORECASE)
+               for eid in evidence_ids):
+            return " "
+        formats = ("%Y-%m-%d", "%B %d, %Y", "%B %d %Y", "%B %d")
+        for fmt in formats:
+            try:
+                parsed = datetime.strptime(
+                    phrase if "%Y" in fmt else phrase + " 2000",
+                    fmt if "%Y" in fmt else fmt + " %Y",
+                ).date()
+            except ValueError:
+                continue
+            if any((parsed.month, parsed.day) == (date.month, date.day)
+                   and ("%Y" not in fmt or parsed.year == date.year) for date in dates):
+                return " "
+            break
+        violations.append(f"unsupported publication date: {phrase}")
+        return phrase
+
+    return _DATE_RE.sub(replace, statement), violations
+
+
 def check_fact_grounding(
     statement: str,
     *,
@@ -157,8 +203,12 @@ def check_fact_grounding(
     if not statement or not statement.strip():
         return []
 
+    signal_ids = tuple(signal_ids)
+    evidence_ids = tuple(evidence_ids)
     lower = _lowered(statement)
-    violations: list[str] = []
+    numeric_statement, violations = _remove_grounded_dates(
+        statement, evidence_ids, evidence_by_id
+    )
 
     # --- 1. Unsupported quantification (§12, §37) ---------------------------
     pool_numbers, pool_text = _signal_pool_numbers_and_text(
@@ -176,7 +226,7 @@ def check_fact_grounding(
     allowed.add(str(len(sig_ids)))
     allowed.add(str(len(ev_ids)))
 
-    for token in sorted(_numbers(statement)):
+    for token in sorted(_numbers(numeric_statement)):
         if _normalize_number(token) not in allowed:
             violations.append(
                 f"unsupported quantification: {token} not backed by "

@@ -40,7 +40,6 @@ from typing import Any, Mapping, Sequence
 
 from .cache import SemanticCache, build_cache_key
 from .dtos import (
-    WINDOW_BASELINE,
     PreparedEvidence,
     ResearchContext,
     SignalFeatures,
@@ -48,8 +47,6 @@ from .dtos import (
 )
 from .model import (
     IntelligenceModel,
-    IntelligencePipelineError,
-    ModelResponse,
     SEMANTIC_FACTORS_RESPONSE_SCHEMA,
     ModelStatus,
 )

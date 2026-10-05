@@ -18,7 +18,7 @@ from typing import Any, Mapping, Sequence
 
 from ..intelligence.cache import SemanticCache, build_cache_key
 from ..intelligence.dtos import ResearchContext
-from ..intelligence.model import ModelResponse, ModelStatus
+from ..intelligence.model import ModelResponse
 from .ids import derive_recommendation_id
 from .support import compute_support, resolve_support_chain
 from .dtos import (

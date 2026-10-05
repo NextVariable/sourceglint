@@ -24,7 +24,7 @@ from typing import Any, Iterable, Mapping
 
 from ..intelligence.cache import SemanticCache, build_cache_key
 from ..intelligence.dtos import ResearchContext
-from ..intelligence.model import ModelResponse, ModelStatus
+from ..intelligence.model import ModelResponse
 from .dtos import INFERENCE, FactDraft, InferenceDraft
 from .facts import _detect_phase6a_leakage
 from .ids import derive_insight_id

@@ -323,21 +323,18 @@ def test_gate_d_auth_missing_records_status():
 # ============================================================================
 
 
-def test_gate_e_test_suite_has_no_real_network_calls():
-    """We can quickly verify the test suite doesn't import network libraries
-    that would attempt real I/O. We exclude `socket` which is stdlib but not
-    used by our source layer; this is a guard against future regressions."""
-    src_dir = ROOT / "src"
+def test_gate_e_transport_has_no_undeclared_http_dependencies():
+    """Inspect imports, not prose mentioning requests; stdlib transport is supported."""
+    import ast
     forbidden = []
-    for py in src_dir.rglob("*.py"):
-        text = py.read_text(encoding="utf-8")
-        # urllib / requests / httpx — none of these should appear in Phase 3
-        # because Host Web Search is an injected capability (PRD §10).
-        if re.search(r"\brequests\b", text) or re.search(r"\bhttpx\b", text):
-            forbidden.append(str(py))
-    assert forbidden == [], (
-        f"src/ should not import network libraries: {forbidden}"
-    )
+    for py in (ROOT / "src").rglob("*.py"):
+        tree = ast.parse(py.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            modules = ([alias.name for alias in node.names] if isinstance(node, ast.Import)
+                       else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
+            if any(module.split(".")[0] in {"requests", "httpx"} for module in modules):
+                forbidden.append(str(py))
+    assert forbidden == [], f"Undeclared HTTP dependency: {forbidden}"
 
 
 def test_gate_e_no_socket_open_in_src():

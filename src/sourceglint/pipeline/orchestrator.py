@@ -26,21 +26,18 @@ The orchestrator MUST NOT:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Callable, Iterable, Mapping
+from dataclasses import dataclass
+from typing import Callable, Iterable, Mapping, Sequence
 
 import jsonschema
-from rfc3339_validator import validate_rfc3339
 
-from ..errors import ConfigValidationError
 from ..ledger import EvidenceLedger
 from ..normalization import (
     EvidenceNormalizationError,
     normalize_raw,
     validate_evidence_payload,
 )
-from .adapters import AdapterError, FakeSourceAdapter, RawSourceResult, SourceAdapter
+from .adapters import AdapterError, RawSourceResult, SourceAdapter
 from .cache import RetrievalCache, cache_key_for
 from .coverage import CoverageReport, build_coverage_report
 from .deduplication import deduplicate
@@ -49,13 +46,12 @@ from .degradation import (
     InvalidResearchPlanError,
     SourceStatus,
     SourceStatusReport,
-    build_status_report,
     classify_adapter_exception,
 )
 from .query_expansion import expand_queries
 from .retrieval_plan import build_retrieval_plans
-from .source_registry import eligible_sources_for, load_registry
-from .time_filter import apply_time_filter, TimeWindowError
+from .source_registry import SourceRegistry, load_registry
+from .time_filter import apply_time_filter
 
 
 @dataclass(frozen=True)
@@ -118,19 +114,10 @@ def _validate_plan_shape(plan: Mapping[str, object]) -> None:
         raise InvalidResearchPlanError("plan.time_window is required")
 
 
-def _validate_registry_shape(sources: Iterable[Mapping[str, object]]) -> None:
-    """Schema-validate sources before retrieval to surface registry errors."""
-    # Phase 3 simplification: we use the load_registry validator by feeding
-    # the sources through a temp yaml loader.
+def _validate_registry_shape(sources: Iterable[Mapping[str, object]]) -> SourceRegistry:
+    """Validate once and retain the same registry for per-source metadata."""
     import yaml
-    payload = list(sources)
-    if not payload:
-        return
-    try:
-        # Reuse load_registry — it validates via the schema.
-        load_registry(yaml_text=yaml.safe_dump(payload, allow_unicode=True, sort_keys=True))
-    except ConfigValidationError as exc:
-        raise ConfigValidationError(str(exc))
+    return load_registry(yaml_text=yaml.safe_dump(list(sources), allow_unicode=True, sort_keys=True))
 
 
 class ResearchPipeline:
@@ -154,32 +141,14 @@ class ResearchPipeline:
     ) -> ResearchPipelineResult:
         # 1) Validate plan + registry before any I/O.
         _validate_plan_shape(plan)
-        _validate_registry_shape(sources)
+        registry = _validate_registry_shape(sources)
 
         # 2) Expand queries.
         expanded = expand_queries(plan)
 
-        # 3) Filter eligible sources via the registry runtime.
-        # Build a SourceRegistry from the passed-in sources so we honor
-        # the test/runtime registry, not config/sources.yaml.
-        import yaml as _yaml
-        from .source_registry import _coerce_entry as _ce
-        try:
-            reg_yaml = _yaml.safe_dump(list(sources), allow_unicode=True, sort_keys=True)
-            registry = load_registry(yaml_text=reg_yaml)
-            # Build a name -> SourceEntry map for cache_ttl lookups (Closeout §4).
-            source_entries_by_name = {
-                e["name"]: _ce(e) for e in (sources or [])
-            }
-        except ConfigValidationError:
-            raise
-        eligible = eligible_sources_for(
-            registry,
-            plan_market=str(plan.get("market") or "global"),
-            query_language=str(plan.get("languages") or ["en"])[0]
-            if isinstance(plan.get("languages"), list) and plan.get("languages")
-            else "en",
-        )
+        # Registry entries own source TTLs. The retrieval planner below applies
+        # market/language eligibility to each query, including multilingual plans.
+        source_entries_by_name = {entry.name: entry for entry in registry.entries}
 
         # 4) Build retrieval plans.
         retrievals = build_retrieval_plans(plan, list(sources), expanded)

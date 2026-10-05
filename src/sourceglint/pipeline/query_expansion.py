@@ -205,11 +205,7 @@ def _pick_query_for_intent(
     templates = TEMPLATES.get(intent, ())
     for tmpl_text, tmpl_lang in templates:
         # Resolve language first.
-        if tmpl_lang == "local":
-            lang = plan_languages[0]
-        elif tmpl_lang in plan_languages:
-            lang = tmpl_lang
-        else:
+        if tmpl_lang != "local" and tmpl_lang not in plan_languages:
             # Template language not in plan — skip (no fabrication).
             continue
         rendered = (

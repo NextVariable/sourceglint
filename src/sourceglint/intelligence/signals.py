@@ -26,8 +26,7 @@ fails loudly instead of silently.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping
 
 from .. import scoring
 from .contradiction import ContradictionAssessment

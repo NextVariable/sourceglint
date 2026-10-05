@@ -1,0 +1,18 @@
+{
+  "window_days": 30,
+  "sources": ["github", "reddit", "hacker_news"],
+  "cases": [
+    {"id": "claude-workflows", "query": "Claude Code workflows", "language": "en", "sources": ["github", "reddit", "hacker_news", "youtube"]},
+    {"id": "claude-complaints", "query": "Claude Code complaints", "language": "en"},
+    {"id": "mcp-security", "query": "MCP security", "language": "en", "sources": ["github", "reddit", "hacker_news", "youtube"]},
+    {"id": "obsidian-plugins", "query": "Obsidian plugins", "language": "en"},
+    {"id": "meeting-complaints", "query": "AI meeting assistants complaints", "language": "en"},
+    {"id": "japanese-meetings", "query": "AI 議事録", "language": "ja"},
+    {"id": "chinese-coding", "query": "AI 编程 工作流", "language": "zh"},
+    {"id": "cursor-feedback", "query": "Cursor complaints", "language": "en"},
+    {"id": "local-models", "query": "Ollama workflows", "language": "en", "sources": ["github", "reddit", "hacker_news", "youtube"]},
+    {"id": "automation", "query": "n8n workflows", "language": "en"},
+    {"id": "nondeveloper", "query": "portable espresso machines complaints", "language": "en"},
+    {"id": "negative-control", "query": "sourceglint-zqxj-749183-no-such-product", "language": "en", "expected": "no relevant evidence"}
+  ]
+}

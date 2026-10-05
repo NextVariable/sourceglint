@@ -31,6 +31,7 @@ def test_github_search_live_returns_well_formed_results():
         },
     )
     # Anonymous path works at 60 req/h; this is one shot.
+    assert results, "an empty response is not a successful retrieval smoke test"
     for raw in results:
         assert raw.source == "github"
         assert raw.url.startswith("https://github.com/")

@@ -14,7 +14,6 @@ market (a limitation, recorded — no silent merge, §13).
 from __future__ import annotations
 
 import re
-from typing import Mapping
 
 from .request import (
     DEFAULT_DAYS,
@@ -22,7 +21,6 @@ from .request import (
     MODES,
     ParsedRequest,
     SkillRequest,
-    window_text_for,
 )
 
 # ---------------------------------------------------------------- language --

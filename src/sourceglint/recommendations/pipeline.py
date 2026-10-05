@@ -22,7 +22,6 @@ from typing import Any, Mapping, Sequence
 from ..intelligence.cache import SemanticCache
 from ..intelligence.dtos import ResearchContext
 from ..insights.validation import (
-    validate_insight_against_frozen_schema,
     validate_insight_schema,
 )
 from .assess import AssessedRecommendation, assess_recommendations
@@ -31,7 +30,6 @@ from .dedup import deduplicate_recommendations
 from .dtos import (
     RecommendationDiagnostics,
     RecommendationPipelineResult,
-    RecommendationSupport,
 )
 from .generate import generate_candidate_recommendations
 from .policy import MAX_CANDIDATES

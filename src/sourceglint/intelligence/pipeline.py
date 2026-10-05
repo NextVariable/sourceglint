@@ -36,7 +36,6 @@ from .clustering import ClusteringOutcome, cluster
 from .contradiction import ContradictionAssessment, analyze_contradictions
 from .dtos import (
     IntelligencePipelineResult,
-    PreparedEvidence,
     ResearchContext,
     ValidatedCluster,
 )

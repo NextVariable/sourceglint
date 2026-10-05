@@ -16,9 +16,8 @@ The schema enforces:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
 
 import yaml
 from jsonschema import Draft202012Validator
@@ -95,7 +94,7 @@ def _coerce_entry(raw: dict) -> SourceEntry:
         priority=int(raw.get("priority", 50)),
         capabilities=tuple(str(c) for c in (raw.get("capabilities") or [])),
         markets=tuple(str(m) for m in (raw.get("markets") or [])),
-        languages=tuple(str(l) for l in (raw.get("languages") or [])),
+        languages=tuple(str(language) for language in (raw.get("languages") or [])),
         cache_ttl=int(raw.get("cache_ttl", 0)),
         max_queries_per_run=int(raw.get("max_queries_per_run", 24)),
     )

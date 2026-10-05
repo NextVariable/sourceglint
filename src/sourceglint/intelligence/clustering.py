@@ -26,7 +26,7 @@ cluster is dropped, a warning is recorded, `degraded=True`.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Iterable, Mapping
 
 from .cache import SemanticCache, build_cache_key
@@ -36,8 +36,6 @@ from .model import (
     CLUSTERING_RESPONSE_SCHEMA,
     IntelligenceModel,
     IntelligencePipelineError,
-    ModelResponse,
-    ModelStatus,
 )
 from .preparation import model_payloads
 from .prompts import TASK_CLUSTERING, prompt_version
