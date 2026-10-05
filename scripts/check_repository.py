@@ -13,6 +13,12 @@ from urllib.parse import unquote, urlsplit
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+PRIVATE_PATH = re.compile(r"/(?:Users|home)/[A-Za-z0-9_.-]+/")
+SECRET = re.compile(
+    r"(?:sk-[A-Za-z0-9]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|"
+    r"github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|"
+    r"AIza[0-9A-Za-z_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----)"
+)
 
 
 def main():
@@ -53,6 +59,15 @@ def main():
             continue
         if path.stat().st_size > 1_000_000:
             errors.append(f"{name}: oversized file; keep raw data in ignored runs/")
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if PRIVATE_PATH.search(text):
+            errors.append(f"{name}: personal machine path in publishable file")
+        for match in SECRET.finditer(text):
+            # These exact repeated-x sentinels test credential redaction.
+            if name.startswith("tests/") and re.fullmatch(r"ghp_x+", match.group()):
+                continue
+            errors.append(f"{name}: credential-shaped content requires review")
+            break
         if path.suffix != ".md" or "archive" in path.parts or "tests" in path.parts:
             continue
         body = re.sub(r"```.*?```", "", path.read_text(encoding="utf-8"), flags=re.S)

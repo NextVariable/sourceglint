@@ -9,7 +9,7 @@ description = "Evidence-linked recent information and demand discovery with opti
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "francis" }]
+authors = [{ name = "Sourceglint Contributors" }]
 
 dependencies = [
     "jsonschema>=4.20",

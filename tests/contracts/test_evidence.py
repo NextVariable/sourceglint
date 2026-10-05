@@ -19,7 +19,7 @@ def _minimal_evidence(**overrides):
         "source": "reddit",
         "source_tier": 2,
         "source_type": "comment",
-        "author": "u/francis",
+        "author": "u/example_user",
         "title": "Thread title",
         "snippet": "verbatim user quote, ≤280 chars",
         "url": "https://www.reddit.com/r/x/comments/abc/",

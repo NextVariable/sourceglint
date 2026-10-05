@@ -1,20 +1,7 @@
-# Documentation
+# 文档导航
 
-Start with the [English README](../README.md) or [中文说明](../README.zh-CN.md).
-The [Skill entry point](../SKILL.md) describes what the host should do; the
-[bridge protocol](../references/host-protocol.md) describes the interactive API.
+首次使用请阅读[项目首页](../README.md)，并查看[真实样例](examples/2026-10-04/README.md)。遇到来源无法访问的问题，可查阅[访问矩阵](source-access-matrix.md)和[降级说明](source-fallback-playbook.md)。[来源快照](source-live-status.json)记录的是指定日期的测试结果。
 
-For source problems, consult the [access matrix](source-access-matrix.md),
-[fallback playbook](source-fallback-playbook.md) and [source details](sources/host-web-search.md).
-The [live snapshot](source-live-status.json) is dated evidence, not a current probe.
+集成智能体时，查看[技能入口](../SKILL.md)和[交互协议](../references/host-protocol.md)。维护代码时，查看[架构说明](architecture.md)、[验证入口](validation.md)和[设计决策](adr/README.md)。
 
-For maintainers, [architecture](architecture.md) defines module ownership and
-[validation](validation.md) explains reproducible checks and dated comparisons.
-[Examples](examples/2026-10-04/README.md) show real recorded outputs and their limits.
-[Design decisions](adr/README.md) record the accepted direction.
-
-Earlier plans remain in the [archive](archive/README.md). Dated files in
-`benchmarks/` and `reviews/` describe their own revisions; they are not fresh
-certification of the current checkout. Do not mix counts across runs or compare
-retrieval rows with synthesized findings. Private raw artifacts belong in ignored
-`runs/`, while `evals/` contains reusable public case definitions.
+早期设计保存在[历史档案](archive/README.md)。`benchmarks/` 与 `reviews/` 保存各版本的审查记录，`evals/` 保存可复用的公开测试题。原始研究材料应保存在不提交的 `runs/` 中。
