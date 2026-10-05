@@ -14,7 +14,7 @@ Give it a topic or question. It looks back over the last 30 days across availabl
 
 [真实样例 / Examples](docs/examples/2026-10-04/discovery.md) · [来源与访问 / Source access](docs/source-access-matrix.md) · [使用协议 / Host protocol](references/host-protocol.md)
 
-[![自动检查 / Tests](https://github.com/NextVariable/sourceglint/actions/workflows/tests.yml/badge.svg)](https://github.com/NextVariable/sourceglint/actions/workflows/tests.yml)
+[![自动检查 / Tests](https://github.com/NextVariable/sourceglint-skill/actions/workflows/tests.yml/badge.svg)](https://github.com/NextVariable/sourceglint-skill/actions/workflows/tests.yml)
 [![MIT 开源许可 / License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## 这样使用 · Usage
@@ -56,7 +56,7 @@ You receive a cited report and an evidence file containing source identifiers, l
 Requires Python 3.10+ and an agent with web search, reasoning and an interactive terminal. For Codex, install into an unused skill directory:
 
 ```sh
-git clone https://github.com/NextVariable/sourceglint.git ~/.codex/skills/sourceglint
+git clone https://github.com/NextVariable/sourceglint-skill.git ~/.codex/skills/sourceglint
 cd ~/.codex/skills/sourceglint
 python3 -m venv .venv
 .venv/bin/python -m pip install -e .
