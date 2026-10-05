@@ -43,3 +43,15 @@
 | [0001](0001-sourceglint-core-architecture.md) | 核心架构基线（确定性引擎 + 模型结构化输出 + 代码渲染） | 已采纳 |
 | [0002](0002-discovery-first-positioning.md) | 近期信息与需求发现优先，决策支持按需深入 | 已采纳 |
 | [0003](0003-research-default.md) | 近期研究默认输出，建议需明确启用 | 已采纳 |
+
+## English
+
+This directory records architecture decisions. Changes to frozen contracts require a new, incrementally numbered ADR: evidence schemas, pipeline ownership, signal scoring, facts/inferences/recommendations, model/code boundaries, source registry and output contracts. Small implementation details are covered by tests and code review.
+
+Use `NNNN-<kebab-case-slug>.md`, starting at `0001`, with one decision per record. Preserve accepted records; replace them through a new ADR with `Supersedes: NNNN`. Each record covers status, context, decision, rationale, tradeoffs, rejected alternatives and consequences.
+
+| ADR | Topic | Status |
+| --- | --- | --- |
+| [0001](0001-sourceglint-core-architecture.md) | Core architecture: deterministic engine, structured model output and code rendering | Accepted |
+| [0002](0002-discovery-first-positioning.md) | Recent discovery first; decision support on request | Accepted |
+| [0003](0003-research-default.md) | Research by default; recommendations explicitly enabled | Accepted |

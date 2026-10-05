@@ -1,4 +1,4 @@
 interface:
   display_name: "Sourceglint"
-  short_description: "Recent research with dated original evidence"
-  default_prompt: "Use $sourceglint to research recent tools, discussions and user needs about my topic."
+  short_description: "近期研究与原始证据 · Recent research with dated evidence"
+  default_prompt: "使用 $sourceglint 研究我的主题近期出现的工具、讨论和用户需求。Use $sourceglint to research recent tools, discussions and user needs about my topic."
