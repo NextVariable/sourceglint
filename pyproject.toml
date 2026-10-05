@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sourceglint"
 version = "0.2.2.dev4"
-description = "Evidence-linked recent information and demand discovery with optional GTM decision support"
+description = "Cross-platform research of the last 30 days: new tools, market developments and user feedback for product managers, GTM teams and tech explorers"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

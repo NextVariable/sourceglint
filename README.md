@@ -1,12 +1,14 @@
 # Sourceglint
 
-**把最近 30 天的信息，变成有出处、可继续研究的材料。**
+**近30天跨平台信息研究 Skill，面向产品经理、GTM 和科技学习者。**
 
-**Turn the last 30 days of information into research you can trace and reuse.**
+**A cross-platform research Skill for the last 30 days—for product managers, GTM teams, and tech explorers.**
 
-用一个主题，发现近期的新工具、实际工作流、讨论和用户反馈。每条发现保留原始链接与发表日期，报告区分来源陈述、推断和未找到的内容，并提供可复用的证据文件。
+信息散在社交平台、社区、官网和论文里。同一个热点反复出现，旧讨论混进搜索结果，而有价值的新工具、需求和反馈容易被漏掉。Sourceglint 帮你围绕一个问题，了解最近发生了什么、大家在讨论什么，以及哪些信息值得继续研究。
 
-Discover recent tools, practical workflows, discussions and user feedback around a topic. Findings retain original links and publication dates. Reports separate source statements, inferences and gaps, with an evidence file for follow-up research.
+Information is scattered across social platforms, communities, official sites and research papers. The same story appears repeatedly, old discussions mix with new results, and useful tools, needs and feedback are easy to miss. Sourceglint researches a question to help you discover what happened recently, what people are discussing, and what deserves a closer look.
+
+
 
 [真实样例 / Examples](docs/examples/2026-10-04/discovery.md) · [来源与访问 / Source access](docs/source-access-matrix.md) · [使用协议 / Host protocol](references/host-protocol.md)
 
@@ -19,9 +21,23 @@ Discover recent tools, practical workflows, discussions and user feedback around
 
 After installation, ask your agent:
 
-> 用 Sourceglint 研究最近 30 天 Claude Code 的实际工作流、新工具、用户抱怨和反例。保留原始链接、日期，给我可继续分析的证据文件。
+**产品经理 · Product managers**
 
-> Use Sourceglint to research Claude Code workflows, new tools, user complaints and counterexamples from the last 30 days. Keep original links and dates, and provide the evidence file.
+> 用 Sourceglint 研究最近30天 AI 会议助手的用户反馈：大家在夸什么、抱怨什么，有哪些反复出现的需求？保留原始来源和反例。
+
+> Research user feedback on AI meeting assistants over the last 30 days: praise, complaints, recurring needs and counterexamples. Keep original sources.
+
+**GTM · GTM teams**
+
+> 用 Sourceglint 调研最近30天日本 AI 会议助手市场：有哪些竞品和新变化，日本用户在讨论什么？优先找日语来源。
+
+> Research Japan's AI meeting assistant market over the last 30 days: competitors, recent changes and user discussions. Prioritize Japanese sources.
+
+**学生与科技工作者 · Students and tech explorers**
+
+> 用 Sourceglint 研究最近30天 AI 视频领域的新工具、技术进展和实际玩法，整理值得进一步了解的讨论。
+
+> Research new AI video tools, technical developments and practical workflows from the last 30 days, with discussions worth exploring further.
 
 也可以研究某个产品、技术或消费主题。需要产品判断或行动建议时，在问题中明确说明；默认先整理信息和依据。
 
