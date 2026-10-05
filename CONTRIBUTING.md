@@ -35,11 +35,10 @@ information. Keep raw research in ignored `runs/`. Release reviews should also
 run `python scripts/check_repository.py --history` to inspect old files and commit
 identities; cleaning current files does not remove data from Git history.
 
-入口和目录职责见[架构说明](docs/architecture.md)。技能入口保持简短，详细交互约定放在 `references/`；早期设计和审查脚本保留在 `docs/archive/`，不作为当前发布检查。
+入口和目录职责见[架构说明](docs/architecture.md)。技能入口保持简短，详细交互约定放在 `references/`。
 
 See [architecture](docs/architecture.md) for entry points and ownership. Keep Skill
-instructions concise and bridge details in `references/`. Earlier designs and
-review scripts in `docs/archive/` are historical records, not release checks.
+instructions concise and bridge details in `references/`.
 
 对比评测应记录版本、问题、截止日期、智能体能力、凭据配置、检索预算、失败状态与最终结果。比较实际发现，不能只比较检索数量；等待智能体回复的时间不等于运行时延迟，环境证书问题也不等于对手缺陷。公开短摘录、链接和评测元数据，完整第三方内容保留在本地。
 

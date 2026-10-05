@@ -1,68 +1,12 @@
-# Validation and evaluation records
+# 验证 · Validation
 
-Latest: [2026-10-05 release audit](reviews/2026-10-05-release-audit.md) —
-12-topic live matrix, transport and grounding repairs, and explicit limitations.
+离线测试、独立安装、真实来源访问和实际报告质量分别验收。自动测试通过不代表检索完整，也不代表每个平台当前可访问。
 
+Offline tests, independent installation, live source access and report quality
+are separate acceptance levels. Passing tests does not certify complete retrieval
+or current access to every platform.
 
-A passing offline suite, a working installation, a successful live request and a
-useful research report are separate acceptance levels. No current result proves
-complete recall or overall superiority over other research tools.
-
-The reproducible topic manifest is [retrieval-matrix.json](../evals/retrieval-matrix.json).
-
-```sh
-.venv/bin/python scripts/run_competitive_matrix.py \
-  --as-of 2026-10-05 --directory runs/my-comparison \
-```
-
-Use an empty destination. The runner records the source revision and file hashes,
-query language, cutoff, credentials-present boolean, failures and completed cells.
-It does not save tokens. It uses public routes plus existing GitHub authorization;
-paid search, browser cookies and platform credentials are excluded. Both engines
-receive the same query and source selection. Their internal budgets and output
-stages differ. Independent comments are not comparable to ranked parent items.
-Concurrent requests can affect rate limits, so this is not a latency benchmark.
-
-The twelve cases cover developer workflows, complaints, security, non-developer
-products, Chinese, Japanese and an invented-name negative control. Three cases
-also exercise YouTube. Inspect relevance and citation support in the artifacts;
-nonempty output alone does not pass a quality gate. Full-Skill synthesis requires
-a separate host-operated run and is not supplied by this native comparison.
-
-`compare_research_reports.py --engine ddgs` provides an optional search-snippet
-separately configured report comparison that can incur provider costs; it is not
-run by the public matrix. See the recorded conditions before comparing outputs.
-
-## Dated records
-
-records HN story/comment balance, repository-alias regressions, native-source
-coverage limits, final hybrid acceptance and isolated installation checks.
-It separates retrieval observations from ranked items and does not certify
-overall superiority or complete recall.
-
-The earlier [competitive retest](benchmarks/2026-10-05-competitive-retest.md)
-in month-wide sampling, community discovery and relevance; no overall superiority
-is established. Its [metrics](benchmarks/2026-10-05-competitive-retest.metrics.json)
-keep different output stages separate.
-
-The earlier [comparison](benchmarks/2026-10-04.md) records strengths and remaining gaps
-records the implemented depth improvements and the limits of the new comparison.
-
-The current [Skill audit](reviews/2026-10-05-skill-audit.md) separates
-format, installation and live-retrieval checks from unresolved quality gaps.
-
-The [sampling repair](reviews/2026-10-05-sampling-repair.md) records
-time-stratified Reddit discovery, visible-topic filtering and remaining provider failures.
-
-The [research-quality repair](reviews/2026-10-05-quality-repair.md) records
-assessment failure handling, body enrichment, copied-report suppression and
-bounded topic/caption reading.
-
-The [bulk audit](reviews/2026-10-05-bulk-audit.md) records seeded stress
-checks, a five-topic live matrix, real host scenarios and the remaining relevance
-and recall limits; test volume does not certify research completeness.
-
-## Local verification
+## 本地检查 · Local checks
 
 ```sh
 .venv/bin/python -m pip install -e '.[dev]'
@@ -72,9 +16,27 @@ and recall limits; test volume does not certify research completeness.
 .venv/bin/python -m pip wheel --no-deps . --wheel-dir dist
 ```
 
-Offline tests verify contracts and regressions. Live tests require
-`RUN_LIVE_TESTS=1`; missing credentials are skips, not passes.
-`scripts/check_installed_runtime.py` checks a wheel installed outside the checkout.
-`scripts/verify_first_install.sh` checks a clean export of the committed tree.
-Neither replaces an actual research run. Historical records retain their original
-versions and limits; do not add their result counts into a current pass total.
+将 wheel 安装到独立环境，从仓库外运行 `scripts/check_installed_runtime.py`，检查安装资源和公开接口。`scripts/verify_first_install.sh` 检查已提交文件的独立安装。
+
+Install the wheel in a separate environment and run
+`scripts/check_installed_runtime.py` outside the checkout to check resources and
+the public API. `scripts/verify_first_install.sh` checks an export of committed files.
+
+## 实际研究 · Research checks
+
+`RUN_LIVE_TESTS=1` 启用真实网络测试；没有凭据而跳过的项目不算成功访问。可复用的问题保存在 [evals](../evals/retrieval-matrix.json)。实际研究须记录问题、版本、截止日期、来源状态和最终报告，核对相关性、日期、原文依据与反例，并说明缺失的来源和未回答的问题。
+
+`RUN_LIVE_TESTS=1` enables real upstream requests; missing-credential skips are
+not successful access. Reusable questions are in
+[evals](../evals/retrieval-matrix.json). Record the query, version, cutoff, source
+status and final report. Review relevance, dates, source support and
+counterexamples, and disclose unavailable sources and unanswered aspects.
+
+## 发布文件 · Distribution checks
+
+执行 `python scripts/check_repository.py --history` 检查当前文件、链接、可达历史与提交身份。运行数据保存在被忽略的 `runs/`，不进入源码包；分享证据文件前应人工检查私人内容和第三方正文。
+
+Run `python scripts/check_repository.py --history` to check files, links, reachable
+history and commit identities. Keep run data in ignored `runs/`, outside source
+distributions. Review private content and third-party source bodies before sharing
+evidence exports.

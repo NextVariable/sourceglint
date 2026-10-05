@@ -17,7 +17,6 @@ Sourceglint 采用[智能体技能规范](https://agentskills.io/specification)�
 | `config/`、`schemas/` | 唯一维护的配置与数据结构定义 |
 | `scripts/`、`tests/`、`evals/` | 验证工具、自动测试与公开测试题 |
 | `docs/adr/`、`docs/examples/` | 设计决策与实际输出样例 |
-| `docs/reviews/`、`docs/benchmarks/`、`docs/archive/` | 版本审查、评测与历史设计 |
 
 `api.py` 保留稳定的接口导出。早期确定性对象契约所用的 `rendering.py`、`scoring.py`、`validation.py`、`ids.py`、`ledger.py` 和 `citations.py` 仍被使用或测试；当前报告由 `brief/` 展示。两套契约并存属于维护成本，不能把这些文件误判为废弃后直接删除。
 
@@ -53,7 +52,6 @@ Query → request parser → retrieval → evidence ledger
 | `scripts/` | Maintained installation checks and evaluation recorder |
 | `tests/` | Current contract, unit, integration and opt-in live tests |
 | `docs/adr/`, `docs/examples/` | Accepted design decisions and curated acceptance evidence |
-| `docs/archive/` | Preserved early designs and obsolete phase reviews |
 | `runs/`, `.cache/`, `build/` | Ignored local research, caches and generated build output |
 
 `rendering.py`, `scoring.py`, `validation.py`, `ids.py`, `ledger.py` and

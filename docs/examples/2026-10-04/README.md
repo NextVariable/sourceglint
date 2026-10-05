@@ -7,7 +7,7 @@
 - [材料不足时保留不确定性](thin-evidence.md)
 - [首次安装后的实际使用](public-install.md)
 
-配套的 JSON 与 JSONL 文件记录研究范围、证据标识和交互过程。这些样例早于[后续检索比较](../../benchmarks/2026-10-04.md)，展示的是当时的输出；当前能力与边界以[项目首页](../../../README.md)为准。
+配套的 JSON 与 JSONL 文件记录研究范围、证据标识和交互过程。这些样例展示的是记录日期的有限输出；当前能力与边界以[项目首页](../../../README.md)为准。
 
 ## English
 
@@ -18,4 +18,4 @@ These examples record actual agent-operated retrieval and reasoning, showing how
 - [Preserve uncertainty when evidence is thin](thin-evidence.md)
 - [First use after installation](public-install.md)
 
-JSON and JSONL companions record scope, evidence identifiers and bridge interactions. These examples precede the [later retrieval comparison](../../benchmarks/2026-10-04.md); use the [main README](../../../README.md) for current capabilities and limitations.
+JSON and JSONL companions record scope, evidence identifiers and bridge interactions. These examples reflect bounded runs on their recorded dates; use the [main README](../../../README.md) for current capabilities and limitations.

@@ -28,7 +28,7 @@ Python 3.10 compatibility is exercised by the public CI matrix; recommendation I
 - Accumulate limits across query variants and expose native-source warnings in
   final coverage; disclose cached retrieval and avoid caching incomplete or host
   results without their coverage diagnostics.
-  from ambient provider secrets, browser-cookie settings and local configuration.
+- Correct hybrid evaluation routing.
 
 - Check the complete Reddit topic with Latin word boundaries, CJK matching,
   hyphen/plural handling and local co-occurrence; retain semantic intent review.

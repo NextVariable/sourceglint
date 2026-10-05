@@ -12,11 +12,9 @@ The failure-handling rules and code references are in
 [the source fallback playbook](source-fallback-playbook.md).
 
 The current native routes do not establish representative month-wide coverage.
-The [dated evaluation](benchmarks/2026-10-05-competitive-retest.md) records
-concentrated Reddit dates, failed community discovery and relevance gaps in
-the earlier revision. The [sampling repair](reviews/2026-10-05-sampling-repair.md)
-records subsequent time-stratified discovery and community-context checks,
-with provider failures and incomplete coverage still visible.
+Rate limits, failed community discovery and relevance gaps remain possible.
+Time-stratified discovery and community-context checks reduce some sampling
+biases; provider failures and incomplete coverage must still be disclosed.
 
 ## Current callable layers
 
